@@ -78,3 +78,19 @@ def test_validation_excludes_calibration_and_preserves_hls_values():
         assert result["precision_nisar"] is None
     # Do not offer misleading merged-track summary layers.
     assert c.get(f"{BASE}/summary").json() == []
+
+
+def test_swot_comparison_source():
+    scenes = c.get(f"{BASE}/scenes").json()
+    linked = [s for s in scenes if s["swot"]]
+    assert linked and all(s["swot"]["daysApart"] <= 2 for s in linked)
+    assert c.get(linked[0]["swot"]["png"]).content.startswith(b"\x89PNG")
+    same_day = next(s for s in scenes if s["date"] == "2026-10-15" and s["track"] == "047D")
+    assert same_day["swot"] == {"date": "2026-10-15", "png": "/static/swot/2026-10-15.png", "daysApart": 0}
+    rows = c.get(f"{BASE}/communes/15416586/swot").json()
+    assert rows and all(0 <= r["water_pct"] <= 100 for r in rows)
+    v = c.get(f"{BASE}/validation").json()["vsSwot"]
+    assert len(v) == 13
+    both = [r for r in v if r["f1_s1"] is not None]
+    assert sum(r["f1_nisar_same_px"] > r["f1_s1"] for r in both) == 11 and len(both) == 12
+    assert c.get(f"{BASE}/communes/1/swot").status_code == 404

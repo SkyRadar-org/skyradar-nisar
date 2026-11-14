@@ -1,4 +1,5 @@
 """Adapter for water-pulse-fe. Original API responses remain unchanged."""
+import datetime as dt
 from collections import defaultdict
 from functools import lru_cache
 from typing import Literal
@@ -11,6 +12,16 @@ router = APIRouter(prefix="/api/frontend", tags=["frontend"])
 Track = Literal["047D", "083A", "148D"]
 
 
+def _nearest_swot(date: str, max_days: int = 2):
+    """SWOT (Ka-band) comparison map closest to a NISAR date, within max_days; None if there is none."""
+    d0 = dt.date.fromisoformat(date)
+    best = min(((abs((dt.date.fromisoformat(f["date"]) - d0).days), f) for f in store().manifest.get("swot_frames", [])),
+               key=lambda x: x[0], default=None)
+    if best is None or best[0] > max_days:
+        return None
+    return dict(date=best[1]["date"], png=f"/static/{best[1]['png']}", daysApart=best[0])
+
+
 @router.get("/scenes")
 def scenes():
     m = store().manifest
@@ -18,7 +29,7 @@ def scenes():
     return [dict(date=f["date"], track=f["track"], maturity=f["maturity"],
                  bounds=[w, s, e, n], waterPng=f"/static/{f['png']}",
                  radarJpg=f"/static/{f['radar_jpg']}" if f.get("radar_jpg") else None,
-                 gibsDate=f.get("gibs_date", f["date"])) for f in m["frames"]]
+                 gibsDate=f.get("gibs_date", f["date"]), swot=_nearest_swot(f["date"])) for f in m["frames"]]
 
 
 @lru_cache(maxsize=1)
@@ -71,6 +82,14 @@ def series(osm_id: int):
             for r in store().series[osm_id]]
 
 
+@router.get("/communes/{osm_id}/swot")
+def swot_series(osm_id: int):
+    """Water % of the commune on SWOT dates (independent Ka-band comparison source)."""
+    if osm_id not in store().by_id:
+        raise HTTPException(404, "Commune not found")
+    return [{k: r[k] for k in ("date", "water_pct", "water_km2", "valid_km2")} for r in store().swot_series.get(osm_id, [])]
+
+
 @router.get("/choropleth")
 def choropleth(date: str, track: Track):
     if not any(f["date"] == date and f["track"] == track for f in store().manifest["frames"]):
@@ -108,7 +127,13 @@ def validation():
                         nisar_only_true_pct=r["nisar_only_is_optical_water_pct"]))
     s1 = [dict(date=r["key"].split("_")[0], track=r["key"].split("_")[1], f1=r["f1"])
           for r in v["vs_dswx_s1"] if r["role"] == "validation"]
-    return dict(vsHls=hls, vsDswxS1=s1, notes=[
+    swot = [dict(swotDate=r["swot_date"], nisar=r["nisar"], daysApart=r["days_apart"], overlapKm2=r["overlap_km2"],
+                 swotWaterPct=r["swot_water_pct"], nisarWaterPct=r["nisar_water_pct"],
+                 f1_nisar=r["nisar_f1"], f1_s1=r["s1_f1"], f1_nisar_same_px=r["nisar_f1_same_px"],
+                 f1_swot_vs_optical=r["swot_vs_optical_f1"], f1_nisar_vs_optical=r["nisar_vs_optical_f1"])
+            for r in v.get("vs_swot", [])]
+    return dict(vsHls=hls, vsDswxS1=s1, vsSwot=swot, notes=[
+        "SWOT (Ka-band, NASA/CNES) is a third independent radar: f1_nisar / f1_s1 score each map against SWOT on the same pixels.",
         "DSWx-S1 calibration dates are excluded from validation statistics.",
         "HLS precision and comparable full-area DSWx totals are not supplied by the dataset.",
         "Area totals sum the observed commune areas per acquisition, not the entire AOI.",

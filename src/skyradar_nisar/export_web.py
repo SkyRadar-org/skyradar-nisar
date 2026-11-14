@@ -4,6 +4,7 @@
   manifest.json            dates, tracks, maturity, image bounds (lon/lat), file names, attribution
   water/<date>_<track>.png  transparent PNG, water in blue, EPSG:4326 (use as an image overlay with the bounds)
   summary/recession.png, first_flood.png
+  swot/<date>.png          SWOT water (orange), same bounds; manifest.swot_frames links each to the nearest NISAR frame
   communes.geojson         simplified commune polygons + latest/peak stats per track
   stats/*.csv              copied from data/processed/stats (+ validation)
 """
@@ -14,7 +15,8 @@ from PIL import Image
 from shapely.geometry import shape, mapping
 from . import config as C
 
-ATTRIBUTION = ("NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC). "
+ATTRIBUTION = ("NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC); "
+               "SWOT L2 HR Raster (NASA/CNES, PO.DAAC). "
                "Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team.")
 
 
@@ -49,6 +51,17 @@ def main():
         Image.fromarray(np.nan_to_num(rgb).astype(np.uint8)).save(OUT / f"radar/{k}.jpg", quality=60, optimize=True)
         frames.append(dict(key=k, date=k[:10], track=k[11:], maturity=qa[k]["maturity"], png=f"water/{k}.png",
                            radar_jpg=f"radar/{k}.jpg", gibs_date=k[:10]))
+    # SWOT (Ka-band) comparison maps, same bounds; linked to the nearest NISAR acquisition (<= 2 days)
+    swot_frames = []
+    vs = P / "validation/vs_swot.csv"
+    if vs.exists():
+        (OUT / "swot").mkdir(exist_ok=True)
+        for r in csv.DictReader(open(vs, encoding="utf-8")):
+            a, _ = _to_4326(P / f"swot/{r['swot_date']}_swot.tif")
+            rgba = np.zeros(a.shape + (4,), np.uint8); rgba[a == 1] = (230, 120, 20, 200)   # orange: SWOT water
+            Image.fromarray(rgba).save(OUT / f"swot/{r['swot_date']}.png", optimize=True)
+            swot_frames.append(dict(date=r["swot_date"], png=f"swot/{r['swot_date']}.png", nisar_key=r["nisar"],
+                                    days_apart=int(r["days_apart"])))
     # timing maps: colour by date (blue early -> red late); purple = still wet on last image
     for name, lo, hi in [("recession_day", 115, 160), ("first_flood_day", 60, 150)]:
         a, _ = _to_4326(P / f"summary/{name}.tif")
@@ -77,7 +90,7 @@ def main():
     for src in list((P / "stats").glob("*.csv")) + list((P / "validation").glob("*.csv")) + list((P / "validation").glob("*.json")):
         shutil.copy(src, OUT / "stats" / src.name)
     (OUT / "manifest.json").write_text(json.dumps(dict(
-        aoi=C.AOI, bounds=bounds, frames=frames, tracks=sorted({f["track"] for f in frames}),
+        aoi=C.AOI, bounds=bounds, frames=frames, tracks=sorted({f["track"] for f in frames}), swot_frames=swot_frames,
         rule=dict(th_hh_db=C.TH_HH_DB, th_hv_db=C.TH_HV_DB, mmu_ha=C.MMU_PX * C.RES ** 2 / 1e4),
         timing_png=dict(recession="summary/recession.png", first_flood="summary/first_flood.png",
                         day_zero="2026-06-01", legend="blue=early, red=late, purple=still wet at last image"),

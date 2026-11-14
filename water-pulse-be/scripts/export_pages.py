@@ -36,6 +36,7 @@ def export(out: Path, template: Path):
         write(f"/api/frontend/{name}", f"{name}.json", value)
     for oid in store().by_id:
         write(f"/api/frontend/communes/{oid}/series", f"series/{oid}.json", frontend.series(oid))
+        write(f"/api/frontend/communes/{oid}/swot", f"swot/{oid}.json", frontend.swot_series(oid))
     for scene in scenes:
         date, track = scene["date"], scene["track"]
         write(f"/api/frontend/choropleth?date={date}&track={track}", f"choropleth/{date}_{track}.json",

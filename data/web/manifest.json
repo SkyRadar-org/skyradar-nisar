@@ -319,6 +319,86 @@
   "083A",
   "148D"
  ],
+ "swot_frames": [
+  {
+   "date": "2026-06-19",
+   "png": "swot/2026-06-19.png",
+   "nisar_key": "2026-06-19_083A",
+   "days_apart": 0
+  },
+  {
+   "date": "2026-07-03",
+   "png": "swot/2026-07-03.png",
+   "nisar_key": "2026-07-01_083A",
+   "days_apart": 2
+  },
+  {
+   "date": "2026-07-09",
+   "png": "swot/2026-07-09.png",
+   "nisar_key": "2026-07-11_047D",
+   "days_apart": 2
+  },
+  {
+   "date": "2026-07-24",
+   "png": "swot/2026-07-24.png",
+   "nisar_key": "2026-07-25_083A",
+   "days_apart": 1
+  },
+  {
+   "date": "2026-08-14",
+   "png": "swot/2026-08-14.png",
+   "nisar_key": "2026-08-16_047D",
+   "days_apart": 2
+  },
+  {
+   "date": "2026-08-20",
+   "png": "swot/2026-08-20.png",
+   "nisar_key": "2026-08-18_083A",
+   "days_apart": 2
+  },
+  {
+   "date": "2026-09-04",
+   "png": "swot/2026-09-04.png",
+   "nisar_key": "2026-09-04_148D",
+   "days_apart": 0
+  },
+  {
+   "date": "2026-09-10",
+   "png": "swot/2026-09-10.png",
+   "nisar_key": "2026-09-09_047D",
+   "days_apart": 1
+  },
+  {
+   "date": "2026-09-24",
+   "png": "swot/2026-09-24.png",
+   "nisar_key": "2026-09-23_083A",
+   "days_apart": 1
+  },
+  {
+   "date": "2026-10-01",
+   "png": "swot/2026-10-01.png",
+   "nisar_key": "2026-10-03_047D",
+   "days_apart": 2
+  },
+  {
+   "date": "2026-10-15",
+   "png": "swot/2026-10-15.png",
+   "nisar_key": "2026-10-15_047D",
+   "days_apart": 0
+  },
+  {
+   "date": "2026-10-22",
+   "png": "swot/2026-10-22.png",
+   "nisar_key": "2026-10-22_148D",
+   "days_apart": 0
+  },
+  {
+   "date": "2026-11-05",
+   "png": "swot/2026-11-05.png",
+   "nisar_key": "2026-11-03_148D",
+   "days_apart": 2
+  }
+ ],
  "rule": {
   "th_hh_db": -14.0,
   "th_hv_db": -22.0,
@@ -332,5 +412,5 @@
  },
  "gibs_note": "GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
  "gibs_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
- "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team."
+ "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC); SWOT L2 HR Raster (NASA/CNES, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team."
 }

@@ -27,6 +27,7 @@ src/skyradar_nisar/
   export_web.py   small static package for the web app (data/web)
   release.py      controlled flood-release (xả lũ) timing signature per commune + figure
   sowing.py       sowing-readiness check per commune on the latest images (ready / draining / still wet)
+  swot.py         SWOT (NASA/CNES Ka-band) water maps as a third independent comparison source
   figures.py      slide figures (docs/figures)
 data/boundaries/communes_aoi.geojson   140 communes in the demo AOI (OSM, ODbL)
 data/web/                              PNG overlays + manifest + commune GeoJSON + CSV stats (for the web app)
@@ -51,6 +52,7 @@ python -m skyradar_nisar.calibrate           # thresholds + validation tables
 python -m skyradar_nisar.timing              # water maps, timing rasters, commune stats
 python -m skyradar_nisar.release             # flood-release signature per commune (needs timing)
 python -m skyradar_nisar.sowing 2026-11-01   # sowing-readiness per commune
+python -m skyradar_nisar.swot                # SWOT comparison maps + tables (optional, ~1.5 GB download)
 python -m skyradar_nisar.export_web          # data/web package
 python -m skyradar_nisar.figures             # docs/figures
 ```
@@ -89,6 +91,11 @@ $env:EARTHDATA_TOKEN = "..."; $env:PYTHONPATH = "src"; $env:PYTHONUTF8 = "1"
   **NISAR F1 0.57–0.86 vs Sentinel-1 DSWx 0.50–0.78 — NISAR better on 14 of 16 dates** (the 2 exceptions, track 148D,
   differ by ≤ 0.02); NISAR recall 0.47–0.82 vs 0.35–0.64. 53–98 % of the area that only NISAR maps as water is also
   water in the optical product.
+- vs **SWOT** (NASA/CNES Ka-band interferometric radar, L2 HR Raster 100 m; a third, independent radar), 13 SWOT dates
+  ≤ 2 days from a NISAR acquisition: NISAR agrees with SWOT better than Sentinel-1 does on **11 of 12** dates (flood
+  season F1 0.38–0.68 vs 0.28–0.60; the exception is 10 Sep, when SWOT shows only 10 % water at the flood peak).
+  SWOT maps more water than both (partly shallow water in paddies, partly over-detection); against the optical
+  product NISAR scores equal or higher than SWOT on 6 of 8 dates. SWOT is a comparison source, not ground truth.
 - Tested and **rejected**: an "inundated vegetation" rule from HH brightening (F1 ≈ 0.02; rice growth also brightens HH).
 
 ## Limitations
@@ -106,6 +113,7 @@ $env:EARTHDATA_TOKEN = "..."; $env:PYTHONPATH = "src"; $env:PYTHONUTF8 = "1"
 
 - NISAR L2 GCOV — NASA/JPL-Caltech and ISRO; distributed by the Alaska Satellite Facility DAAC.
 - OPERA DSWx-S1 and DSWx-HLS — NASA JPL OPERA project, distributed by PO.DAAC (contains modified Copernicus Sentinel data).
+- SWOT Level 2 KaRIn High Rate Raster (version D) — NASA/CNES, distributed by PO.DAAC.
 - NASA GIBS / Worldview NISAR GCOV visualisation layer.
 - Administrative boundaries — © OpenStreetMap contributors, ODbL 1.0.
 - Reading approach adapted from the ASF NISAR Cookbook (BSD-3-Clause).

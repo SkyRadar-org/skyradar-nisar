@@ -54,9 +54,14 @@ class Store:
             if isinstance(t, str):
                 t = json.loads(t)
             f["properties"]["timing"] = {trk: {k: _num(v) for k, v in d.items()} for trk, d in t.items()}
+        self.swot_series = defaultdict(list)   # SWOT (Ka-band) water % per commune, comparison source
+        if (DATA_DIR / "stats" / "commune_swot_by_date.csv").exists():
+            for r in _csv("commune_swot_by_date.csv"):
+                self.swot_series[r["osm_id"]].append(r)
         cal = DATA_DIR / "stats" / "calibration.json"
         self.validation = dict(calibration=json.loads(cal.read_text(encoding="utf-8")) if cal.exists() else None,
-                               vs_dswx_s1=_csv("vs_dswx_s1.csv"), vs_dswx_hls=_csv("vs_dswx_hls.csv"))
+                               vs_dswx_s1=_csv("vs_dswx_s1.csv"), vs_dswx_hls=_csv("vs_dswx_hls.csv"),
+                               vs_swot=_csv("vs_swot.csv") if (DATA_DIR / "stats" / "vs_swot.csv").exists() else [])
 
     def commune_summary(self, oid):
         f = self.by_id[oid]
