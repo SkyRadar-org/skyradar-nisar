@@ -68,6 +68,24 @@ inundated vegetation): rice growth brightens HH as well, so this layer is not pa
     under water on 3 November**, after the sowing window opened.
 - Of 80 communes that were ever > 30 % flooded, 50 had not halved their water area by 29 October.
 
+### Controlled flood release (xả lũ) is visible in the timing
+
+An Giang's plan 457/KH-UBND (12 Aug 2026) opens dyke-protected three-crop sub-regions to the flood (46 324 ha in 2026)
+to bring sediment and break pest cycles, then the fields are drained for the next crop. NISAR shows this **timing
+signature**: water enters in mid-August while the Tien river at Tan Chau is still below alarm level 1 (2.8 m on 17 Aug)
+and leaves in late September – early October **while the river peaks (3.45 m)** — i.e. fields pumped dry, not natural
+recession.
+
+- The three communes named in 2026 flood-release news (Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông) all follow this curve on
+  all three tracks (≈ 0–5 % water in July → 45–64 % in September → sharp drop 21 Sep – 5 Oct). Example Bình Mỹ (047D):
+  52 % → 27 %.
+- 10 of the 80 communes that were > 30 % flooded have this "early-in / out-while-river-high" signature (Châu Thành,
+  Thoại Sơn, Châu Phú area of An Giang); 55 were still wet at the last image.
+- Caveat: the flooded area in these communes is 2–17× the reported release areas, so natural flooding is mixed in; the
+  release area itself cannot be isolated without the dyke sub-region boundaries (held by the province).
+- Prototype: grouping pixels that flood and dry on the *same dates* finds 45 field blocks ≥ 50 ha (≈ 3 000 ha) flooded on
+  16–18 Aug and drained before the last image, many bounded by straight canals — candidate dyke compartments.
+
 ## 6. Limitations
 
 - Most NISAR products used are **PROVISIONAL**; one frame over Da Nang (126A/f010, 8 Oct) was flagged invalid.
