@@ -71,7 +71,13 @@ def commune_collection():
                      recession_date=timing.get("halved_after_peak"),
                      last_pct=last["water_pct"] if last else None, last_date=last["date"] if last else None,
                      max_flooded_km2=max((r["water_km2"] for r in track_rows), default=None),
-                     status=status, reference_track=track, coverage_sufficient=sufficient)
+                     status=status, reference_track=track, coverage_sufficient=sufficient,
+                     # measured direction of change vs the previous image of the same track (not a forecast);
+                     # only for communes with a full assessment
+                     trend=(sowing.get("trend") or None) if sufficient else None,
+                     trend_pp_12d=sowing.get("trend_pp_12d") if sufficient else None,
+                     prev_date=(sowing.get("prev_date") or None) if sufficient else None,
+                     prev_pct=sowing.get("prev_pct") if sufficient else None)
         features.append(dict(type="Feature", id=str(oid), properties=props, geometry=feature["geometry"]))
     return dict(type="FeatureCollection", features=features)
 

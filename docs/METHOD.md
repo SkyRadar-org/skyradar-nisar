@@ -92,6 +92,11 @@ inundated vegetation): rice growth brightens HH as well, so this layer is not pa
   partial pass remains evidence, not a replacement assessment. Six communes have no observations and 19 have only
   insufficient observations under this rule (including 16 `partial` records in `sowing_check.csv`). The legacy CSV
   codes `ready`, `draining`, `still_wet` label these bins; they are not agronomic recommendations or proof of a trend.
+- **Trend (measured, not forecast):** for the 115 assessed communes, the selected image against the previous image of
+  the same track (≤ 24 days earlier, same footprint), in percentage points per 12 days: **24 falling (≤ −5), 79 steady,
+  12 rising (≥ +5)**. Level and trend are independent: of the 39 moderate communes only 12 are falling and 4 are rising;
+  5 of the 33 high communes are rising. We deliberately give **no drain-date projection**: with 2–3 points 12 days
+  apart and water levels set by sluices and pumping, an extrapolated date is not defensible.
 - **Coverage denominator:** `observed_pct = valid_km2 / area_km2 × 100`; `water_pct = water_km2 / valid_km2 × 100`.
   Communes at the AOI/swath edge may only be partially observed. The 50% gate is a product screening rule, not a
   validated guarantee that the observed part represents the whole commune.

@@ -118,3 +118,21 @@ def test_swot_comparison_figures_only():
     assert len(v) == 13
     both = [r for r in v if r["f1_s1"] is not None]
     assert len(both) == 12 and sum(r["f1_nisar_same_px"] > r["f1_s1"] for r in both) == 11
+
+
+def test_trend_is_measured_from_the_previous_image_of_the_same_track():
+    import datetime as dt
+    features = c.get(f"{BASE}/communes").json()["features"]
+    counts = Counter(f["properties"]["trend"] for f in features if f["properties"]["coverage_sufficient"])
+    assert counts == {"steady": 79, "falling": 24, "rising": 12}
+    assert all(f["properties"]["trend"] is None for f in features if not f["properties"]["coverage_sufficient"])
+    for f in features:
+        p = f["properties"]
+        if p["trend"] is None:
+            continue
+        rows = {r["date"]: r["water_pct"] for r in store().series[int(p["osm_id"])] if r["track"] == p["reference_track"]}
+        assert p["prev_date"] < p["last_date"] and rows[p["prev_date"]] == p["prev_pct"]
+        days = (dt.date.fromisoformat(p["last_date"]) - dt.date.fromisoformat(p["prev_date"])).days
+        assert days <= 24 and abs((p["last_pct"] - p["prev_pct"]) / days * 12 - p["trend_pp_12d"]) < 0.06
+        assert p["trend"] == ("falling" if p["trend_pp_12d"] <= -5 else "rising" if p["trend_pp_12d"] >= 5 else "steady")
+    assert not any("eta" in k or "forecast" in k for k in features[0]["properties"])   # no drain-date projection

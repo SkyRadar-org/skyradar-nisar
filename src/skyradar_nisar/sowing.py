@@ -6,9 +6,16 @@ Uses processed statistics when available, otherwise committed web CSVs. Publishe
 assessment CSV to data/web/stats and draws fig5 without requiring Earthdata or rasters.
 The legacy ready/draining/still_wet codes describe water-share bins, not soil readiness
 or a measured recession trend. Water share is relative to the observed area.
+
+Trend (direction of change, measured, not a forecast) is a separate column: the selected acquisition against the
+previous acquisition of the SAME track (same footprint, <= 24 days earlier), in percentage points per 12 days:
+falling <= -5, rising >= +5, otherwise steady; empty without a comparable previous image or for partial communes.
+No drain-date projection is made: with 2-3 points 12 days apart, and water levels set by sluices and pumping,
+an extrapolated date is not defensible.
 """
 import argparse
 import csv
+import datetime as dt
 import json
 import math
 from pathlib import Path
@@ -19,6 +26,24 @@ LEVELS = [("ready", 0, 10, "#2f9e44"), ("draining", 10, 30, "#f59f00"), ("still_
 
 def status(p):
     return next(name for name, lo, hi, _ in LEVELS if lo <= p < hi)
+
+
+TREND_PP_12D = 5          # |change| below this (percentage points per 12 days) is steady (inter-track spread ~3.4)
+TREND_MAX_GAP = 24        # days: the previous image is at most two repeat cycles older
+TREND_MIN_OVERLAP = 0.8   # and covers >= 80 % of the selected image's observed area (same footprint)
+
+
+def trend_of(observations, selected):
+    """(prev_date, prev_pct, points per 12 days, label) vs the previous image of the selected track; blanks if none."""
+    d1 = dt.date.fromisoformat(selected["date"]); km2 = float(selected["valid_km2"])
+    prev = [r for r in observations if r["track"] == selected["track"] and r["date"] < selected["date"]
+            and (d1 - dt.date.fromisoformat(r["date"])).days <= TREND_MAX_GAP and float(r["valid_km2"]) >= TREND_MIN_OVERLAP * km2]
+    if not prev:
+        return "", "", "", ""
+    p = max(prev, key=lambda r: r["date"])
+    rate = (float(selected["water_pct"]) - float(p["water_pct"])) / (d1 - dt.date.fromisoformat(p["date"])).days * 12
+    label = "falling" if rate <= -TREND_PP_12D else "rising" if rate >= TREND_PP_12D else "steady"
+    return p["date"], round(float(p["water_pct"]), 1), round(rate, 1), label
 
 
 def assess_communes(rows, features, ref="2026-11-01"):
@@ -43,6 +68,7 @@ def assess_communes(rows, features, ref="2026-11-01"):
         pct = float(selected["water_pct"])
         observed = 100 * float(selected["valid_km2"]) / area if area else None
         covered_tracks = [r for r in latest.values() if area and float(r["valid_km2"]) >= 0.5 * area]
+        prev_date, prev_pct, rate, trend = trend_of(observations, selected) if eligible else ("", "", "", "")
         table.append(dict(
             osm_id=oid, commune=selected["commune"], province=selected["province"], ref_date=ref,
             area_km2=area, observed_pct=round(observed, 6) if observed is not None else None,
@@ -53,6 +79,7 @@ def assess_communes(rows, features, ref="2026-11-01"):
             worst_track=worst["track"], worst_date=worst["date"], worst_pct=float(worst["water_pct"]),
             worst_status=status(float(worst["water_pct"])),
             tracks_agree=len(covered_tracks) >= 2 and len({status(float(r["water_pct"])) for r in covered_tracks}) == 1,
+            prev_date=prev_date, prev_pct=prev_pct, trend_pp_12d=rate, trend=trend,
         ))
     return sorted(table, key=lambda r: (-r["status_pct"], r["osm_id"]))
 
@@ -113,6 +140,8 @@ def main(ref="2026-11-01", stats_dir=None):
             w = csv.DictWriter(fh, fieldnames=list(table[0]), lineterminator="\n"); w.writeheader(); w.writerows(table)
     counts = {name: sum(r["status"] == name for r in table) for name in ["ready", "draining", "still_wet", "partial"]}
     print("Assessment counts:", counts)
+    print("Trend (assessed communes):", {t or "none": sum(r["trend"] == t for r in table if r["status"] != "partial")
+                                         for t in ("falling", "steady", "rising", "")})
     draw_map(table, fc)
 
 

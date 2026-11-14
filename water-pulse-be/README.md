@@ -59,6 +59,9 @@ commune boundaries © OpenStreetMap contributors (ODbL). Show the `attribution` 
 Scene bounds are `[west,south,east,north]`; water URLs reference `/static`. Unknown communes/scenes return 404;
 invalid tracks return 422. Run `pytest -q` for both original API and adapter tests.
 
+Assessed communes also carry a measured `trend` (`falling` / `steady` / `rising`), `trend_pp_12d`, `prev_date` and
+`prev_pct`: latest image vs the previous image of the same track. There is no drain-date forecast.
+
 Commune IDs are strings. Status uses `sowing_check.csv`'s latest >=50%-coverage image and maps ready/draining/still_wet
 to receded/uncertain/not_receded; peak below 5% on the reference track maps to no_flood. Without a sowing assessment,
 coverage_sufficient is false and status is uncertain. Statistics use one reference_track, not a mix of tracks;
