@@ -63,7 +63,8 @@ def test_composite_playback_assets_and_values():
     for scene in scenes:
         comp = scene["composite"]
         assert comp and comp["maxAgeDays"] == 12 and comp["observedPct"] > 30
-        assert c.get(comp["png"]).content[:4] == b"RIFF" and c.get(comp["radarJpg"]).content.startswith(b"\xff\xd8")
+        assert c.get(comp["png"]).content[:4] == b"RIFF" and c.get(comp["simplePng"]).content[:4] == b"RIFF"
+        assert c.get(comp["radar"]).content[:4] == b"RIFF"
         # the newest contributing pass is the scene itself
         assert comp["sources"][-1]["date"] == scene["date"] and comp["sources"][-1]["track"] == scene["track"]
     assert sum(s["composite"]["observedPct"] > 80 for s in scenes) >= 28   # only the 25 Jul -> 11 Aug acquisition gap is thin

@@ -11,7 +11,9 @@ track, as long as it is at most MAX_AGE_DAYS old. Nothing is interpolated:
 Raw per-acquisition frames (water/, radar/) are untouched and remain the source of all statistics.
 
     python -m skyradar_nisar.composite        # reads and updates data/web/manifest.json
-Outputs: data/web/composite/<key>.webp (water + no-data veil, RGBA) and <key>_radar.jpg (radar mosaic).
+Outputs in data/web/composite/: <key>.webp (professional view: water faded by age + no-data veil), <key>_simple.webp
+(simple view: one colour, no radar / fading / veil), <key>_radar.webp (radar mosaic, transparent where unobserved).
+Everything outside Vietnamese land (commune polygons) is transparent.
 """
 import datetime as dt
 import json
@@ -24,6 +26,8 @@ from . import config as C
 MAX_AGE_DAYS = 12          # about one repeat cycle of a track; older pixels count as "not observed"
 MEDIAN_WINDOW_DAYS = 30    # neighbours further away are not used to cancel a one-pass flip
 ALPHA_FRESH, ALPHA_STALE = 200, 90
+SIMPLE_ALPHA = 215
+SIMPLE_MAX_AGE_DAYS = 30
 WATER_RGB = (30, 110, 230)
 VEIL_RGB, VEIL_ALPHA = (110, 120, 135), 70
 RADAR_VALID_MIN = 6        # radar JPEG is black outside the swath
@@ -98,7 +102,7 @@ def _smooth_strip(S, day):
     return np.where(spike, pv, S)
 
 
-def _mosaic(S, day):
+def _mosaic(S, day, max_age=MAX_AGE_DAYS):
     T, H, W = S.shape
     H2, W2 = H // 2, W // 2
     wf = np.zeros((T, H2, W2), np.uint8); of = np.zeros_like(wf); age = np.zeros_like(wf)
@@ -113,7 +117,7 @@ def _mosaic(S, day):
             upd = valid[j]
             last_s = np.where(upd, sm[j], last_s); last_d = np.where(upd, day[j], last_d); last_i = np.where(upd, j, last_i)
             a = day[j] - last_d
-            obs = (last_s != NONE) & (a <= MAX_AGE_DAYS)
+            obs = (last_s != NONE) & (a <= max_age)
             wat = obs & (last_s == WATER)
             rs = slice(r0 // 2, r0 // 2 + h // 2)
             wf[j, rs] = wat.reshape(h // 2, 2, W2, 2).sum((1, 3))
@@ -139,6 +143,32 @@ def _render_water(wf, of, age):
     return np.dstack([rgb, a[..., None] * 255]).round().astype(np.uint8)
 
 
+def _vn_mask(bounds, h, w):
+    """Soft 0..1 mask of Vietnamese land (union of the commune polygons) on the half-resolution grid; nothing is drawn outside it."""
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+    from PIL import ImageDraw
+    (s, west), (n, e) = bounds
+    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text(encoding="utf-8"))
+    land = unary_union([shape(f["geometry"]).buffer(0.0008) for f in fc["features"]])   # closes slivers between communes
+    img = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(img)
+    px = lambda ring: [((x - west) / (e - west) * w, (n - y) / (n - s) * h) for x, y in ring.coords]
+    for poly in getattr(land, "geoms", [land]):
+        draw.polygon(px(poly.exterior), fill=255)
+        for hole in poly.interiors:
+            draw.polygon(px(hole), fill=0)
+    return _box3(np.asarray(img) / 255.0)
+
+
+def _render_simple(wf, mask):
+    """Single-colour water: no radar, no age fading, no veil. Same mosaic, just the answer 'is there water'."""
+    wb = _box3(wf) / 4.0
+    a = np.clip((wb - 0.10) / 0.5, 0, 1) * SIMPLE_ALPHA / 255 * mask
+    rgb = np.broadcast_to(np.array(WATER_RGB, np.uint8), a.shape + (3,))
+    return np.dstack([rgb, (a * 255).round().astype(np.uint8)])
+
+
 def build(out_dir=None):
     out_dir = out_dir or C.WEB
     mpath = out_dir / "manifest.json"
@@ -150,26 +180,35 @@ def build(out_dir=None):
     day = np.array([dt.date.fromisoformat(f["date"]).toordinal() - d0 for f in frames], np.int16)
     S, R = _load(out_dir, frames)
     wf, of, age, li, share = _mosaic(S, day)
+    wf_simple = _mosaic(S, day, SIMPLE_MAX_AGE_DAYS)[0]   # simple view has no fading, so it bridges the long 25 Jul - 11 Aug gap
+    mask = _vn_mask(manifest["bounds"], of.shape[1], of.shape[2])
     cdir = out_dir / "composite"
     cdir.mkdir(exist_ok=True)
+    for old in cdir.glob("*"):
+        old.unlink()
     items = []
     for j, f in enumerate(frames):
         k = f["key"]
-        Image.fromarray(_render_water(wf[j], of[j], age[j])).save(cdir / f"{k}.webp", lossless=False, quality=88, alpha_quality=90, method=4)
+        pro = _render_water(wf[j], of[j], age[j])
+        pro[..., 3] = (pro[..., 3] * mask).round().astype(np.uint8)
+        Image.fromarray(pro).save(cdir / f"{k}.webp", lossless=False, quality=88, alpha_quality=90, method=4)
+        Image.fromarray(_render_simple(wf_simple[j], mask)).save(cdir / f"{k}_simple.webp", lossless=False, quality=88, alpha_quality=90, method=4)
         idx = np.clip(li[j], 0, None).astype(np.int64)
         rad = np.take_along_axis(R, idx[None, :, :, None], axis=0)[0]
-        rad[li[j] < 0] = 0
-        Image.fromarray(rad).save(cdir / f"{k}_radar.jpg", quality=60, optimize=True)
+        alpha = ((li[j] >= 0) * mask * 255).round().astype(np.uint8)   # unobserved or outside Vietnam: transparent
+        Image.fromarray(np.dstack([rad, alpha])).save(cdir / f"{k}_radar.webp", lossless=False, quality=70, alpha_quality=90, method=4)
         total = max(int(share[j].sum()), 1)
         sources = [dict(date=frames[i]["date"], track=frames[i]["track"], share_pct=round(100 * int(share[j, i]) / total, 1))
                    for i in range(j + 1) if share[j, i] / total >= 0.0005]
-        items.append(dict(key=k, date=f["date"], track=f["track"], png=f"composite/{k}.webp", radar_jpg=f"composite/{k}_radar.jpg",
-                          observed_pct=round(100 * float(of[j].mean()) / 4, 1), sources=sources))
+        items.append(dict(key=k, date=f["date"], track=f["track"], png=f"composite/{k}.webp", simple_png=f"composite/{k}_simple.webp",
+                          radar=f"composite/{k}_radar.webp",
+                          observed_pct=round(100 * float((of[j] / 4.0 * mask).sum() / mask.sum()), 1), sources=sources))
     manifest["composites"] = items
     manifest["composite_rule"] = dict(
-        max_age_days=MAX_AGE_DAYS, median_window_days=MEDIAN_WINDOW_DAYS, resolution_divisor=2,
-        note="Per pixel: latest valid observation from any track, at most max_age_days old; older = fainter, none = grey veil. "
-             "Single-pass flips are cancelled by a temporal median. Visual aid only: statistics use the raw frames.")
+        max_age_days=MAX_AGE_DAYS, simple_max_age_days=SIMPLE_MAX_AGE_DAYS, median_window_days=MEDIAN_WINDOW_DAYS, resolution_divisor=2,
+        note="Per pixel: latest valid observation from any track, at most max_age_days old; older = fainter, none = grey veil "
+             "(simple_png: one colour, no fading). Single-pass flips are cancelled by a temporal median. Only Vietnamese land "
+             "(commune polygons) is drawn. Visual aid only: statistics use the raw frames.")
     mpath.write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     print(len(items), "composite frames written to", cdir)
 

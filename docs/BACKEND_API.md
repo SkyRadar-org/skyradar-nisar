@@ -13,7 +13,7 @@ The backend can be as simple as a static file server plus a few JSON endpoints; 
 | `GET /api/frames?track=047D` | Frames of one track (date, maturity, overlay URL) | `manifest.json` → `frames` |
 | `GET /static/water/{date}_{track}.png` | Water overlay PNG (EPSG:4326, `manifest.bounds`) | `water/` |
 | `GET /static/summary/{recession,first_flood}.png` | Timing maps | `summary/` |
-| `GET /api/frontend/scenes` | Adds `composite` per scene (`png`, `radarJpg`, `maxAgeDays`, `observedPct`, `sources`) when the playback mosaics exist | `manifest.json` → `composites` |
+| `GET /api/frontend/scenes` | Adds `composite` per scene (`png`, `simplePng`, `radar`, `maxAgeDays`, `observedPct`, `sources`) when the playback mosaics exist | `manifest.json` → `composites` |
 | `GET /api/frontend/choropleth/composite?date=&track=` | `{osm_id: {pct, age, date, track}}`: each commune's latest observation on or before the scene, covering ≥ 50 % of its best pass and ≤ 12 days old (companion of the mosaic; the exact-scene `/choropleth` is unchanged) | `stats/commune_water_by_date.csv` |
 | `GET /api/communes` | GeoJSON: 140 communes with `timing` per track and `flood_class` | `communes.geojson` |
 | `GET /api/communes/{osm_id}` | One commune: properties + timing + class | `communes.geojson`, `stats/commune_flood_timing.csv`, `stats/commune_flood_class.csv` |

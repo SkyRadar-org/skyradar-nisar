@@ -26,7 +26,8 @@ def _composite_of(key: str):
     c = store().composites.get(key)
     if c is None:
         return None
-    return dict(png=f"/static/{c['png']}", radarJpg=f"/static/{c['radar_jpg']}", maxAgeDays=store().composite_max_age,
+    return dict(png=f"/static/{c['png']}", simplePng=f"/static/{c['simple_png']}", radar=f"/static/{c['radar']}",
+                maxAgeDays=store().composite_max_age,
                 observedPct=c["observed_pct"], sources=c["sources"])
 
 
