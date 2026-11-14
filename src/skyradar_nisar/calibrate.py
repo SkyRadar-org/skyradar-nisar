@@ -51,7 +51,10 @@ def main():
         hh, hv, w = load(k)
         pred, valid = water_map(hh, hv, best[1], best[2])
         ok = valid & np.isin(w, [0, 1, 3]) & ~perm
-        rows.append(dict(key=k, role="calibration" if k in CAL_DATES else "validation", **scores(pred & ok, (w == 1) & ok)))
+        if ok.mean() < 0.05:   # no Sentinel-1 coverage within +-1 day (e.g. most track-148D dates)
+            continue
+        rows.append(dict(key=k, role="calibration" if k in CAL_DATES else "validation", overlap_km2=round(ok.sum() * C.RES ** 2 / 1e6),
+                         **scores(pred & ok, (w == 1) & ok)))
     _write(out / "vs_dswx_s1.csv", rows)
 
     # 3) independent check vs optical DSWx-HLS (clear pixels only), NISAR vs Sentinel-1
