@@ -2,7 +2,7 @@
 
 Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ lý của Chí). Đọc hết file này trước khi đụng vào code.
 **Việc UI/UX còn lại và kế hoạch 4 gói việc: xem `docs/UX_PLAN.md`.**
-**Triển khai đã kiểm, chờ duyệt production trên nhánh `codex/ux-implementation-20261114`: [checkpoint](verification/ux-implementation-20261114/checkpoint.md). Chưa phát hành production.**
+**Triển khai đã kiểm, người dùng đã duyệt merge main; trạng thái phát hành xem checkpoint của nhánh `codex/ux-implementation-20261114`: [checkpoint](verification/ux-implementation-20261114/checkpoint.md). Chưa phát hành production.**
 **Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Bản đánh giá ban đầu; trạng thái triển khai xem checkpoint mới ở trên. Đính chính: mục hướng dẫn đã có wrapper `<details>` tại chỗ `root.replaceChildren`; nhận xét bác Gemini về điểm này trong bản đánh giá là sai.**
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
