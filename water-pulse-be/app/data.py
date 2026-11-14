@@ -60,6 +60,8 @@ class Store:
                 self.swot_series[r["osm_id"]].append(r)
         self.composites = {c["key"]: c for c in self.manifest.get("composites", [])}   # playback mosaics (optional)
         self.composite_max_age = self.manifest.get("composite_rule", {}).get("max_age_days", 12)
+        # cache-buster for the mosaic files: their names stay the same when they are regenerated
+        self.composite_version = max((int(p.stat().st_mtime) for p in (DATA_DIR / "composite").glob("*")), default=0)
         cal = DATA_DIR / "stats" / "calibration.json"
         self.validation = dict(calibration=json.loads(cal.read_text(encoding="utf-8")) if cal.exists() else None,
                                vs_dswx_s1=_csv("vs_dswx_s1.csv"), vs_dswx_hls=_csv("vs_dswx_hls.csv"),
