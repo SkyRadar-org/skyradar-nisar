@@ -1,0 +1,7 @@
+{
+  "snapshot": "f937b04421f51e3de9b3004ced81b7d59e2603ed",
+  "command": "/Users/Chris/nisar/.venv/bin/python -m pytest -q",
+  "cwd": "water-pulse-be",
+  "exit_code": 0,
+  "note": "Đã cài requirements-dev.txt vào .venv; không sửa requirements hoặc mã sản phẩm."
+}

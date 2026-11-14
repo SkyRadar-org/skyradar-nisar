@@ -1,0 +1,61 @@
+=== npm run build:cloudflare ===
+
+> skyradar-water-pulse@0.1.0 build:cloudflare
+> node scripts/build-cloudflare.mjs
+
+
+> skyradar-water-pulse@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 365 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                 0.91 kB │ gzip:   0.55 kB
+dist/assets/maplibre-gl-worker-B3hwrOjv.js    470.49 kB
+dist/assets/index-D9Vr8Vrk.css                121.79 kB │ gzip:  19.34 kB
+dist/assets/index-BUqvT-qm.js               1,340.06 kB │ gzip: 373.90 kB
+
+✓ built in 217ms
+Exported 212 API responses, 33 scenes, 140 communes; 472 files, largest 2,692,266 bytes
+
+=== npm run test:cloudflare ===
+
+> skyradar-water-pulse@0.1.0 test:cloudflare
+> node --test tests/cloudflare-worker.test.mjs
+
+✔ worker serves real scenes, communes and image URLs on the Pages origin (12.494ms)
+✔ query order and additional parameters do not alter choropleth routing (0.941542ms)
+✔ unknown APIs never fall back to SPA HTML; writes are rejected (1.102875ms)
+✔ missing snapshot files fail as JSON instead of serving SPA fallback (0.174833ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.897625
+
+=== npm run test:ux ===
+
+> skyradar-water-pulse@0.1.0 test:ux
+> node --experimental-strip-types --test tests/observations.test.mjs tests/reportStats.test.mjs
+
+✔ latest map preserves all 131 assessed communes and excludes nine insufficient observations (0.455459ms)
+✔ An Long is missing in the November 3 image but has its own real October 29 reference (1.158792ms)
+✔ six unobserved communes have no fabricated reference scene or dry value (0.281ms)
+✔ all 33 radar images point to exported JPEG assets matching their acquisition (4.967291ms)
+✔ every acquisition stays its own row and accounts for every commune in scope (7.769333ms)
+✔ period, orbit and province filters narrow the report without leaking other data (0.628917ms)
+✔ commune period max comes from a real acquisition and missing communes are never zero (1.068542ms)
+✔ flood duration counts still-wet communes up to their last image as a minimum (0.096333ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 77.520333

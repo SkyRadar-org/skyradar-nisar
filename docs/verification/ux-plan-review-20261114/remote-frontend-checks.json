@@ -1,0 +1,19 @@
+{
+  "snapshot": "4f59e90f907c84b006d3ecb7a34097fea5ad003f",
+  "commands": [
+    {
+      "command": "npm run build:cloudflare",
+      "exit_code": 0
+    },
+    {
+      "command": "npm run test:cloudflare",
+      "exit_code": 0
+    },
+    {
+      "command": "npm run test:ux",
+      "exit_code": 0
+    }
+  ],
+  "method": "git archive into temporary directory; existing node_modules symlink; NISAR_REPO explicitly points to local f937b04",
+  "time_gmt7": "2026-11-14T18:31:34.495497+07:00"
+}

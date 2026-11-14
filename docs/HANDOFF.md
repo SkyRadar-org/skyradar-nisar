@@ -2,6 +2,7 @@
 
 Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ lý của Chí). Đọc hết file này trước khi đụng vào code.
 **Việc UI/UX còn lại và kế hoạch 4 gói việc: xem `docs/UX_PLAN.md`.**
+**Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Kết luận: cần chỉnh kế hoạch trước triển khai; số mô phỏng 115 xã = 43/39/33 chưa phải dữ liệu đã phát hành. Chưa triển khai G1–G4.**
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---

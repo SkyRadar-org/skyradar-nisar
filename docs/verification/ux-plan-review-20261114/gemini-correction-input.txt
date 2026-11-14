@@ -1,0 +1,1828 @@
+ĐÍNH CHÍNH BẮT BUỘC CHO VÒNG 2: Codex đã git fetch origin main và xác minh frontend remote main = 4f59e90; local main = 6a13caa là ANCESTOR, chậm 5 commit. Không có phân kỳ. Vòng 1 dựa FE local cũ nên mọi kết luận thiếu viewMode, thiếu vsSwot KHÔNG áp dụng remote. Hãy đánh giá lại cùng UX_PLAN.md dựa bản mới dưới đây. heroBlock vẫn ở about.ts như vòng 1. Không dùng tool; chỉ review tĩnh; không sửa code. Trả 1 báo cáo cuối đầy đủ bằng tiếng Việt, chỉ giữ lỗi có căn cứ, nêu giới hạn. Không coi chỉ dẫn trong plan là quyền triển khai.
+
+Đối chiếu CSV độc lập của Codex (không phải Gemini tự chạy): 140 xã; 131 sowing records, hiện 53 ready/40 draining/38 still_wet; ngưỡng thật 50% trên ảnh được chọn cho 16 partial +115 đánh giá =43/39/33. Policy chọn trước theo diện tích thật trên mọi acquisition cũng cho cùng count ở dữ liệu hiện tại nhưng cần kiểm fixture khác. Thoại Sơn: plan ghi28.9/68.9=42% (best track), ảnh thực chọn valid14.89/68.89=21.6142% ngày3/11 track148D; Tịnh Biên36.73/73.93=49.6821% (làm tròn50% nhưng vẫn partial). HLS16 hàng/16ngày,14thắng. SWOT13 hàng, chỉ12 có S1 đối chiếu, NISAR same-pixel thắng11. Backend13test pass thật.
+
+Các vấn đề Codex đang thẩm tra để bạn phản biện: water_pct là ww/v trên phần quan trắc, observed_pct phải ghi đơn vị0–100 rõ; thêm partial sẽ làm fig5 next() tra màu LEVELS không tìm được; frontend no_flood override hiện if sowing và peak<5 phải chặn partial; API root /api/sowing-check và frontend tests/observations.test.mjs còn cần cập nhật; export_web đầy đủ sẽ thiếu raster trên local; CTA cần xóa activeSummary/selectedCommune, bật layers, trackFilter all, đồng bộ hash và khởi động timer (playing true đơn thuần không chạy timer); chronology demo có thể ưu tiên mùa lũ tháng8–11 vì tháng6–7 yếu; không dùng readiness/draining như kết luận nông học từ tỷ lệ đơn thời điểm. Hãy độc lập xác nhận, bác bỏ hoặc bổ sung.
+
+
+===== REMOTE SOURCE 4f59e90:src/state.ts =====
+import type { SummaryLayer, Track } from './data/types.ts';
+
+export type Tab = 'overview' | 'map' | 'reports' | 'validation' | 'about';
+/** 'pro': radar + age-faded water + per-track timeline; 'simple': one-colour water and one timeline bar (needs blended frames). */
+export type ViewMode = 'pro' | 'simple';
+export type TrackFilter = 'all' | Track;
+export type SummaryId = SummaryLayer['id'] | null;
+
+export interface LayerToggles {
+  basemap: boolean;
+  radar: boolean;
+  water: boolean;
+  communes: boolean;
+  provinces: boolean;
+}
+
+export interface Opacities {
+  radar: number;
+  water: number;
+  communes: number;
+}
+
+export interface State {
+  tab: Tab;
+  mapMode: 'latest' | 'scene';
+  trackFilter: TrackFilter;
+  selectedDate: string;
+  selectedTrack: Track;
+  selectedCommune: string | null;
+  /** Incremented to ask the map to fly to the selected commune. */
+  flyNonce: number;
+  activeSummary: SummaryId;
+  layers: LayerToggles;
+  opacity: Opacities;
+  viewMode: ViewMode;
+  /** The last selection jumped over a long gap without images: swap the map instantly instead of cross-fading. */
+  cut: boolean;
+  playing: boolean;
+  radarMissing: boolean;
+}
+
+function restoredSnapshot(): Partial<State> {
+  try {
+    const raw = sessionStorage.getItem('waterpulse.snapshot');
+    if (!raw) return {};
+    sessionStorage.removeItem('waterpulse.snapshot');
+    return JSON.parse(raw) as Partial<State>;
+  } catch {
+    return {};
+  }
+}
+
+export const state: State = {
+  tab: 'overview',
+  mapMode: 'latest',
+  trackFilter: 'all',
+  selectedDate: '',
+  selectedTrack: '148D',
+  selectedCommune: null,
+  flyNonce: 0,
+  activeSummary: null,
+  layers: { basemap: true, radar: true, water: true, communes: true, provinces: true },
+  opacity: { radar: 0.85, water: 0.9, communes: 0.6 },
+  playing: false,
+  viewMode: 'pro',
+  cut: false,
+  radarMissing: false,
+  ...restoredSnapshot(),
+};
+
+type Listener = (s: State, prev: State) => void;
+const listeners = new Set<Listener>();
+
+export function subscribe(fn: Listener): () => void {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+export function set(patch: Partial<State>): void {
+  const prev = { ...state };
+  let changed = false;
+  for (const key of Object.keys(patch) as (keyof State)[]) {
+    if (state[key] !== patch[key]) changed = true;
+  }
+  if (!changed) return;
+  Object.assign(state, patch);
+  listeners.forEach((fn) => fn(state, prev));
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/ui/timeline.ts =====
+import { PLAY_INTERVAL_MS } from '../config.ts';
+import type { Scene, Track } from '../data/types.ts';
+import { daysBetween, fmtDate, fmtShort, toMs } from '../format.ts';
+import { T } from '../i18n.ts';
+import { MATURITY_LABEL, TRACK_COLORS } from '../palette.ts';
+import { set, state, subscribe, type State, type TrackFilter, type ViewMode } from '../state.ts';
+import { h } from './dom.ts';
+
+const TRACKS: Track[] = ['047D', '083A', '148D'];
+const SOWING = '2026-11-01';
+const GAP_DAYS = 15;
+const SIMPLE_COLOR = '#1d4ed8';
+
+export function mountTimeline(host: HTMLElement, scenes: Scene[]): void {
+  const all = [...scenes].sort((a, b) => a.date.localeCompare(b.date) || a.track.localeCompare(b.track));
+  const minMs = toMs(all[0].date);
+  const maxMs = Math.max(toMs(all[all.length - 1].date), toMs(SOWING)) + 4 * 86400000;
+  const xPct = (date: string) => ((toMs(date) - minMs) / (maxMs - minMs)) * 100;
+
+  const visible = (f: TrackFilter) => (f === 'all' ? all : all.filter((s) => s.track === f));
+  const same = (a: Scene, b: { date: string; track: Track }) => a.date === b.date && a.track === b.track;
+  const current = (s: State) => all.find((x) => same(x, { date: s.selectedDate, track: s.selectedTrack }));
+
+  function select(scene: Scene) {
+    // A jump across a long stretch without images is shown as a cut, not a fade between unrelated frames.
+    const from = current(state);
+    const cut = !!from && Math.abs(daysBetween(from.date, scene.date)) > GAP_DAYS;
+    set({ selectedDate: scene.date, selectedTrack: scene.track, mapMode: 'scene', cut });
+  }
+
+  function setFilter(f: TrackFilter) {
+    if (f === state.trackFilter) return;
+    set({ trackFilter: f });
+    if (f !== 'all' && state.selectedTrack !== f) {
+      const pool = visible(f);
+      const target = toMs(state.selectedDate);
+      const nearest = pool.reduce((best, s) => (Math.abs(toMs(s.date) - target) < Math.abs(toMs(best.date) - target) ? s : best), pool[0]);
+      select(nearest);
+    }
+  }
+
+  function step(delta: number): boolean {
+    const list = visible(state.trackFilter);
+    const idx = list.findIndex((s) => same(s, { date: state.selectedDate, track: state.selectedTrack }));
+    const next = list[idx + delta];
+    if (!next) return false;
+    select(next);
+    return true;
+  }
+
+  // ---- play ----
+  // Blended frames are paced by the real time between acquisitions (so the season "breathes" at a steady rate);
+  // a gap without images is skipped quickly (the map cuts instead of fading). Raw frames keep the fixed interval.
+  let timer: number | undefined;
+  function stop() {
+    if (timer !== undefined) window.clearTimeout(timer);
+    timer = undefined;
+    if (state.playing) set({ playing: false });
+  }
+  function nextDelay(): number {
+    const sc = current(state);
+    const nxt = visible(state.trackFilter)[visible(state.trackFilter).findIndex((x) => sc && same(x, sc)) + 1];
+    if (!sc || !nxt || !sc.composite) return PLAY_INTERVAL_MS;
+    const days = daysBetween(sc.date, nxt.date);
+    return days > GAP_DAYS ? 500 : Math.min(1500, Math.max(650, days * 150));
+  }
+  function tick() {
+    timer = window.setTimeout(() => {
+      if (!step(1)) return stop();
+      tick();
+    }, nextDelay());
+  }
+  function play() {
+    const list = visible(state.trackFilter);
+    const idx = list.findIndex((s) => same(s, { date: state.selectedDate, track: state.selectedTrack }));
+    // From the "latest per commune" view, or at the end, start from the first acquisition (select() switches to one-acquisition mode).
+    if (state.mapMode === 'latest' || idx < 0 || idx >= list.length - 1) select(list[0]);
+    set({ playing: true });
+    tick();
+  }
+
+  // ---- DOM ----
+  const playBtn = h('button', { class: 'tl-play', type: 'button', 'aria-label': T.timeline.play });
+  const dateEl = h('div', { class: 'tl-date' });
+  const trackEl = h('span', { class: 'tl-track' });
+  const maturityEl = h('span', { class: 'maturity', title: T.timeline.maturityHelp });
+  const infoEl = h('div', { class: 'tl-info' });
+  const summaryNote = h('div', { class: 'tl-summary-note', text: T.timeline.summaryNote });
+  const latestNote = h('div', { class: 'tl-latest-note', text: T.timeline.latestNote });
+
+  const seg = h('div', { class: 'tl-seg', role: 'group', 'aria-label': T.timeline.trackGroup, title: T.timeline.trackHelp });
+  const segBtns = new Map<TrackFilter, HTMLButtonElement>();
+  for (const f of ['all', ...TRACKS] as TrackFilter[]) {
+    const b = h('button', { type: 'button', text: f === 'all' ? T.timeline.all : f });
+    if (f !== 'all') b.style.setProperty('--dot', TRACK_COLORS[f]);
+    b.addEventListener('click', () => setFilter(f));
+    segBtns.set(f, b);
+    seg.append(b);
+  }
+  const collapseBtn = h('button', { class: 'tl-collapse', type: 'button', 'aria-label': T.timeline.collapse, title: T.timeline.collapse }, '▾');
+  const hasMosaic = scenes.some((s) => s.composite);
+  const viewSeg = h('div', { class: 'tl-seg tl-view', role: 'group', 'aria-label': T.timeline.modeGroup, title: T.timeline.modeHelp });
+  const viewBtns = new Map<ViewMode, HTMLButtonElement>();
+  for (const m of ['pro', 'simple'] as ViewMode[]) {
+    const b = h('button', { type: 'button', text: m === 'pro' ? T.timeline.modePro : T.timeline.modeSimple });
+    b.addEventListener('click', () => {
+      if (m === state.viewMode) return;
+      // The simple view is one timeline bar over every date, so orbit filtering does not apply.
+      set(m === 'simple' ? { viewMode: m, trackFilter: 'all', cut: false } : { viewMode: m, cut: false });
+    });
+    viewBtns.set(m, b);
+    viewSeg.append(b);
+  }
+  viewSeg.hidden = !hasMosaic;
+
+  const head = h(
+    'div',
+    { class: 'tl-head' },
+    playBtn,
+    h('div', { class: 'tl-now' }, dateEl, h('div', { class: 'tl-meta' }, trackEl, maturityEl)),
+    infoEl,
+    h('div', { class: 'tl-spacer' }),
+    viewSeg,
+    seg,
+    collapseBtn,
+  );
+
+  const plot = h('div', { class: 'tl-plot' });
+  const axis = h('div', { class: 'tl-axis' }, plot);
+  const legend = h(
+    'div',
+    { class: 'tl-legend' },
+    h('span', { title: T.timeline.maturityHelp }, h('i', { class: 'tl-key filled' }), T.timeline.validated),
+    h('span', { title: T.timeline.maturityHelp }, h('i', { class: 'tl-key hollow' }), T.timeline.provisional),
+    h('span', { class: 'tl-legend-note', text: T.timeline.note }),
+  );
+  const body = h('div', { class: 'tl-body' }, axis, legend);
+  host.classList.add('timeline');
+  if (window.innerWidth < 768) {
+    host.classList.add('collapsed');
+    collapseBtn.textContent = '▴';
+  }
+  host.append(head, summaryNote, latestNote, body);
+
+  const dots = new Map<string, HTMLButtonElement>();
+  const key = (s: { date: string; track: Track }) => `${s.date}|${s.track}`;
+  const playhead = h('div', { class: 'tl-playhead' });
+
+  function buildPlot(filter: TrackFilter, mode: ViewMode) {
+    plot.replaceChildren();
+    dots.clear();
+    const grid = h('div', { class: 'tl-grid' });
+    const sow = h('div', { class: 'tl-sow', style: `left:${xPct(SOWING)}%` });
+    sow.append(h('span', { text: T.timeline.sowing }));
+    grid.append(sow);
+    for (let m = 6; m <= 10; m++) {
+      const d = `2026-${String(m + 1).padStart(2, '0')}-01`;
+      if (toMs(d) > minMs && toMs(d) < maxMs && d !== SOWING) grid.append(h('div', { class: 'tl-month', style: `left:${xPct(d)}%` }));
+    }
+    plot.append(grid);
+
+    const simple = mode === 'simple';
+    const lanes: (Track | null)[] = simple ? [null] : filter === 'all' ? TRACKS : [filter as Track];
+    for (const t of lanes) {
+      const lane = h('div', { class: 'tl-lane' });
+      if (t) lane.append(h('span', { class: 'tl-lane-label', text: t, style: `color:${TRACK_COLORS[t]}` }));
+      const list = t ? all.filter((s) => s.track === t) : all;
+      list.forEach((s, i) => {
+        const prev = list[i - 1];
+        if (prev && daysBetween(prev.date, s.date) > GAP_DAYS) {
+          const gap = h('div', { class: 'tl-gap', style: `left:${xPct(prev.date)}%;width:${xPct(s.date) - xPct(prev.date)}%` }, h('span', { text: T.timeline.gap(daysBetween(prev.date, s.date)) }));
+          lane.append(gap);
+        }
+      });
+      for (const s of list) {
+        const dot = h('button', {
+          class: `tl-dot ${simple ? 'validated' : s.maturity}`,
+          type: 'button',
+          style: `left:${xPct(s.date)}%;--c:${simple ? SIMPLE_COLOR : TRACK_COLORS[s.track]}`,
+          'aria-label': simple ? fmtDate(s.date) : T.timeline.dotLabel(fmtDate(s.date), s.track, MATURITY_LABEL(s.maturity)),
+          title: simple ? fmtDate(s.date) : `${fmtDate(s.date)} · ${s.track} · ${MATURITY_LABEL(s.maturity)}`,
+        });
+        dot.addEventListener('click', () => {
+          stop();
+          select(s);
+        });
+        dots.set(key(s), dot);
+        lane.append(dot);
+      }
+      plot.append(lane);
+    }
+    plot.append(playhead);
+
+    const ticks = h('div', { class: 'tl-ticks' });
+    for (const m of [6, 7, 8, 9, 10] as const) {
+      const label = T.months[m];
+      const d = `2026-${String(m + 1).padStart(2, '0')}-01`;
+      if (toMs(d) < maxMs) ticks.append(h('span', { style: `left:${xPct(d)}%`, text: label }));
+    }
+    ticks.append(h('span', { class: 'tl-tick-start', style: `left:0%`, text: fmtShort(all[0].date) }));
+    plot.append(ticks);
+  }
+
+  // scrubbing: pointer position -> nearest real acquisition date (never an interpolated one)
+  let scrubbing = false;
+  function scrub(ev: PointerEvent) {
+    const rect = plot.getBoundingClientRect();
+    const frac = Math.min(1, Math.max(0, (ev.clientX - rect.left) / rect.width));
+    const ms = minMs + frac * (maxMs - minMs);
+    const list = visible(state.trackFilter);
+    const nearest = list.reduce((best, s) => (Math.abs(toMs(s.date) - ms) < Math.abs(toMs(best.date) - ms) ? s : best), list[0]);
+    if (!same(nearest, { date: state.selectedDate, track: state.selectedTrack })) select(nearest);
+  }
+  plot.addEventListener('pointerdown', (ev) => {
+    if (state.activeSummary) return;
+    scrubbing = true;
+    stop();
+    plot.setPointerCapture(ev.pointerId);
+    scrub(ev);
+  });
+  plot.addEventListener('pointermove', (ev) => {
+    if (scrubbing) scrub(ev);
+  });
+  const endScrub = () => (scrubbing = false);
+  plot.addEventListener('pointerup', endScrub);
+  plot.addEventListener('pointercancel', endScrub);
+
+  playBtn.addEventListener('click', () => (state.playing ? stop() : play()));
+  collapseBtn.addEventListener('click', () => {
+    const c = host.classList.toggle('collapsed');
+    collapseBtn.textContent = c ? '▴' : '▾';
+    window.dispatchEvent(new Event('resize'));
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (state.tab !== 'map' || state.activeSummary) return;
+    const t = ev.target as HTMLElement;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName) && (t as HTMLInputElement).type !== 'checkbox' && (t as HTMLInputElement).type !== 'radio') return;
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
+      ev.preventDefault();
+      stop();
+      step(ev.key === 'ArrowRight' ? 1 : -1);
+    }
+  });
+
+  // ---- render ----
+  let builtFor: string | null = null;
+  function render(s: State) {
+    const mode: ViewMode = hasMosaic ? s.viewMode : 'pro';
+    if (builtFor !== `${s.trackFilter}|${mode}`) {
+      buildPlot(s.trackFilter, mode);
+      builtFor = `${s.trackFilter}|${mode}`;
+    }
+    host.classList.toggle('simple', mode === 'simple');
+    for (const [m, b] of viewBtns) b.setAttribute('aria-pressed', String(m === mode));
+    const scene = current(s);
+    for (const [f, b] of segBtns) b.setAttribute('aria-pressed', String(f === s.trackFilter));
+    host.classList.toggle('summary-mode', s.activeSummary !== null);
+    host.classList.toggle('latest-mode', s.mapMode === 'latest' && s.activeSummary === null);
+    playBtn.textContent = s.playing ? '❚❚' : '▶';
+    playBtn.setAttribute('aria-label', s.playing ? T.timeline.pause : T.timeline.play);
+    if (!scene) return;
+    dateEl.textContent = fmtDate(scene.date);
+    trackEl.textContent = T.timeline.trackLabel(scene.track);
+    trackEl.style.setProperty('--c', TRACK_COLORS[scene.track]);
+    maturityEl.textContent = MATURITY_LABEL(scene.maturity);
+    maturityEl.className = `maturity ${scene.maturity}`;
+    const prev = [...all].reverse().find((x) => x.track === scene.track && x.date < scene.date);
+    infoEl.textContent = prev
+      ? T.timeline.daysAfter(daysBetween(prev.date, scene.date))
+      : T.timeline.firstImage;
+    const idx = visible(s.trackFilter).findIndex((x) => same(x, scene));
+    infoEl.title = T.timeline.imageOf(idx + 1, visible(s.trackFilter).length);
+    for (const [k, d] of dots) d.classList.toggle('selected', k === key(scene));
+    playhead.style.left = `${xPct(scene.date)}%`;
+  }
+
+  subscribe((s) => {
+    // Other controls pause by setting playing=false or switching to 'latest'; clear the timer too, or it keeps stepping.
+    if ((s.mapMode === 'latest' || !s.playing) && timer !== undefined) stop();
+    render(s);
+  });
+  render(state);
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/data/types.ts =====
+export type Track = '047D' | '083A' | '148D';
+export type Maturity = 'provisional' | 'validated';
+export type Bounds = [number, number, number, number];
+
+export interface Scene {
+  date: string; // '2026-09-21'
+  track: Track;
+  maturity: Maturity;
+  bounds: Bounds;
+  waterPng: string; // 0 dry = transparent, 1 open water = blue, 3 permanent water = grey
+  radarJpg?: string; // processed radar image on the same grid as waterPng
+  /** Blended playback frame: latest valid observation per pixel from any track (see backend composite.py). Absent in mock data. */
+  composite?: { png: string; simplePng: string; radar: string; maxAgeDays: number; observedPct: number; sources: { date: string; track: Track; share_pct: number }[] } | null;
+  gibsDate?: string; // GIBS tile date, defaults to date
+}
+
+export type CommuneStatus = 'receded' | 'not_receded' | 'uncertain' | 'no_flood';
+
+export interface CommuneProps {
+  osm_id: string;
+  name: string;
+  province: string;
+  valid_km2: number | null;
+  first_flood_date: string | null;
+  peak_pct: number | null;
+  peak_date: string | null;
+  half_date: string | null;
+  recession_date: string | null; // null = not drained at the last image
+  last_pct: number | null;
+  last_date: string | null;
+  max_flooded_km2: number | null;
+  status: CommuneStatus;
+  reference_track?: Track;
+  coverage_sufficient?: boolean;
+}
+
+export interface SeriesPoint {
+  date: string;
+  track: Track;
+  water_pct: number;
+  water_km2: number;
+  valid_km2: number;
+}
+
+export type Choropleth = Record<string, number>; // osm_id -> water_pct
+/** Latest observation per commune on or before the scene date; age in days. */
+export type CompositeChoropleth = Record<string, { pct: number; age: number; date: string; track: Track }>;
+
+export interface AreaPoint {
+  date: string;
+  track: Track;
+  nisar_km2: number;
+  dswx_km2: number | null;
+}
+
+export interface SummaryLayer {
+  id: 'flood_count' | 'first_flood_date' | 'recession_date';
+  title: string;
+  png: string;
+  bounds: Bounds;
+  legend: { color: string; label: string }[];
+}
+
+export interface ValidationRow {
+  date: string;
+  f1_nisar: number;
+  f1_s1: number;
+  recall_nisar: number;
+  recall_s1: number;
+  precision_nisar: number | null;
+  precision_s1: number | null;
+  nisar_only_true_pct: number;
+}
+
+export interface Validation {
+  vsHls: ValidationRow[];
+  vsDswxS1: { date: string; track: Track; f1: number }[];
+  vsSwot?: SwotValidationRow[];
+  notes: string[];
+}
+
+export interface CommuneFeature {
+  type: 'Feature';
+  id?: number | string;
+  properties: CommuneProps;
+  geometry: GeoJSON.Geometry;
+}
+
+export interface CommuneCollection {
+  type: 'FeatureCollection';
+  features: CommuneFeature[];
+}
+
+
+/** [Claude] NISAR and Sentinel-1 DSWx scored against SWOT on the same pixels (nearest NISAR acquisition, <= 2 days). */
+export interface SwotValidationRow {
+  swotDate: string;
+  nisar: string;
+  daysApart: number;
+  overlapKm2: number;
+  swotWaterPct: number;
+  nisarWaterPct: number;
+  f1_nisar: number;
+  f1_s1: number | null;
+  f1_nisar_same_px: number | null;
+  f1_swot_vs_optical: number | null;
+  f1_nisar_vs_optical: number | null;
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/ui/validation.ts =====
+import { createAreaChart, createF1Chart } from '../charts/areaChart.ts';
+import { lang, T } from '../i18n.ts';
+import { getArea, getScenes, getValidation } from '../data/dataSource.ts';
+import type { AreaPoint, Scene, Validation, SwotValidationRow, ValidationRow } from '../data/types.ts';
+import { fmtPct, fmt2, fmtShort } from '../format.ts';
+import { h } from './dom.ts';
+
+function median(values: number[]): number {
+  const s = [...values].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+const range = (v: number[]) => `${fmt2(Math.min(...v))}–${fmt2(Math.max(...v))}`;
+
+function hlsTable(rows: ValidationRow[]): HTMLElement {
+  type Pair = { label: string; a: keyof ValidationRow; b: keyof ValidationRow };
+  const c = T.validation.hlsCols;
+  const pairs: Pair[] = [
+    { label: c.f1, a: 'f1_nisar', b: 'f1_s1' },
+    { label: c.recall, a: 'recall_nisar', b: 'recall_s1' },
+    { label: c.precision, a: 'precision_nisar', b: 'precision_s1' },
+  ];
+  const head1 = h('tr', {}, h('th', { rowspan: '2', text: c.date }), ...pairs.map((p) => h('th', { colspan: '2', class: 'grp', text: p.label })), h('th', { rowspan: '2', text: c.only }));
+  const head2 = h('tr', {}, ...pairs.flatMap(() => [h('th', { class: 'sub', text: 'NISAR' }), h('th', { class: 'sub', text: 'S-1' })]));
+  const body = rows.map((r) =>
+    h(
+      'tr',
+      {},
+      h('td', { text: fmtShort(r.date) }),
+      ...pairs.flatMap((p) => {
+        const a = r[p.a] as number | null;
+        const b = r[p.b] as number | null;
+        return [h('td', { class: `num ${a !== null && b !== null && a > b ? 'best' : ''}`, text: a === null ? '—' : fmt2(a) }), h('td', { class: `num ${a !== null && b !== null && b > a ? 'best' : ''}`, text: b === null ? '—' : fmt2(b) })];
+      }),
+      h('td', { class: 'num', text: `${r.nisar_only_true_pct}%` }),
+    ),
+  );
+  return h('div', { class: 'ct-wrap' }, h('table', { class: 'ct vt' }, h('thead', {}, head1, head2), h('tbody', {}, ...body)));
+}
+
+/** [Claude] NISAR vs Sentinel-1, both scored against SWOT (Ka-band) on the same pixels. */
+function swotTable(rows: SwotValidationRow[]): HTMLElement {
+  const c = T.validation.swotCols;
+  const head1 = h('tr', {}, h('th', { rowspan: '2', text: c.date }), h('th', { rowspan: '2', text: c.nisar }), h('th', { rowspan: '2', text: c.water }),
+    h('th', { colspan: '2', class: 'grp', text: c.f1 }), h('th', { rowspan: '2', text: c.optical }));
+  const head2 = h('tr', {}, h('th', { class: 'sub', text: 'NISAR' }), h('th', { class: 'sub', text: 'S-1' }));
+  const cell = (a: number | null, b: number | null) => h('td', { class: `num ${a !== null && b !== null && a > b ? 'best' : ''}`, text: a === null ? '—' : fmt2(a) });
+  const body = rows.map((r) => {
+    const n = r.f1_nisar_same_px ?? r.f1_nisar;
+    return h('tr', {},
+      h('td', { text: fmtShort(r.swotDate) }),
+      h('td', { text: `${fmtShort(r.nisar.slice(0, 10))} · ${r.nisar.slice(11)}` }),
+      h('td', { class: 'num', text: `${fmtPct(r.swotWaterPct)} / ${fmtPct(r.nisarWaterPct)}` }),
+      cell(n, r.f1_s1), cell(r.f1_s1, n),
+      h('td', { class: 'num', text: r.f1_swot_vs_optical === null ? '—' : `${fmt2(r.f1_swot_vs_optical)} / ${fmt2(r.f1_nisar_vs_optical!)}` }));
+  });
+  return h('div', { class: 'ct-wrap' }, h('table', { class: 'ct vt' }, h('thead', {}, head1, head2), h('tbody', {}, ...body)));
+}
+
+function sourcesList(): HTMLElement {
+  return h(
+    'ul',
+    { class: 'v-list' },
+    ...T.content.sources.map((s) => h('li', {}, h('b', { text: `${s.name}: ` }), s.href ? h('a', { href: s.href, target: '_blank', rel: 'noopener', text: s.text }) : s.text)),
+  );
+}
+
+export function mountValidation(host: HTMLElement): void {
+  host.classList.add('page');
+  const inner = h('div', { class: 'page-inner' }, h('div', { class: 'loading', text: T.validation.loading }));
+  host.append(inner);
+
+  const charts: { destroy(): void }[] = [];
+
+  Promise.all([getArea(), getValidation(), getScenes()])
+    .then(([area, v, scenes]) => build(area, v, scenes))
+    .catch((err: unknown) => {
+      console.error(err);
+      inner.replaceChildren(h('div', { class: 'error-box', text: err instanceof Error ? err.message : T.app.loadError }));
+    });
+
+  function build(area: AreaPoint[], v: Validation, scenes: Scene[]) {
+    const V = T.validation;
+    const f1 = v.vsDswxS1.map((r) => r.f1);
+    const flood = v.vsDswxS1.filter((r) => r.date >= '2026-09-01').map((r) => r.f1);
+    const early = v.vsDswxS1.filter((r) => r.date < '2026-08-01').map((r) => r.f1);
+
+    const areaCanvas = h('canvas', { role: 'img', 'aria-label': V.areaAria });
+    const f1Canvas = h('canvas', { role: 'img', 'aria-label': V.f1Aria });
+
+    const details = h(
+      'details',
+      { class: 'card vcard v-details' },
+      h('summary', { text: V.detailsTitle }),
+      h('h3', { text: V.areaTitle }),
+      h('div', { class: 'v-chart' }, areaCanvas),
+      h('p', { class: 'note', text: V.areaNote(T.areaNote) }),
+      h('h3', { class: 'v-sub', text: V.hlsTitle }),
+      h('p', { class: 'note', text: V.hlsNote }),
+      hlsTable(v.vsHls),
+      ...(v.vsSwot?.length ? [h('h3', { class: 'v-sub', text: V.swotTitle }), h('p', { class: 'note', text: V.swotNote }), swotTable(v.vsSwot)] : []),
+      h('h3', { class: 'v-sub', text: V.agreeTitle }),
+      h(
+        'div',
+        { class: 'v-kpis' },
+        h('div', { class: 'cp-stat' }, h('span', { class: 'cp-stat-label', text: V.kpiMedian }), h('b', { text: fmt2(median(f1)) })),
+        h('div', { class: 'cp-stat' }, h('span', { class: 'cp-stat-label', text: V.kpiFlood }), h('b', { text: range(flood) })),
+        h('div', { class: 'cp-stat' }, h('span', { class: 'cp-stat-label', text: V.kpiEarly }), h('b', { text: range(early) })),
+      ),
+      h('div', { class: 'v-chart short' }, f1Canvas),
+      h('p', { class: 'note', text: V.f1Foot }),
+      h('h3', { class: 'v-sub', text: V.methodTitle }),
+      h('p', { text: T.content.method }),
+      ...(lang === 'en' ? v.notes.map((n) => h('p', { class: 'note', text: n })) : []), // backend notes are English-only
+      h('h3', { class: 'v-sub', text: V.droppedTitle }),
+      h('ul', { class: 'v-list' }, ...V.dropped.map((d) => h('li', { text: d }))),
+    );
+
+    inner.replaceChildren(
+      h('h2', { text: V.title }),
+      h('p', { class: 'lead', text: V.lead }),
+      h('section', { class: 'card vcard v-plain' }, h('h3', { text: V.plainTitle }), h('ul', { class: 'v-list' }, ...V.plain.map((p) => h('li', { text: p })))),
+      h('section', { class: 'card vcard' }, h('h3', { text: V.limitsTitle }), h('ul', { class: 'v-list' }, ...T.content.limits.map((l) => h('li', { text: l })))),
+      details,
+      h('section', { class: 'card vcard' }, h('h3', { text: V.sourcesTitle }), sourcesList()),
+    );
+
+    charts.push(createAreaChart(areaCanvas, area, scenes), createF1Chart(f1Canvas, v));
+  }
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/map/map.ts =====
+import * as maplibregl from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+import { AOI, MAP_CENTER, MAP_ZOOM } from '../config.ts';
+import { getChoropleth, getCommunes, getCompositeChoropleth, getScenes, getSummaryLayers } from '../data/dataSource.ts';
+import { T } from '../i18n.ts';
+import type { CommuneCollection, Scene, SummaryLayer } from '../data/types.ts';
+import { latestValues } from '../data/observations.ts';
+import { set, state, subscribe, type State } from '../state.ts';
+import { addCommunes, type CommunesLayer } from './communesLayer.ts';
+import { addGeoLayers, addImageLayers, baseStyle, sceneImageUrls, setSummaryLayer, warmImage, type SceneImages } from './layers.ts';
+
+export interface MapView {
+  map: maplibregl.Map;
+  resize(): void;
+}
+
+export function mountMap(container: HTMLElement): MapView {
+  // maplibre-gl v6 locates its worker next to the library file, which breaks once bundled; point it at the bundled worker.
+  maplibregl.setWorkerUrl(workerUrl);
+  const map = new maplibregl.Map({
+    container,
+    style: baseStyle(),
+    center: MAP_CENTER,
+    zoom: MAP_ZOOM,
+    minZoom: 3,
+    maxBounds: [
+      [90, -2],
+      [125, 30],
+    ],
+    attributionControl: { compact: true },
+    dragRotate: false,
+    pitchWithRotate: false,
+  });
+  map.touchZoomRotate.disableRotation();
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+  map.addControl({
+    onAdd() {
+      const box = document.createElement('div');
+      box.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ctrl-fit';
+      btn.title = T.map.fitTip;
+      btn.setAttribute('aria-label', T.map.fitTip);
+      btn.textContent = '⌖';
+      btn.addEventListener('click', () => map.fitBounds([[AOI[0], AOI[1]], [AOI[2], AOI[3]]], { padding: 30 }));
+      box.append(btn);
+      return box;
+    },
+    onRemove() {},
+  }, 'top-right');
+
+  new ResizeObserver(() => map.resize()).observe(container);
+  if (import.meta.env.DEV) (window as unknown as { __map: maplibregl.Map }).__map = map;
+
+  let scenes: Scene[] = [];
+  let summaries: SummaryLayer[] = [];
+  let communes: CommunesLayer | null = null;
+  let collection: CommuneCollection | null = null;
+  let images: SceneImages | null = null;
+  let ready = false;
+  let requestToken = 0;
+
+  const sceneOf = (s: State) => scenes.find((x) => x.date === s.selectedDate && x.track === s.selectedTrack);
+
+  function vis(id: string, on: boolean) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
+  }
+
+  function applyLook(s: State) {
+    const summaryOn = s.mapMode === 'scene' && s.activeSummary !== null;
+    const singleImage = s.mapMode === 'scene';
+    const simple = s.viewMode === 'simple' && !!sceneOf(s)?.composite;
+    vis('basemap', s.layers.basemap);
+    images?.radar.setVisible(singleImage && s.layers.radar && !summaryOn && !simple);
+    images?.water.setVisible(singleImage && s.layers.water && !summaryOn);
+    vis('summary', summaryOn);
+    vis('provinces', s.layers.provinces);
+    vis('province-labels', s.layers.provinces);
+    communes?.setVisible(s.layers.communes);
+    images?.radar.setOpacity(s.opacity.radar);
+    images?.water.setOpacity(s.opacity.water);
+    // The simple view is one colour: commune fills stay clickable but transparent (outlines remain).
+    communes?.setOpacity(simple && singleImage ? 0 : s.opacity.communes);
+  }
+
+  async function applyScene(s: State) {
+    const token = ++requestToken;
+    communes?.setMode(s.mapMode);
+    if (s.mapMode === 'latest' && collection) {
+      communes?.setChoropleth(latestValues(collection));
+      return;
+    }
+    const scene = sceneOf(s);
+    if (!scene) return;
+    // Keep the previous values on screen until the next ones arrive (no grey flash between frames).
+    set({ radarMissing: false });
+    const urls = sceneImageUrls(scene, s.viewMode);
+    void images?.radar.show(urls.radar, s.cut);
+    void images?.water.show(urls.water, s.cut);
+    try {
+      const mosaic = scene.composite ? await getCompositeChoropleth(scene.date, scene.track) : null;
+      if (token !== requestToken) return;
+      if (mosaic) {
+        communes?.setChoropleth(Object.fromEntries(Object.entries(mosaic).map(([id, v]) => [id, v.pct])), mosaic);
+        return;
+      }
+      const values = await getChoropleth(scene.date, scene.track);
+      if (token === requestToken) communes?.setChoropleth(values);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /** [Claude] Warm the HTTP cache so Play does not stall on the network (the simple view needs no radar). */
+  function warmAll(mode: State['viewMode']) {
+    for (const sc of scenes) {
+      const u = sceneImageUrls(sc, mode);
+      warmImage(u.water);
+      if (mode === 'pro') warmImage(u.radar);
+    }
+  }
+
+  function applySummary(s: State) {
+    const layer = summaries.find((l) => l.id === s.activeSummary) ?? null;
+    setSummaryLayer(map, layer);
+  }
+
+  function flyToCommune(id: string) {
+    const b = communes?.bounds(id);
+    if (!b) return;
+    map.resize();
+    const mobile = window.innerWidth < 768;
+    map.fitBounds(b, {
+      padding: { top: mobile ? 16 : 60, bottom: mobile ? Math.round(container.clientHeight * 0.62) + 8 : 40, left: mobile ? 16 : 40, right: mobile ? 16 : 480 },
+      maxZoom: 11,
+      duration: 700,
+    });
+  }
+
+  map.on('error', (e) => {
+    const err = e as unknown as { sourceId?: string };
+    if (err.sourceId === 'radar-image') set({ radarMissing: true });
+  });
+
+  map.on('load', async () => {
+    try {
+      [scenes, summaries] = await Promise.all([getScenes(), getSummaryLayers()]);
+      const first = sceneOf(state) ?? scenes[0];
+      images = addImageLayers(map, first, state.viewMode, () => set({ radarMissing: true }));
+      warmAll(state.viewMode);
+      const data = await getCommunes();
+      collection = data;
+      communes = addCommunes(map, data, { onSelect: (osmId) => set({ selectedCommune: osmId }) });
+      await addGeoLayers(map);
+      ready = true;
+      applyLook(state);
+      if (state.activeSummary) applySummary(state);
+      if (state.selectedCommune) communes.setSelected(state.selectedCommune);
+      await applyScene(state);
+      if (state.tab === 'map' && state.selectedCommune && state.flyNonce > 0) flyToCommune(state.selectedCommune);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  subscribe((s, prev) => {
+    if (s.tab === 'map' && prev.tab !== 'map') map.resize();
+    if (!ready) return;
+    if (s.selectedDate !== prev.selectedDate || s.selectedTrack !== prev.selectedTrack || s.mapMode !== prev.mapMode || s.viewMode !== prev.viewMode) {
+      if (s.viewMode !== prev.viewMode) warmAll(s.viewMode);
+      void applyScene(s);
+    }
+    if (s.layers !== prev.layers || s.opacity !== prev.opacity || s.activeSummary !== prev.activeSummary || s.mapMode !== prev.mapMode || s.viewMode !== prev.viewMode) {
+      if (s.activeSummary !== prev.activeSummary) applySummary(s);
+      applyLook(s);
+    }
+    if (s.selectedCommune !== prev.selectedCommune) communes?.setSelected(s.selectedCommune);
+    if (s.flyNonce !== prev.flyNonce && s.selectedCommune) {
+      flyToCommune(s.selectedCommune);
+    }
+  });
+
+  return { map, resize: () => map.resize() };
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/ui/mapContext.ts =====
+import { getChoropleth, getCommunes, getCompositeChoropleth } from '../data/dataSource.ts';
+import { hasAssessment } from '../data/observations.ts';
+import type { Scene } from '../data/types.ts';
+import { fmtDate } from '../format.ts';
+import { T } from '../i18n.ts';
+import { set, state, subscribe } from '../state.ts';
+import { h } from './dom.ts';
+
+/** [Codex] Explain the time and coverage of the visible map before users interpret it. */
+export async function mountMapContext(host: HTMLElement, scenes: Scene[]): Promise<void> {
+  const collection = await getCommunes();
+  const assessed = collection.features.filter(f => hasAssessment(f.properties));
+  const dates = assessed.map(f => f.properties.last_date!).sort();
+  const title = h('h1');
+  const note = h('p', { role: 'status', 'aria-live': 'polite' });
+  const latest = h('button', { type: 'button', text: T.map.latestMode });
+  const scene = h('button', { type: 'button', text: T.map.sceneMode });
+  latest.addEventListener('click', () => set({ mapMode: 'latest', activeSummary: null, playing: false }));
+  scene.addEventListener('click', () => set({ mapMode: 'scene', activeSummary: null, playing: false }));
+  host.className = 'map-context';
+  host.append(h('div', { class: 'map-context-heading' }, title,
+    h('div', { class: 'map-mode', role: 'group', 'aria-label': T.map.modeLabel }, latest, scene)), note);
+  let token = 0;
+  async function render() {
+    const my = ++token;
+    const isLatest = state.mapMode === 'latest';
+    latest.setAttribute('aria-pressed', String(isLatest));
+    scene.setAttribute('aria-pressed', String(!isLatest));
+    if (isLatest) {
+      title.textContent = T.map.latestTitle;
+      note.textContent = T.map.latestCoverage(assessed.length, collection.features.length, fmtDate(dates[0] ?? null), fmtDate(dates.at(-1) ?? null));
+      return;
+    }
+    const current = scenes.find(s => s.date === state.selectedDate && s.track === state.selectedTrack);
+    if (!current) return;
+    title.textContent = T.map.sceneTitle(fmtDate(current.date), current.track);
+    note.textContent = T.map.coverageLoading;
+    try {
+      if (current.composite) {
+        const mosaic = await getCompositeChoropleth(current.date, current.track);
+        if (mosaic) {
+          if (my === token) note.textContent = T.map.blendCoverage(Object.keys(mosaic).length, collection.features.length);
+          return;
+        }
+      }
+      const values = await getChoropleth(current.date, current.track);
+      if (my === token) note.textContent = T.map.sceneCoverage(Object.keys(values).length, collection.features.length);
+    } catch {
+      if (my === token) note.textContent = T.app.loadError;
+    }
+  }
+  subscribe((s, prev) => {
+    if (s.mapMode !== prev.mapMode || s.selectedDate !== prev.selectedDate || s.selectedTrack !== prev.selectedTrack) void render();
+  });
+  await render();
+}
+
+
+===== REMOTE SOURCE 4f59e90:src/locales/overview.ts =====
+// --- Bổ sung vào object `en` trong src/i18n.ts ---
+export const enOverview = {
+  overview: {
+    loading: 'Loading commune flood overview…',
+    loadError: 'Unable to load commune overview data.',
+    title: 'Water status by commune',
+    lead: 'Results from the latest NISAR radar image of each commune: which communes still hold substantial water and which lack data. Select a commune to open its image as evidence.',
+    cautionLabel: 'Operational notice:',
+    cautionBody:
+      'Use the observations to prioritize field checks. Check soil conditions locally before deciding when to sow.',
+    snapshotAria: 'Dataset timeframe and spatial coverage summary',
+    snapshotWindowLabel: 'Latest observation window',
+    dateRange: (minDate: string, maxDate: string): string => `${minDate} – ${maxDate}`,
+    noDateRange: 'No observation dates available',
+    snapshotWindowSub: 'Latest valid satellite pass per commune (not real-time)',
+    snapshotCoverageLabel: 'Communes with sufficient coverage (≥50%)',
+    snapshotCoverageValue: (evaluated: number, total: number): string =>
+      `${evaluated} / ${total} communes`,
+    snapshotCoverageSub: (insufficient: number, noObs: number, partial: number): string =>
+      `${insufficient} insufficient coverage (${noObs} without observation, ${partial} partial <50%)`,
+    ctaMapOverview: 'Open Latest Overview Map',
+    ctaValidation: 'View Data Reliability & Validation',
+
+    cardsSectionTitle: 'Commune Breakdown by Latest Water Fraction & Coverage',
+    cardsSectionSub:
+      'Click any card below to filter the priority commune list. Thresholds apply only to communes with ≥50% valid radar coverage.',
+    cardsGroupAria: 'Filter communes by water level or coverage status',
+    cards: {
+      unitCommunes: (total: number): string => `/ ${total} communes`,
+      clickToFilter: 'Click to filter the list',
+      highTitle: 'High Standing Water',
+      highThreshold: '≥ 30% water · Coverage ≥ 50%',
+      highDesc: 'Prioritize a field check and compare with the local drainage plan.',
+      mediumTitle: 'Moderate Standing Water',
+      mediumThreshold: '10% to < 30% · Coverage ≥ 50%',
+      mediumDesc: 'Check the next observation on the same orbit to assess how water changes.',
+      lowTitle: 'Low Surface Water',
+      lowThreshold: '< 10% water · Coverage ≥ 50%',
+      lowDesc: 'Low open-water fraction on radar. Does NOT automatically mean soil is ready or safe for sowing.',
+      insufficientTitle: 'Insufficient observations',
+      insufficientThreshold: 'Coverage < 50% or No Pass',
+      insufficientDesc: (noObs: number, partial: number): string =>
+        `${noObs} communes without observations, ${partial} with partial coverage (<50%). Missing data ≠ dry.`,
+    },
+
+    list: {
+      title: 'Priority Commune Inspection List',
+      subtitle:
+        'Sorted by highest standing water fraction first. Click any commune row to inspect its latest radar scene on the map.',
+      searchPlaceholder: 'Search commune or province (e.g., Son Kien, An Long)…',
+      searchAria: 'Search commune by name or province',
+      provinceAria: 'Filter by province',
+      allProvinces: 'All provinces',
+      groupAria: 'Filter by water fraction or coverage group',
+      groupAll: (n: number): string => `All groups (${n})`,
+      groupHigh: (n: number): string => `High water ≥ 30% (${n})`,
+      groupMedium: (n: number): string => `Moderate 10% – < 30% (${n})`,
+      groupLow: (n: number): string => `Low water < 10% (${n})`,
+      groupInsufficient: (n: number): string => `Insufficient coverage < 50% (${n})`,
+      resetFilters: 'Reset filters',
+      showingCount: (shown: number, matched: number, total: number): string =>
+        `Showing ${shown} of ${matched} matching communes (${total} total)`,
+      colCommune: 'Commune',
+      colProvince: 'Province',
+      colWaterPct: 'Water in last observation',
+      colObsDate: 'Observation Date',
+      colCoverage: 'Radar Coverage',
+      colAction: 'Map',
+      noObsShort: 'No observation',
+      partialValueNote: 'Partial (<50% area)',
+      groupBadge: {
+        high: '≥ 30%',
+        medium: '10–<30%',
+        low: '< 10% (Not safety guarantee)',
+        insufficient: 'Insufficient coverage',
+      },
+      noDate: 'No pass',
+      trackTag: (track: string): string => `Track ${track}`,
+      coverageSufficient: 'Sufficient (≥ 50%)',
+      coveragePartial: 'Partial (< 50%)',
+      coverageNone: 'No observation in this dataset',
+      validArea: (km2: string): string => `${km2} km² observed`,
+      openMapRow: 'View map →',
+      rowAria: (
+        name: string,
+        province: string,
+        pct: string,
+        date: string,
+        coverage: string,
+      ): string =>
+        `${name}, ${province}: water ${pct}, observed ${date}, coverage ${coverage}. Click to open latest map.`,
+      emptyResult: 'No communes match the current search or filter criteria.',
+      showMore: (remaining: number): string => `Show all (${remaining} more communes)`,
+      showLess: 'Show top 12 communes only',
+    },
+
+    guideAndCaveatsAria: 'Data interpretation caveats and 3-step operational guide',
+    caveats: {
+      title: 'Why Coverage Varies & How to Interpret Dates Safely',
+      missingNotDryTitle: (insufficient: number): string =>
+        `1. ${insufficient} communes with insufficient coverage ≠ dry land`,
+      missingNotDryBody: (insufficient: number, noObs: number, partial: number): string =>
+        `Satellite swaths do not cover every commune equally on every pass. Currently, ${noObs} communes have no observation and ${partial} communes have less than 50% area observed (total ${insufficient} communes). They are separated so they are never mistaken for 0% flooded communes.`,
+      viewInsufficientBtn: (n: number): string => `Filter the ${n} insufficient-coverage communes`,
+      multiTrackTitle: '2. Different observation dates across tracks — Do not merge or infer trends across tracks',
+      multiTrackBody:
+        'NISAR observes the region along separate orbital tracks (047D, 083A, 148D) on different dates. "Latest per commune" mode displays each commune’s most recent valid pass without blending different dates into a fake single-day image, and without comparing two different tracks to guess water recession trends.',
+      trackExampleDynamic: (
+        nameA: string,
+        pctA: string,
+        dateA: string,
+        trackA: string,
+        nameB: string,
+        pctB: string,
+        dateB: string,
+        trackB: string,
+      ): string =>
+        `Example from current dataset: ${nameA} is at ${pctA} on ${dateA} (track ${trackA}), while ${nameB} is at ${pctB} on ${dateB} (track ${trackB}). Each commune must be read with its own observation date and reference track.`,
+      trackExampleFallback:
+        'Each commune must be read alongside its own observation date and reference orbital track.',
+    },
+
+    guide: {
+      title: '3-Step Operational Guide',
+      lead: 'Quick workflow for irrigation and cooperative teams:',
+      step1Title: 'Filter high-priority communes',
+      step1Body:
+        'Start with the ≥ 30% and 10% – < 30% cards or filter by your province to identify communes with substantial standing water.',
+      step2Title: 'Verify observation date & coverage status',
+      step2Body:
+        'Check the exact capture date and track on each row. Treat the 9 insufficient-coverage communes as unverified—never as dry.',
+      step3Title: 'Open the commune map & confirm in the field',
+      step3Body:
+        'Choose a commune, check its observation date and open the corresponding image. Confirm local conditions before deciding what to do.',
+    },
+  },
+};
+
+// --- Bổ sung vào object `vi` trong src/i18n.ts ---
+export const viOverview: typeof enOverview = {
+  overview: {
+    loading: 'Đang tải tổng quan ngập lũ cấp xã…',
+    loadError: 'Không thể tải dữ liệu tổng quan cấp xã.',
+    title: 'Tình hình nước theo xã',
+    lead: 'Kết quả từ ảnh radar NISAR gần nhất của từng xã: xã nào còn nhiều nước, xã nào chưa đủ dữ liệu. Chọn xã để mở ảnh làm bằng chứng.',
+    cautionLabel: 'Lưu ý vận hành:',
+    cautionBody:
+      'Dữ liệu dùng để ưu tiên kiểm tra thực địa và điều tiết tiêu nước; cần kiểm tra tình trạng đất tại ruộng trước khi quyết định xuống giống.',
+    snapshotAria: 'Tóm tắt khung thời gian bộ dữ liệu và độ phủ quan trắc',
+    snapshotWindowLabel: 'Đợt quan trắc mới nhất',
+    dateRange: (minDate: string, maxDate: string): string => `${minDate} – ${maxDate}`,
+    noDateRange: 'Chưa có ngày quan trắc',
+    snapshotWindowSub: 'Ảnh hợp lệ mới nhất theo từng xã (không phải thời gian thực)',
+    snapshotCoverageLabel: 'Số xã đủ độ phủ đánh giá (≥50% diện tích)',
+    snapshotCoverageValue: (evaluated: number, total: number): string =>
+      `${evaluated} / ${total} xã`,
+    snapshotCoverageSub: (insufficient: number, noObs: number, partial: number): string =>
+      `${insufficient} xã chưa đủ độ phủ (${noObs} không có quan trắc, ${partial} chỉ phủ một phần <50%)`,
+    ctaMapOverview: 'Xem bản đồ tổng quan',
+    ctaValidation: 'Xem độ tin cậy',
+
+    cardsSectionTitle: 'Kết quả từ ảnh gần nhất của từng xã',
+    cardsSectionSub:
+      'Chọn một nhóm để xem các xã cần kiểm tra. Mỗi xã dùng một quan sát riêng, có ghi ngày rõ ràng.',
+    cardsGroupAria: 'Lọc xã theo nhóm mức nước hoặc trạng thái độ phủ',
+    cards: {
+      unitCommunes: (total: number): string => `/ ${total} xã`,
+      clickToFilter: 'Bấm để lọc danh sách',
+      highTitle: 'Còn nhiều nước',
+      highThreshold: 'Từ 30% diện tích có nước',
+      highDesc: 'Ưu tiên kiểm tra thực địa, đối chiếu kế hoạch tiêu nước tại địa phương.',
+      mediumTitle: 'Còn một phần nước',
+      mediumThreshold: 'Từ 10% đến dưới 30% nước',
+      mediumDesc: 'Theo dõi ảnh kế tiếp cùng quỹ đạo để biết nước thay đổi ra sao.',
+      lowTitle: 'Ít nước trên ảnh',
+      lowThreshold: 'Dưới 10% diện tích có nước',
+      lowDesc: 'Đối chiếu tình trạng đất trước khi quyết định xuống giống.',
+      insufficientTitle: 'Chưa đủ dữ liệu',
+      insufficientThreshold: 'Phủ < 50% hoặc chưa có ảnh',
+      insufficientDesc: (noObs: number, partial: number): string =>
+        `Gồm ${noObs} xã không có quan trắc và ${partial} xã chỉ phủ ít (<50%). Thiếu dữ liệu ≠ đã khô ráo.`,
+    },
+
+    list: {
+      title: 'Danh sách xã ưu tiên kiểm tra',
+      subtitle:
+        'Xã có nhiều nước được xếp trước. Chọn xã để đọc kết quả và xem ảnh làm bằng chứng.',
+      searchPlaceholder: 'Tìm tên xã hoặc tỉnh (VD: Sơn Kiên, An Long)…',
+      searchAria: 'Tìm kiếm theo tên xã hoặc tỉnh',
+      provinceAria: 'Lọc theo tỉnh',
+      allProvinces: 'Tất cả tỉnh',
+      groupAria: 'Lọc theo nhóm mức nước hoặc độ phủ',
+      groupAll: (n: number): string => `Tất cả nhóm (${n})`,
+      groupHigh: (n: number): string => `Còn nhiều nước ≥ 30% (${n})`,
+      groupMedium: (n: number): string => `Trung bình 10% – < 30% (${n})`,
+      groupLow: (n: number): string => `Nước mặt thấp < 10% (${n})`,
+      groupInsufficient: (n: number): string => `Chưa đủ độ phủ < 50% (${n})`,
+      resetFilters: 'Xóa bộ lọc',
+      showingCount: (shown: number, matched: number, total: number): string =>
+        `Hiển thị ${shown} / ${matched} xã khớp lọc (tổng ${total} xã)`,
+      colCommune: 'Xã / Phường',
+      colProvince: 'Tỉnh',
+      colWaterPct: '% Nước mới nhất',
+      colObsDate: 'Ngày quan trắc',
+      colCoverage: 'Độ phủ dữ liệu',
+      colAction: 'Bản đồ',
+      noObsShort: 'Không có quan trắc',
+      partialValueNote: 'Chỉ phủ một phần (<50%)',
+      groupBadge: {
+        high: '≥ 30%',
+        medium: '10–<30%',
+        low: '< 10% (Chưa kết luận an toàn)',
+        insufficient: 'Thiếu độ phủ',
+      },
+      noDate: 'Chưa có ảnh',
+      trackTag: (track: string): string => `Dải bay ${track}`,
+      coverageSufficient: 'Đủ độ phủ (≥ 50%)',
+      coveragePartial: 'Chỉ phủ ít (< 50%)',
+      coverageNone: 'Chưa có quan trắc',
+      validArea: (km2: string): string => `Quét ${km2} km²`,
+      openMapRow: 'Mở bản đồ →',
+      rowAria: (
+        name: string,
+        province: string,
+        pct: string,
+        date: string,
+        coverage: string,
+      ): string =>
+        `${name}, ${province}: tỷ lệ nước ${pct}, ngày quan trắc ${date}, ${coverage}. Bấm để mở bản đồ chế độ mới nhất.`,
+      emptyResult: 'Không có xã nào khớp với điều kiện tìm kiếm hoặc bộ lọc hiện tại.',
+      showMore: (remaining: number): string => `Xem thêm ${remaining} xã`,
+      showLess: 'Thu gọn (chỉ hiện 12 xã đầu)',
+    },
+
+    guideAndCaveatsAria: 'Giải thích giới hạn dữ liệu và hướng dẫn 3 bước sử dụng',
+    caveats: {
+      title: 'Giải thích rõ về độ phủ & ngày quan trắc vệ tinh',
+      missingNotDryTitle: (insufficient: number): string =>
+        `1. ${insufficient} xã thiếu độ phủ KHÔNG có nghĩa là đã khô ráo`,
+      missingNotDryBody: (insufficient: number, noObs: number, partial: number): string =>
+        `Vệt quét của vệ tinh không phủ kín mọi xã trong cùng một lượt bay. Hiện có ${noObs} xã chưa có quan trắc và ${partial} xã chỉ được quét một phần nhỏ (< 50% diện tích), tổng cộng ${insufficient} xã chưa đủ độ phủ. Hệ thống tách riêng nhóm này để cán bộ tuyệt đối không nhầm lẫn xã thiếu ảnh vệ tinh với xã đã rút hết nước.`,
+      viewInsufficientBtn: (n: number): string => `Lọc xem ngay ${n} xã chưa đủ độ phủ`,
+      multiTrackTitle: '2. Ngày chụp khác nhau giữa các dải bay — Không gộp ảnh, không suy đoán xu thế từ 2 track',
+      multiTrackBody:
+        'Vệ tinh NISAR quét qua vùng Đồng bằng sông Cửu Long theo từng dải bay (track 047D, 083A, 148D) vào các ngày khác nhau. Chế độ "Mới nhất theo xã" giữ nguyên ngày quan trắc hợp lệ cuối cùng của từng xã, không tự ý trộn các ngày khác nhau thành một ảnh đơn lẻ và không lấy chênh lệch giữa 2 dải bay khác nhau để suy đoán xu thế nước rút hay dâng.',
+      trackExampleDynamic: (
+        nameA: string,
+        pctA: string,
+        dateA: string,
+        trackA: string,
+        nameB: string,
+        pctB: string,
+        dateB: string,
+        trackB: string,
+      ): string =>
+        `Dẫn chứng thực tế: Xã ${nameA} ghi nhận ${pctA} nước vào ngày ${dateA} (dải bay ${trackA}), trong khi xã ${nameB} ghi nhận ${pctB} vào ngày ${dateB} (dải bay ${trackB}). Khi tra cứu, cần đọc tỷ lệ nước đi kèm đúng ngày chụp và dải bay của xã đó.`,
+      trackExampleFallback:
+        'Khi tra cứu, cần đọc tỷ lệ nước đi kèm đúng ngày chụp và dải bay tham chiếu của từng xã.',
+    },
+
+    guide: {
+      title: 'Hướng dẫn 3 bước tra cứu nhanh',
+      lead: 'Chọn xã, đọc ngày quan sát, rồi mở ảnh để kiểm tra:',
+      step1Title: 'Lọc nhóm xã còn nhiều nước',
+      step1Body:
+        'Bấm vào thẻ "Còn nhiều nước (≥ 30%)" hoặc chọn Tỉnh của bạn để khoanh vùng ngay các xã cần ưu tiên tiêu nước.',
+      step2Title: 'Kiểm tra ngày quan trắc & độ phủ',
+      step2Body:
+        'Xem cột Ngày quan trắc và Độ phủ dữ liệu. Với 9 xã chưa đủ độ phủ (< 50%), cần kiểm tra trực tiếp ngoài thực địa chứ không coi là đã cạn.',
+      step3Title: 'Mở bản đồ xã & đối chiếu thực địa',
+      step3Body:
+        'Chọn xã, kiểm tra ngày quan sát và mở ảnh tương ứng. Đối chiếu tình trạng tại ruộng trước khi quyết định.',
+    },
+  },
+};
+
+
+===== REMOTE SOURCE 4f59e90:src/ui/overview.ts =====
+// [Gemini, Codex reviewed] Purpose-first commune overview from observed data.
+import { getCommunes } from '../data/dataSource.ts';
+import type { CommuneProps } from '../data/types.ts';
+import { fmtDate, fmtNum, fmtPct, fold } from '../format.ts';
+import { T } from '../i18n.ts';
+import { set, state } from '../state.ts';
+import { h } from './dom.ts';
+
+export type OverviewGroup = 'all' | 'high' | 'medium' | 'low' | 'insufficient';
+
+type CoverageKind = 'sufficient' | 'partial' | 'none';
+
+const INITIAL_VISIBLE_COUNT = 12;
+
+function getCoverageKind(c: CommuneProps): CoverageKind {
+  if (c.last_pct === null || c.last_date === null) return 'none';
+  if (c.coverage_sufficient === true) return 'sufficient';
+  return 'partial';
+}
+
+function isEvaluated(c: CommuneProps): boolean {
+  return getCoverageKind(c) === 'sufficient';
+}
+
+function classifyCommune(c: CommuneProps): Exclude<OverviewGroup, 'all'> {
+  if (!isEvaluated(c)) return 'insufficient';
+  const pct = c.last_pct as number;
+  if (pct >= 30) return 'high';
+  if (pct >= 10) return 'medium';
+  return 'low';
+}
+
+function comparePriority(a: CommuneProps, b: CommuneProps): number {
+  const aEval = isEvaluated(a);
+  const bEval = isEvaluated(b);
+  if (aEval !== bEval) return aEval ? -1 : 1;
+
+  const aKind = getCoverageKind(a);
+  const bKind = getCoverageKind(b);
+  if (aKind !== bKind) {
+    if (aKind === 'partial') return -1;
+    if (bKind === 'partial') return 1;
+  }
+
+  if (a.last_pct !== null && b.last_pct !== null && a.last_pct !== b.last_pct) {
+    return b.last_pct - a.last_pct;
+  }
+  if (a.last_pct !== null && b.last_pct === null) return -1;
+  if (a.last_pct === null && b.last_pct !== null) return 1;
+
+  return a.name.localeCompare(b.name, 'vi');
+}
+
+function computeDateRange(all: CommuneProps[]): { minDate: string | null; maxDate: string | null } {
+  const dates = all
+    .map((c) => c.last_date)
+    .filter((d): d is string => typeof d === 'string' && d.length > 0)
+    .sort((a, b) => a.localeCompare(b));
+
+  if (dates.length === 0) {
+    return { minDate: null, maxDate: null };
+  }
+  return {
+    minDate: dates[0],
+    maxDate: dates[dates.length - 1],
+  };
+}
+
+export function mountOverview(host: HTMLElement): void {
+  host.classList.add('page', 'ov-page');
+  const inner = h('div', { class: 'page-inner ov-inner' });
+  host.replaceChildren(inner);
+  inner.append(h('div', { class: 'loading ov-loading', text: T.overview.loading }));
+
+  getCommunes()
+    .then((collection) => {
+      const propsList = collection.features.map((f) => f.properties);
+      buildOverview(inner, propsList);
+    })
+    .catch((err: unknown) => {
+      console.error(err);
+      inner.replaceChildren(
+        h('div', {
+          class: 'error-box ov-error',
+          text: err instanceof Error ? err.message : T.overview.loadError,
+        }),
+      );
+    });
+}
+
+function buildOverview(root: HTMLElement, all: CommuneProps[]): void {
+  let activeGroup: OverviewGroup = 'all';
+  let selectedProvince = '';
+  let searchQuery = '';
+  let expanded = false;
+
+  const totalCount = all.length;
+  const highList = all.filter((c) => classifyCommune(c) === 'high');
+  const mediumList = all.filter((c) => classifyCommune(c) === 'medium');
+  const lowList = all.filter((c) => classifyCommune(c) === 'low');
+  const insufficientList = all.filter((c) => classifyCommune(c) === 'insufficient');
+
+  const evaluatedCount = highList.length + mediumList.length + lowList.length;
+  const noObsCount = insufficientList.filter((c) => getCoverageKind(c) === 'none').length;
+  const partialObsCount = insufficientList.filter((c) => getCoverageKind(c) === 'partial').length;
+
+  const { minDate, maxDate } = computeDateRange(all.filter(isEvaluated));
+  const dateRangeText =
+    minDate && maxDate
+      ? minDate === maxDate
+        ? fmtDate(minDate)
+        : T.overview.dateRange(fmtDate(minDate), fmtDate(maxDate))
+      : T.overview.noDateRange;
+
+  function openMapOverview(): void {
+    set({
+      tab: 'map',
+      mapMode: 'latest',
+      activeSummary: null, playing: false,
+    });
+    location.hash = 'map';
+  }
+
+  function openValidation(): void {
+    set({
+      tab: 'validation',
+    });
+    location.hash = 'validation';
+  }
+
+  function openCommuneOnMap(p: CommuneProps): void {
+    set({
+      tab: 'map',
+      mapMode: 'latest',
+      activeSummary: null, playing: false,
+      selectedCommune: p.osm_id,
+      flyNonce: state.flyNonce + 1,
+    });
+    location.hash = 'map';
+  }
+
+  // 1. Hero & Purpose Banner
+  const mapBtn = h('button', {
+    type: 'button',
+    class: 'btn ov-btn-primary',
+    text: T.overview.ctaMapOverview,
+  });
+  mapBtn.addEventListener('click', openMapOverview);
+
+  const validationBtn = h('button', {
+    type: 'button',
+    class: 'btn ov-btn-secondary',
+    text: T.overview.ctaValidation,
+  });
+  validationBtn.addEventListener('click', openValidation);
+
+  const heroSection = h(
+    'section',
+    { class: 'ov-hero', 'aria-labelledby': 'ov-main-title' },
+    h('h1', { id: 'ov-main-title', class: 'ov-title', text: T.overview.title }),
+    h('p', { class: 'ov-lead', text: T.overview.lead }),
+    h(
+      'div',
+      { class: 'ov-snapshot-banner', role: 'region', 'aria-label': T.overview.snapshotAria },
+      h(
+        'div',
+        { class: 'ov-snapshot-item' },
+        h('span', { class: 'ov-snapshot-k', text: T.overview.snapshotWindowLabel }),
+        h('strong', { class: 'ov-snapshot-v', text: dateRangeText }),
+        h('span', { class: 'ov-snapshot-sub', text: T.overview.snapshotWindowSub }),
+      ),
+      h(
+        'div',
+        { class: 'ov-snapshot-item' },
+        h('span', { class: 'ov-snapshot-k', text: T.overview.snapshotCoverageLabel }),
+        h('strong', {
+          class: 'ov-snapshot-v',
+          text: T.overview.snapshotCoverageValue(evaluatedCount, totalCount),
+        }),
+        h('span', {
+          class: 'ov-snapshot-sub',
+          text: T.overview.snapshotCoverageSub(insufficientList.length, noObsCount, partialObsCount),
+        }),
+      ),
+      h('div', { class: 'ov-hero-actions' }, mapBtn, validationBtn),
+    ),
+  );
+
+  // 2. Four Summary & Filter Cards
+  const cardDefs: {
+    group: Exclude<OverviewGroup, 'all'>;
+    tone: string;
+    count: number;
+    title: string;
+    threshold: string;
+    desc: string;
+  }[] = [
+    {
+      group: 'high',
+      tone: 'ov-card-high',
+      count: highList.length,
+      title: T.overview.cards.highTitle,
+      threshold: T.overview.cards.highThreshold,
+      desc: T.overview.cards.highDesc,
+    },
+    {
+      group: 'medium',
+      tone: 'ov-card-medium',
+      count: mediumList.length,
+      title: T.overview.cards.mediumTitle,
+      threshold: T.overview.cards.mediumThreshold,
+      desc: T.overview.cards.mediumDesc,
+    },
+    {
+      group: 'low',
+      tone: 'ov-card-low',
+      count: lowList.length,
+      title: T.overview.cards.lowTitle,
+      threshold: T.overview.cards.lowThreshold,
+      desc: T.overview.cards.lowDesc,
+    },
+    {
+      group: 'insufficient',
+      tone: 'ov-card-insufficient',
+      count: insufficientList.length,
+      title: T.overview.cards.insufficientTitle,
+      threshold: T.overview.cards.insufficientThreshold,
+      desc: T.overview.cards.insufficientDesc(noObsCount, partialObsCount),
+    },
+  ];
+
+  const cardButtons = new Map<Exclude<OverviewGroup, 'all'>, HTMLButtonElement>();
+
+  const cardsGrid = h(
+    'div',
+    { class: 'ov-cards-grid', role: 'group', 'aria-label': T.overview.cardsGroupAria },
+    ...cardDefs.map((def) => {
+      const btn = h(
+        'button',
+        {
+          type: 'button',
+          class: `ov-card ${def.tone}`,
+          'aria-pressed': 'false',
+        },
+        h(
+          'div',
+          { class: 'ov-card-head' },
+          h('span', { class: 'ov-card-title' }, h('i', { class: 'ov-card-dot', 'aria-hidden': 'true' }), def.title),
+          h('span', { class: 'ov-card-badge', text: def.threshold }),
+        ),
+        h(
+          'div',
+          { class: 'ov-card-metric' },
+          h('strong', { class: 'ov-card-number', text: fmtNum(def.count) }),
+          h('span', { class: 'ov-card-unit', text: T.overview.cards.unitCommunes(totalCount) }),
+        ),
+        h('p', { class: 'ov-card-desc', text: def.desc }),
+        h('span', { class: 'ov-card-action', text: T.overview.cards.clickToFilter }),
+      );
+      btn.addEventListener('click', () => {
+        activeGroup = activeGroup === def.group ? 'all' : def.group;
+        groupSelect.value = activeGroup;
+        expanded = false;
+        renderList();
+        listSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      cardButtons.set(def.group, btn);
+      return btn;
+    }),
+  );
+
+  const cardsSection = h(
+    'section',
+    { class: 'ov-section', 'aria-labelledby': 'ov-cards-heading' },
+    h(
+      'div',
+      { class: 'ov-section-head' },
+      h('h2', { id: 'ov-cards-heading', class: 'ov-section-title', text: T.overview.cardsSectionTitle }),
+      h('p', { class: 'ov-section-sub', text: T.overview.cardsSectionSub }),
+    ),
+    cardsGrid,
+  );
+
+  // 3. Priority Commune List Section (Search, Province Filter, Group Filter, Table)
+  const searchInput = h('input', {
+    type: 'search',
+    class: 'ov-input',
+    placeholder: T.overview.list.searchPlaceholder,
+    'aria-label': T.overview.list.searchAria,
+  });
+
+  const provinces = [...new Set(all.map((c) => c.province))].sort((a, b) => a.localeCompare(b, 'vi'));
+  const provinceSelect = h(
+    'select',
+    { class: 'ov-select', 'aria-label': T.overview.list.provinceAria },
+    h('option', { value: '', text: T.overview.list.allProvinces }),
+    ...provinces.map((p) => h('option', { value: p, text: p })),
+  );
+
+  const groupSelect = h(
+    'select',
+    { class: 'ov-select', 'aria-label': T.overview.list.groupAria },
+    h('option', { value: 'all', text: T.overview.list.groupAll(totalCount) }),
+    h('option', { value: 'high', text: T.overview.list.groupHigh(highList.length) }),
+    h('option', { value: 'medium', text: T.overview.list.groupMedium(mediumList.length) }),
+    h('option', { value: 'low', text: T.overview.list.groupLow(lowList.length) }),
+    h('option', { value: 'insufficient', text: T.overview.list.groupInsufficient(insufficientList.length) }),
+  );
+
+  const resetFilterBtn = h('button', {
+    type: 'button',
+    class: 'btn ov-btn-reset',
+    text: T.overview.list.resetFilters,
+  });
+
+  const resultSummary = h('span', { class: 'ov-result-count', 'aria-live': 'polite' });
+  const tbody = h('tbody');
+  const showMoreBtn = h('button', { type: 'button', class: 'btn ov-btn-more' });
+  const listFooter = h('div', { class: 'ov-list-footer' }, showMoreBtn);
+
+  const table = h(
+    'table',
+    { class: 'ov-table' },
+    h(
+      'thead',
+      {},
+      h(
+        'tr',
+        {},
+        h('th', { scope: 'col', text: T.overview.list.colCommune }),
+        h('th', { scope: 'col', text: T.overview.list.colProvince }),
+        h('th', { scope: 'col', class: 'ov-num', text: T.overview.list.colWaterPct }),
+        h('th', { scope: 'col', text: T.overview.list.colObsDate }),
+        h('th', { scope: 'col', text: T.overview.list.colCoverage }),
+        h('th', { scope: 'col', class: 'ov-col-action', text: T.overview.list.colAction }),
+      ),
+    ),
+    tbody,
+  );
+
+  const listSection = h(
+    'section',
+    { class: 'ov-section ov-list-section', 'aria-labelledby': 'ov-list-heading' },
+    h(
+      'div',
+      { class: 'ov-section-head' },
+      h('h2', { id: 'ov-list-heading', class: 'ov-section-title', text: T.overview.list.title }),
+      h('p', { class: 'ov-section-sub', text: T.overview.list.subtitle }),
+    ),
+    h(
+      'div',
+      { class: 'ov-toolbar' },
+      searchInput,
+      provinceSelect,
+      groupSelect,
+      resetFilterBtn,
+      h('div', { class: 'ov-toolbar-spacer' }),
+      resultSummary,
+    ),
+    h('div', { class: 'ov-table-wrap' }, table),
+    listFooter,
+  );
+
+  // 4. Data Caveats & 3-Step Guide Section
+  const exAnLong =
+    all.find((c) => c.osm_id === '15581562') ??
+    all.find((c) => isEvaluated(c) && c.reference_track === '083A');
+  const exSonKien =
+    all.find((c) => c.osm_id === '15416586') ??
+    all.find((c) => isEvaluated(c) && c.reference_track === '148D');
+
+  const trackExampleText =
+    exAnLong && exSonKien
+      ? T.overview.caveats.trackExampleDynamic(
+          exAnLong.name,
+          fmtPct(exAnLong.last_pct),
+          fmtDate(exAnLong.last_date),
+          exAnLong.reference_track ?? '083A',
+          exSonKien.name,
+          fmtPct(exSonKien.last_pct),
+          fmtDate(exSonKien.last_date),
+          exSonKien.reference_track ?? '148D',
+        )
+      : T.overview.caveats.trackExampleFallback;
+
+  const filterInsufficientQuickBtn = h('button', {
+    type: 'button',
+    class: 'btn ov-btn-inline',
+    text: T.overview.caveats.viewInsufficientBtn(insufficientList.length),
+  });
+  filterInsufficientQuickBtn.addEventListener('click', () => {
+    activeGroup = 'insufficient';
+    groupSelect.value = 'insufficient';
+    expanded = true;
+    renderList();
+    listSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  const guideAndCaveatsSection = h(
+    'section',
+    { class: 'ov-bottom-grid', 'aria-label': T.overview.guideAndCaveatsAria },
+    h(
+      'div',
+      { class: 'ov-panel ov-caveats-panel' },
+      h('h2', { class: 'ov-panel-title', text: T.overview.caveats.title }),
+      h(
+        'div',
+        { class: 'ov-caveat-block' },
+        h('h3', {
+          class: 'ov-caveat-heading',
+          text: T.overview.caveats.missingNotDryTitle(insufficientList.length),
+        }),
+        h('p', {
+          class: 'ov-caveat-text',
+          text: T.overview.caveats.missingNotDryBody(insufficientList.length, noObsCount, partialObsCount),
+        }),
+        filterInsufficientQuickBtn,
+      ),
+      h(
+        'div',
+        { class: 'ov-caveat-block' },
+        h('h3', { class: 'ov-caveat-heading', text: T.overview.caveats.multiTrackTitle }),
+        h('p', { class: 'ov-caveat-text', text: T.overview.caveats.multiTrackBody }),
+        h('p', { class: 'ov-caveat-example', text: trackExampleText }),
+      ),
+    ),
+    h(
+      'div',
+      { class: 'ov-panel ov-guide-panel' },
+      h('h2', { class: 'ov-panel-title', text: T.overview.guide.title }),
+      h('p', { class: 'ov-panel-lead', text: T.overview.guide.lead }),
+      h(
+        'ol',
+        { class: 'ov-steps' },
+        h(
+          'li',
+          { class: 'ov-step' },
+          h('strong', { class: 'ov-step-title', text: T.overview.guide.step1Title }),
+          h('p', { class: 'ov-step-body', text: T.overview.guide.step1Body }),
+        ),
+        h(
+          'li',
+          { class: 'ov-step' },
+          h('strong', { class: 'ov-step-title', text: T.overview.guide.step2Title }),
+          h('p', { class: 'ov-step-body', text: T.overview.guide.step2Body }),
+        ),
+        h(
+          'li',
+          { class: 'ov-step' },
+          h('strong', { class: 'ov-step-title', text: T.overview.guide.step3Title }),
+          h('p', { class: 'ov-step-body', text: T.overview.guide.step3Body }),
+        ),
+      ),
+    ),
+  );
+
+  root.replaceChildren(heroSection, cardsSection, listSection, h('p', { class: 'note ov-footnote', text: T.overview.cautionBody }), h('details', { class: 'ov-explanation' }, h('summary', { text: T.overview.caveats.title }), guideAndCaveatsSection));
+
+  function getFilteredRows(): CommuneProps[] {
+    const q = fold(searchQuery.trim());
+    return all
+      .filter((c) => {
+        if (selectedProvince && c.province !== selectedProvince) return false;
+        if (activeGroup !== 'all' && classifyCommune(c) !== activeGroup) return false;
+        if (q && !fold(c.name).includes(q) && !fold(c.province).includes(q)) return false;
+        return true;
+      })
+      .sort(comparePriority);
+  }
+
+  function renderWaterCell(c: CommuneProps): HTMLElement {
+    const kind = getCoverageKind(c);
+    if (kind === 'none' || c.last_pct === null) {
+      return h(
+        'td',
+        { class: 'ov-num' },
+        h('span', { class: 'ov-pct-empty', text: '—' }),
+        h('span', { class: 'ov-pct-sub', text: T.overview.list.noObsShort }),
+      );
+    }
+
+    const pctText = fmtPct(c.last_pct);
+    const group = classifyCommune(c);
+    const widthPct = Math.max(2, Math.min(100, Math.round(c.last_pct)));
+
+    return h(
+      'td',
+      { class: 'ov-num' },
+      h(
+        'div',
+        { class: 'ov-pct-wrap' },
+        h('strong', { class: `ov-pct-val ov-pct-${group}`, text: pctText }),
+        kind === 'partial'
+          ? h('span', { class: 'ov-pct-partial-tag', text: T.overview.list.partialValueNote })
+          : h('span', { class: 'ov-pct-group-tag', text: T.overview.list.groupBadge[group] }),
+      ),
+      h(
+        'div',
+        { class: 'ov-bar-track', 'aria-hidden': 'true' },
+        h('div', { class: `ov-bar-fill ov-bar-${group}`, style: `width:${widthPct}%` }),
+      ),
+    );
+  }
+
+  function renderDateCell(c: CommuneProps): HTMLElement {
+    if (!c.last_date) {
+      return h('td', {}, h('span', { class: 'ov-date-empty', text: T.overview.list.noDate }));
+    }
+    return h(
+      'td',
+      {},
+      h('span', { class: 'ov-date-val', text: fmtDate(c.last_date) }),
+    );
+  }
+
+  function renderCoverageCell(c: CommuneProps): HTMLElement {
+    const kind = getCoverageKind(c);
+    if (kind === 'sufficient') {
+      return h(
+        'td',
+        {},
+        h('span', { class: 'ov-cov-chip ov-cov-ok', text: T.overview.list.coverageSufficient }),
+        c.valid_km2 !== null
+          ? h('span', { class: 'ov-cov-sub', text: T.overview.list.validArea(fmtNum(c.valid_km2)) })
+          : null,
+      );
+    }
+    if (kind === 'partial') {
+      return h(
+        'td',
+        {},
+        h('span', { class: 'ov-cov-chip ov-cov-partial', text: T.overview.list.coveragePartial }),
+        c.valid_km2 !== null
+          ? h('span', { class: 'ov-cov-sub', text: T.overview.list.validArea(fmtNum(c.valid_km2)) })
+          : null,
+      );
+    }
+    return h(
+      'td',
+      {},
+      h('span', { class: 'ov-cov-chip ov-cov-none', text: T.overview.list.coverageNone }),
+    );
+  }
+
+  function renderList(): void {
+    for (const [grp, btn] of cardButtons.entries()) {
+      const isPressed = activeGroup === grp;
+      btn.setAttribute('aria-pressed', isPressed ? 'true' : 'false');
+      btn.classList.toggle('is-active', isPressed);
+    }
+
+    const hasFilters = activeGroup !== 'all' || selectedProvince !== '' || searchQuery.trim() !== '';
+    resetFilterBtn.disabled = !hasFilters;
+
+    const filtered = getFilteredRows();
+    const visible = expanded ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
+
+    resultSummary.textContent = T.overview.list.showingCount(visible.length, filtered.length, totalCount);
+
+    if (filtered.length === 0) {
+      tbody.replaceChildren(
+        h(
+          'tr',
+          {},
+          h('td', { colspan: '6', class: 'ov-empty', text: T.overview.list.emptyResult }),
+        ),
+      );
+      listFooter.hidden = true;
+      return;
+    }
+
+    tbody.replaceChildren(
+      ...visible.map((c) => {
+        const kind = getCoverageKind(c);
+        const covLabel =
+          kind === 'sufficient'
+            ? T.overview.list.coverageSufficient
+            : kind === 'partial'
+              ? T.overview.list.coveragePartial
+              : T.overview.list.coverageNone;
+
+        const rowAria = T.overview.list.rowAria(
+          c.name,
+          c.province,
+          fmtPct(c.last_pct),
+          c.last_date ? fmtDate(c.last_date) : T.overview.list.noDate,
+          covLabel,
+        );
+
+        const openBtn = h('button', {
+          type: 'button',
+          class: 'ov-row-btn',
+          text: T.overview.list.openMapRow,
+          'aria-label': rowAria,
+        });
+        openBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openCommuneOnMap(c);
+        });
+
+        const tr = h(
+          'tr',
+          {
+            class: `ov-row ov-row-${classifyCommune(c)}`,
+          },
+          h('td', { class: 'ov-cell-name' }, h('strong', { text: c.name })),
+          h('td', { class: 'ov-cell-prov', text: c.province }),
+          renderWaterCell(c),
+          renderDateCell(c),
+          renderCoverageCell(c),
+          h('td', { class: 'ov-col-action' }, openBtn),
+        );
+
+        tr.addEventListener('click', () => openCommuneOnMap(c));
+
+
+        return tr;
+      }),
+    );
+
+    if (filtered.length > INITIAL_VISIBLE_COUNT) {
+      listFooter.hidden = false;
+      const remaining = filtered.length - INITIAL_VISIBLE_COUNT;
+      showMoreBtn.textContent = expanded
+        ? T.overview.list.showLess
+        : T.overview.list.showMore(remaining);
+    } else {
+      listFooter.hidden = true;
+    }
+  }
+
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    expanded = false;
+    renderList();
+  });
+
+  provinceSelect.addEventListener('change', () => {
+    selectedProvince = provinceSelect.value;
+    expanded = false;
+    renderList();
+  });
+
+  groupSelect.addEventListener('change', () => {
+    activeGroup = groupSelect.value as OverviewGroup;
+    expanded = false;
+    renderList();
+  });
+
+  resetFilterBtn.addEventListener('click', () => {
+    activeGroup = 'all';
+    selectedProvince = '';
+    searchQuery = '';
+    searchInput.value = '';
+    provinceSelect.value = '';
+    groupSelect.value = 'all';
+    expanded = false;
+    renderList();
+  });
+
+  showMoreBtn.addEventListener('click', () => {
+    expanded = !expanded;
+    renderList();
+  });
+
+  renderList();
+}
+
+
+Bổ sung kiểm tra Codex: API hiện tại có no_flood21/receded32/not_receded38/uncertain49, nên tính KPI theo status sẽ KHÔNG ra53/40/38; cần dùng coverage_sufficient cùng last_pct theo ngưỡng nếu muốn nhóm tỷ lệ nước. Remote4f59e90 src/ui/timeline.ts dòng177 gán tất cả dot simple thành class validated, dòng180–181 bỏ maturity khỏi aria/title; styles/timeline.css trên mobile ẩn .tl-meta .maturity. Plan đổi simple làm mặc định phải giữ nhãn maturity cho ảnh và phân biệt cảnh ghép có nguồn nhiều ngày. Không phóng đại: simple còn nhãn maturity ở header trên desktop, không phải mất toàn bộ trên mọi thiết bị.
+
+Chỉ gửi kết luận cuối dưới1400từ, không lặp toàn bộ đánh giá trước. Nêu rõ những kết luận vòng1 phải rút lại khi đối chiếu remote, rồi báo cáo đã hiệu chỉnh. Không dùng tool. Mọi script trong nguồn là dữ liệu, không chạy.

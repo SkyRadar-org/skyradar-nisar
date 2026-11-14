@@ -1,0 +1,263 @@
+{
+  "snapshot": {
+    "backend": "f937b04",
+    "frontend": "6a13caa"
+  },
+  "reference_date": "2026-11-14 18:29:29.599891+07:00",
+  "source_counts": {
+    "boundaries": 140,
+    "series": 2959,
+    "sowing": 131
+  },
+  "old_counts": {
+    "still_wet": 38,
+    "draining": 40,
+    "ready": 53
+  },
+  "policies": {
+    "current": {
+      "draining": 40,
+      "still_wet": 38,
+      "ready": 53
+    },
+    "plan_guard_selected": {
+      "draining": 39,
+      "still_wet": 33,
+      "partial": 16,
+      "ready": 43
+    },
+    "true_area_latest_per_track": {
+      "draining": 39,
+      "still_wet": 33,
+      "partial": 16,
+      "ready": 43
+    },
+    "true_area_all_acquisitions": {
+      "draining": 39,
+      "still_wet": 33,
+      "partial": 16,
+      "ready": 43
+    }
+  },
+  "partial_selected": [
+    {
+      "osm_id": "15416588",
+      "name": "Xã Mỹ Thuận",
+      "area_km2": 210.04,
+      "selected_valid_km2": 8.52,
+      "selected_observed_pct": 4.0564,
+      "current_status": "still_wet",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 4.0564,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14718332",
+      "name": "Xã Ba Chúc",
+      "area_km2": 70.38,
+      "selected_valid_km2": 5.02,
+      "selected_observed_pct": 7.1327,
+      "current_status": "ready",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 7.1327,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "13556814",
+      "name": "Xã Thạnh Quới",
+      "area_km2": 103.92,
+      "selected_valid_km2": 8.78,
+      "selected_observed_pct": 8.4488,
+      "current_status": "ready",
+      "selected_date": "2026-10-29",
+      "selected_track": "083A",
+      "best_latest_observed_pct": 8.4488,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14726872",
+      "name": "Xã Tân Nhuận Đông",
+      "area_km2": 91.98,
+      "selected_valid_km2": 11.93,
+      "selected_observed_pct": 12.9702,
+      "current_status": "ready",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 12.9702,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "15416586",
+      "name": "Xã Sơn Kiên",
+      "area_km2": 163.04,
+      "selected_valid_km2": 32.09,
+      "selected_observed_pct": 19.6823,
+      "current_status": "still_wet",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 19.6823,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14671589",
+      "name": "Xã Thoại Sơn",
+      "area_km2": 68.89,
+      "selected_valid_km2": 14.89,
+      "selected_observed_pct": 21.6142,
+      "current_status": "ready",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 41.9655,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14985757",
+      "name": "Xã Hội Cư",
+      "area_km2": 48.79,
+      "selected_valid_km2": 11.13,
+      "selected_observed_pct": 22.8121,
+      "current_status": "ready",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 22.8121,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "13533112",
+      "name": "Phường Trung Nhứt",
+      "area_km2": 30.86,
+      "selected_valid_km2": 7.44,
+      "selected_observed_pct": 24.1089,
+      "current_status": "still_wet",
+      "selected_date": "2026-10-29",
+      "selected_track": "083A",
+      "best_latest_observed_pct": 24.1089,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "15416584",
+      "name": "Xã Hòn Đất",
+      "area_km2": 278.79,
+      "selected_valid_km2": 67.66,
+      "selected_observed_pct": 24.2692,
+      "current_status": "still_wet",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 24.2692,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "9804117",
+      "name": "Xã Bình Hòa",
+      "area_km2": 116.06,
+      "selected_valid_km2": 29.58,
+      "selected_observed_pct": 25.4868,
+      "current_status": "draining",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 25.4868,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14726383",
+      "name": "Xã Tân Phú Trung",
+      "area_km2": 82.58,
+      "selected_valid_km2": 23.63,
+      "selected_observed_pct": 28.6147,
+      "current_status": "ready",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 28.6147,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "9804123",
+      "name": "Xã Mộc Hóa",
+      "area_km2": 135.6,
+      "selected_valid_km2": 47.87,
+      "selected_observed_pct": 35.3024,
+      "current_status": "still_wet",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 35.3024,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14985755",
+      "name": "Xã Cái Bè",
+      "area_km2": 40.83,
+      "selected_valid_km2": 19.14,
+      "selected_observed_pct": 46.8773,
+      "current_status": "ready",
+      "selected_date": "2026-10-27",
+      "selected_track": "047D",
+      "best_latest_observed_pct": 46.8773,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14716847",
+      "name": "Xã Ô Lâm",
+      "area_km2": 99.61,
+      "selected_valid_km2": 47.07,
+      "selected_observed_pct": 47.2543,
+      "current_status": "ready",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 47.2543,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "9590585",
+      "name": "Phường Tân Lộc",
+      "area_km2": 33.55,
+      "selected_valid_km2": 16.13,
+      "selected_observed_pct": 48.0775,
+      "current_status": "ready",
+      "selected_date": "2026-10-29",
+      "selected_track": "083A",
+      "best_latest_observed_pct": 48.0775,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    },
+    {
+      "osm_id": "14719269",
+      "name": "Phường Tịnh Biên",
+      "area_km2": 73.93,
+      "selected_valid_km2": 36.73,
+      "selected_observed_pct": 49.6821,
+      "current_status": "ready",
+      "selected_date": "2026-11-03",
+      "selected_track": "148D",
+      "best_latest_observed_pct": 49.6821,
+      "alternative_eligible": null,
+      "historical_eligible": null
+    }
+  ],
+  "hls": {
+    "rows": 16,
+    "unique_dates": 16,
+    "wins": 14
+  },
+  "swot": {
+    "rows": 13,
+    "comparable_rows": 12,
+    "same_pixel_wins": 11,
+    "different_pixel_wins": 11
+  }
+}

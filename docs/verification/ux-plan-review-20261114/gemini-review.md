@@ -1,0 +1,275 @@
+**Thời gian báo cáo:** `18:29 ngày 14/11/2026 (GMT+7)`
+**Trạng thái kiểm chứng (theo chuẩn UAM-V3 & ràng buộc phiên):**
+- **Phạm vi thực hiện (`VERIFIED_STATIC`):** Chỉ phân tích tĩnh trên gói dữ liệu nguồn được cung cấp trong đề bài. Tuyệt đối không gọi tool, không sửa file, không chạy lệnh, không kiểm tra runtime, không tự chạy test và không truy cập mạng/secrets.
+- **Trạng thái bộ nhớ (`INFO`):** Ghi nhận theo xác minh của Codex: không có kho memory canonical tại workspace, đã đọc `docs/HANDOFF.md` và không tạo kho memory song song.
+
+---
+
+## 1. Kết luận tổng thể: **CẦN CHỈNH TRƯỚC KHI TRIỂN KHAI**
+
+Kế hoạch trong [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) xác định đúng vấn đề sản phẩm (độ phủ diện tích thật, thiếu câu chuyện mở đầu, bằng chứng kiểm chứng bị ẩn), nhưng **chưa thể triển khai nguyên trạng** vì chứa **6 lỗi mức P0**:
+1. **Lệch phiên bản code nền (Git state mismatch):** [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) viết trên `skyradar-nisar` `79ec208` và `water-pulse-fe` `4f59e90` (có nhắc commit `e7dfb5f`), nhưng workspace hiện tại đang ở `f937b04` (backend) và `6a13caa` (frontend). Nhiều trường/hàm mà kế hoạch giả định đã có (`viewMode: 'simple'` trong `state.ts`, `vsSwot` trong `types.ts`, `heroBlock` ở `hero.ts`) **chưa tồn tại hoặc nằm khác chỗ** ở `6a13caa`.
+2. **G1 gây lỗi `StopIteration` khi vẽ `fig5` và làm lệch quy tắc chọn ảnh ≥ 50% + ghi đè nhầm `no_flood`** trong [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py) và [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py).
+3. **G1 không chạy được nguyên trạng** vì [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py) đọc/ghi `data/processed/stats/...`, trong khi thư mục `data/processed` **không tồn tại** và backend chỉ đọc từ `data/web/stats/...`.
+4. **G2 gọi `set({ tab: 'map', mapMode: 'scene', viewMode: 'simple' })` sẽ lỗi biên dịch TypeScript, lệch hash routing (`location.hash`) và không kích hoạt được bộ đếm Play** trong [timeline.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/timeline.ts).
+
+Chỉ nên bắt đầu thực thi G1–G4 sau khi chốt các điều chỉnh kỹ thuật ở mục 2 và mục 3 dưới đây.
+
+---
+
+## 2. Phát hiện ưu tiên P0 / P1 / P2 (kèm dẫn file và đoạn code)
+
+### 🔴 Mức P0 — Chặn triển khai (Gây crash, lỗi build hoặc sai lệch dữ liệu cốt lõi)
+
+#### P0-1. Lệch trạng thái nhánh giữa kế hoạch (`4f59e90` / `79ec208`) và workspace (`6a13caa` / `f937b04`)
+- **Dẫn chứng:**
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md): ghi trạng thái lúc viết là `skyradar-nisar` `main = 79ec208`, `water-pulse-fe` `main = 4f59e90` (và nhắc commit `e7dfb5f`).
+  - [state.ts](file:///Users/Chris/nisar/water-pulse-fe/src/state.ts#L20-L34): `interface State` tại `6a13caa` chỉ có `tab, mapMode, trackFilter, selectedDate, selectedTrack, selectedCommune, flyNonce, activeSummary, layers, opacity, playing, radarMissing` — **không có `viewMode`**.
+  - [types.ts](file:///Users/Chris/nisar/water-pulse-fe/src/data/types.ts#L5-L13) và [types.ts](file:///Users/Chris/nisar/water-pulse-fe/src/data/types.ts#L67-L71): `Scene` chưa có `composite`; `Validation` chỉ có `vsHls`, `vsDswxS1`, `notes` — **chưa có `vsSwot`**, dù backend [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L142-L146) đã trả `vsSwot` và `composite`.
+- **Hậu quả:** Nếu tạo nhánh từ HEAD local `6a13caa` theo kế hoạch, G2 và G3 sẽ lỗi TypeScript (`viewMode` không tồn tại trong `Partial<State>`, `v.vsSwot` không tồn tại trên `Validation`) và mất các commit mới của Đông (`e7dfb5f`, `4f59e90`).
+- **Cách chỉnh:** Trước khi mở nhánh G1–G4, phải đối chiếu và đồng bộ `main` mới nhất của cả 2 repo (đặc biệt xác nhận commit `4f59e90` / `79ec208` so với `6a13caa` / `f937b04`).
+
+#### P0-2. G1 làm crash `sowing.py` (`StopIteration`) khi thêm `status = "partial"` và làm sai chú thích `fig5`
+- **Dẫn chứng:** [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L16-L68)
+  ```python
+  LEVELS = [("ready", 0, 10, "#2f9e44"), ("draining", 10, 30, "#f59f00"), ("still_wet", 30, 101, "#7048e8")]
+  ...
+  for f in fc["features"]:
+      g = shape(f["geometry"]); r = st.get(f["properties"]["osm_id"])
+      col = next(c for n, *_, c in LEVELS if r and n == r["status"]) if r else "#e9ecef"
+  ...
+  for r in table[:6]:
+      f = next(x for x in fc["features"] if str(x["properties"]["osm_id"]) == str(r["osm_id"]))
+      c = shape(f["geometry"]).representative_point()
+      ax.annotate(f"{r['commune'].replace('Xã ', '').replace('Phường ', '')}\n{r['status_pct']:.0f}%", (c.x, c.y), fontsize=6.5, ha="center")
+  ```
+- **Hậu quả:**
+  1. Khi một xã trong `table` có `r["status"] == "partial"`, `r` khác `None` nhưng `"partial"` không nằm trong `LEVELS`. Biểu thức `next(c for n, *_, c in LEVELS if r and n == r["status"])` sẽ ném **`StopIteration`** làm crash `sowing.py` ngay khi vẽ `fig5`.
+  2. Nếu thêm `"partial"` trực tiếp vào `LEVELS`, hàm `status(p)` ở dòng 20 (`next(name for name, lo, hi, _ in LEVELS if lo <= p < hi)`) sẽ hỏng hoặc trộn nhóm.
+  3. Vòng lặp `for r in table[:6]:` lấy 6 xã có `status_pct` cao nhất. Vì `table` vẫn chứa các xã `partial` (như Sơn Kiên 78,2%), `fig5` sẽ **tiếp tục vẽ nhãn tên và % của Sơn Kiên lên bản đồ** dù xã này đã bị loại khỏi 3 nhóm xếp loại.
+- **Cách chỉnh:**
+  - Giữ `LEVELS` cho 3 nhóm xếp loại; ánh xạ màu riêng cho `"partial"` (ví dụ màu xám nhạt/sọc hoặc `#dee2e6` tách biệt với `no data`) và thêm mục riêng trong `legend`.
+  - Chỉ annotate ` [r for r in table if r["status"] != "partial"][:6] ` trên `fig5`.
+
+#### P0-3. G1 bị ghi đè nhầm `status = "no_flood"` cho xã `partial` trong `water-pulse-be/app/frontend.py`
+- **Dẫn chứng:** [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L51-L65)
+  ```python
+        status = {"ready": "receded", "draining": "uncertain", "still_wet": "not_receded"}.get(
+            sowing["status"] if sowing else None, "uncertain")
+        if sowing and peak_pct is not None and peak_pct < 5:
+            status = "no_flood"
+        props = dict(...,
+                     status=status, reference_track=track, coverage_sufficient=bool(sowing))
+  ```
+- **Hậu quả:**
+  - Trước đây, xã không đủ độ phủ (`valid_km2 < 5`) không có mặt trong `sowing_check.csv`, nên `sowing` là `None`.
+  - Theo G1, các xã có `observed_pct < 50%` vẫn nằm trong `sowing_check.csv` với `status = "partial"`, tức `sowing` là một `dict` (truthy).
+  - Ở dòng 51–52, `status` rơi về mặc định `"uncertain"`. Nhưng ngay dòng 53–54: `if sowing and peak_pct is not None and peak_pct < 5: status = "no_flood"` sẽ **ghi đè `status` thành `"no_flood"`** cho mọi xã `partial` có `peak_pct < 5` trên phần rìa quan sát được — vi phạm trực tiếp nguyên tắc ở dòng 45 (`# No assessment means insufficient coverage, never a dry/no-flood observation`).
+- **Cách chỉnh:**
+  - Tính `coverage_sufficient = bool(sowing and sowing.get("status") != "partial")` trước.
+  - Đổi điều kiện dòng 53 thành `if coverage_sufficient and peak_pct is not None and peak_pct < 5: status = "no_flood"`.
+
+#### P0-4. Quy tắc chọn ảnh ≥ 50% trong `sowing.py` và `frontend.py` chưa nhất quán khi đổi sang diện tích thật (`area_km2`)
+- **Dẫn chứng:**
+  - [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L39-L41):
+    ```python
+    cover = max(v[2] for v in pt.values())
+    cur_trk, (d, p, _) = max(((t, v) for t, v in pt.items() if v[2] >= 0.5 * cover), key=lambda kv: kv[1][0])
+    ```
+  - [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L103-L104) (`choropleth_composite`):
+    ```python
+    best_valid = max((r["valid_km2"] for r in rows), default=0)
+    eligible = [r for r in rows if (r["date"], r["track"]) <= (date, track) and r["valid_km2"] >= 0.5 * best_valid]
+    ```
+- **Hậu quả:**
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) viết: *"thêm cột `area_km2`, `observed_pct` (= `valid_km2` của ảnh được chọn / `area_km2`). Xã có `observed_pct` < 50 thì `status = "partial"`, không tính vào 3 nhóm. Giữ nguyên quy tắc chọn ảnh gần nhất."*
+  - Nếu giữ nguyên lọc `v[2] >= 0.5 * cover` (so với track phủ lớn nhất) rồi mới lấy `valid_km2` của ảnh được chọn chia cho `area_km2`: giả sử xã có Track A (ngày cũ hơn) phủ 90% `area_km2`, và Track B (ngày mới hơn) phủ 46% `area_km2`. Vì `46% >= 0.5 * 90% (45%)`, code sẽ chọn Track B rồi kết luận `observed_pct = 46% < 50%` → **đánh tụt xã xuống `partial` dù Track A phủ tới 90% diện tích thật!**
+  - Ngược lại, nếu lọc các track có `v[2] >= 0.5 * area_km2` thì với các xã không có track nào đạt 50% `area_km2`, hàm `max(...)` trên generator rỗng sẽ ném `ValueError: max() arg is an empty sequence` nếu không có nhánh fallback.
+  - Ngoài ra, `choropleth_composite` ở [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L104) cũng đang dùng `0.5 * best_valid` nhưng chưa được G1 nhắc tới.
+- **Cách chỉnh:** Quy định rõ trong `sowing.py`:
+  1. Ưu tiên chọn ảnh mới nhất trong các track đạt `valid_km2 >= 0.5 * area_km2` → nhóm này có `observed_pct >= 50%`, xếp vào `ready / draining / still_wet`.
+  2. Nếu **không có track nào** đạt `0.5 * area_km2`, fallback về chọn ảnh có `(v[2] >= 0.5 * cover)` mới nhất để ghi thông tin tham khảo nhưng gán `status = "partial"`.
+
+#### P0-5. Thiếu `data/processed` và đứt chuỗi cập nhật `data/web/stats/sowing_check.csv` ở G1
+- **Dẫn chứng:**
+  - [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L24) và [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L49): đọc `C.PROCESSED / "stats/commune_water_by_date.csv"` và ghi `C.PROCESSED / "stats/sowing_check.csv"`.
+  - [data.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/data.py#L9-L10): `water-pulse-be` đọc từ `data/web/stats/sowing_check.csv` (hoặc `water-pulse-be/data/stats/`), **không đọc từ `data/processed`**.
+  - Thông tin đã xác minh: `data/processed` **không tồn tại** trên máy.
+- **Hậu quả:**
+  - Chạy `python -m skyradar_nisar.sowing` sẽ lỗi `FileNotFoundError`.
+  - Dù có tạo thư mục tạm `data/processed/stats/` thì nếu không chép/xuất kết quả sang `data/web/stats/sowing_check.csv` (và `water-pulse-be/data/stats/` nếu có), `pytest` trong `water-pulse-be` vẫn đọc file cũ và thất bại toàn bộ nghiệm thu G1.
+  - Với 9 xã không nằm trong `sowing_check.csv` (do `valid_km2 < 5` bị bỏ qua ở [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L27)), nếu `frontend.py` chỉ lấy `area_km2` từ `sowing_check.csv`, 9 xã này sẽ bị `area_km2 = None` trừ khi đọc `area_km2` từ `communes_aoi.geojson` / `communes.geojson`.
+
+#### P0-6. G2 không thể kích hoạt Play bằng `set({...})` và làm hỏng điều hướng Hash (`location.hash`)
+- **Dẫn chứng:**
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md): *"Nút chính: `set({ tab: 'map', mapMode: 'scene', viewMode: 'simple' })`, chọn ảnh đầu tiên rồi chạy Play (logic Play ở `src/ui/timeline.ts`)."*
+  - [timeline.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/timeline.ts#L46-L61) và [timeline.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/timeline.ts#L219-L223):
+    ```ts
+    function play() {
+      const list = visible(state.trackFilter);
+      const idx = list.findIndex((s) => same(s, { date: state.selectedDate, track: state.selectedTrack }));
+      if (state.mapMode === 'latest' || idx < 0 || idx >= list.length - 1) select(list[0]);
+      set({ playing: true });
+      timer = window.setInterval(() => {
+        if (!step(1)) stop();
+      }, PLAY_INTERVAL_MS);
+    }
+    ...
+    subscribe((s) => {
+      if ((s.mapMode === 'latest' || !s.playing) && timer !== undefined) stop();
+      render(s);
+    });
+    ```
+  - [main.ts](file:///Users/Chris/nisar/water-pulse-fe/src/main.ts#L43-L45) và [main.ts](file:///Users/Chris/nisar/water-pulse-fe/src/main.ts#L138-L139):
+    ```ts
+    b.addEventListener('click', () => {
+      location.hash = id;
+    });
+    ...
+    window.addEventListener('hashchange', () => set({ tab: tabFromHash() }));
+    ```
+- **Hậu quả:**
+  1. **Play không chạy:** Hàm `play()` và biến `timer` bị đóng kín (closure) bên trong `mountTimeline()`. Listener `subscribe` ở dòng 219 **chỉ dừng `timer`** khi `!s.playing`, chứ **không khởi tạo `window.setInterval` khi `s.playing` chuyển từ `false` sang `true`**. Nếu G2 chỉ gọi `set({ playing: true })` từ `overview.ts`, nút Play chỉ đổi icon sang `❚❚` nhưng ảnh không bao giờ tự chuyển!
+  2. **Lệch `location.hash`:** `main.ts` điều hướng tab qua `location.hash`. Khi đang ở `#overview` (hoặc URL gốc `#`), nếu nút CTA chỉ gọi `set({ tab: 'map' })` mà không đổi `location.hash = 'map'`, URL vẫn là `#overview`. Khi người dùng bấm lại tab "Tổng quan" trên thanh điều hướng (`location.hash = 'overview'`), trình duyệt thấy hash không đổi nên **không bắn sự kiện `hashchange`**, khiến nút tab "Tổng quan" bị liệt!
+  3. **Race condition khi `buildMapView` đang tải bất đồng bộ:** `buildMapView` ([main.ts](file:///Users/Chris/nisar/water-pulse-fe/src/main.ts#L93-L108)) gọi `await Promise.all([getScenes(), getSummaryLayers()])` rồi mới `mountTimeline()`. Nếu người dùng bấm CTA rất nhanh hoặc `scenes` chưa gán vào timeline, cần đảm bảo `timeline.ts` tự bắt đầu interval khi nhận `state.playing === true && timer === undefined`.
+
+---
+
+### 🟡 Mức P1 — Sai ngữ nghĩa, lệch hợp đồng API/UI hoặc nguy cơ hồi quy
+
+#### P1-1. Nhầm vị trí và chữ ký hàm `heroBlock()` trong G2
+- **Dẫn chứng:**
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) (mục G2): *"Dùng lại `heroBlock()` trong `src/ui/hero.ts` (đang dùng ở tab Giới thiệu)."*
+  - Thực tế trong code: `heroBlock()` nằm ở [about.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/about.ts#L4-L15), còn [hero.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/hero.ts#L2) chỉ import `{ heroBlock } from './about.ts'`.
+  - Hơn nữa, `heroBlock()` hiện đọc cứng `T.content.heroNumbers` từ `i18n.ts` (không nhận tham số số liệu động từ API). Nếu sửa `heroBlock()` hoặc dùng lại ở `overview.ts` mà không truyền dữ liệu API vào, tab Giới thiệu (`about.ts`) và hộp thoại `maybeShowHero()` (`hero.ts`) sẽ hiển thị bộ số tĩnh cũ lệch với tab Tổng quan.
+
+#### P1-2. G3 thiếu kiểu `vsSwot` trong `src/data/types.ts` và chưa định nghĩa rõ trường so sánh "cùng pixel"
+- **Dẫn chứng:**
+  - [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L142-L148): trả về `vsSwot` với cả 3 trường: `f1_nisar=r["nisar_f1"]`, `f1_s1=r["s1_f1"]`, `f1_nisar_same_px=r["nisar_f1_same_px"]`.
+  - [types.ts](file:///Users/Chris/nisar/water-pulse-fe/src/data/types.ts#L57-L71): `Validation` chưa khai báo `vsSwot`, và `ValidationRow` chưa khai báo `track: Track`.
+- **Hậu quả:**
+  - Để tính câu *"NISAR khớp hơn Sentinel-1 ở 11/12 ngày"*, nếu so sánh `f1_nisar > f1_s1` thay vì `f1_nisar_same_px > f1_s1` (hoặc không lọc các dòng có `f1_s1 !== null`), kết quả có thể lệch khỏi 11/12 hoặc vi phạm nguyên tắc "so trên cùng tập pixel" (`same_px`).
+
+#### P1-3. G4 chuyển chú thích thanh thời gian thành tooltip gây hồi quy khả năng tiếp cận (Accessibility) và mất cảnh báo bắt buộc
+- **Dẫn chứng:**
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) (mục G4): *"Thanh thời gian (`src/ui/timeline.ts`, `src/styles/timeline.css`): bỏ 2 dòng chú thích, chuyển thành tooltip."*
+  - [timeline.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/timeline.ts#L70-L71) và [timeline.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/timeline.ts#L94-L100): hai dòng đó là `summaryNote`, `latestNote` (hiển thị theo ngữ cảnh khi ở chế độ `latest-mode` / `summary-mode`) và dòng `tl-legend-note` giải thích dữ liệu thật / không nội suy / Provisional.
+- **Hậu quả:**
+  - Trên màn hình cảm ứng di động (`390×844` — một trong hai kích thước nghiệm thu bắt buộc) và khi điều hướng bằng bàn phím, tooltip dạng `title` **không thể mở được**.
+  - Mục 1 của [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) và mục 7 của [HANDOFF.md](file:///Users/Chris/nisar/skyradar-nisar/docs/HANDOFF.md) yêu cầu **giữ nguyên** cảnh báo *"không phải tình trạng trực tiếp hôm nay"* và giải thích nhãn Tạm thời / Đã kiểm định. Ẩn hoàn toàn vào tooltip có nguy cơ làm trượt `npm run test:ux` và mất điểm tính trung thực dữ liệu (Validity).
+
+#### P1-4. Mâu thuẫn quy trình Deploy/CI giữa `HANDOFF.md`, `UX_PLAN.md` và `.github/workflows/deploy.yml`
+- **Dẫn chứng:**
+  - [HANDOFF.md](file:///Users/Chris/nisar/skyradar-nisar/docs/HANDOFF.md) (Mục 7): *"Không dùng GitHub Actions: đội đã bỏ, đừng thêm lại."*
+  - [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) (Đầu trang): *"Web thật: https://nisar-flood.skyradar.vn (tự deploy khi push vào `main` của `water-pulse-fe`, qua GitHub Actions)."*
+  - [deploy.yml](file:///Users/Chris/nisar/water-pulse-fe/.github/workflows/deploy.yml#L31-L35): Job deploy của `water-pulse-fe` tự động checkout `SkyRadar-org/skyradar-nisar` tại **`ref: main`**.
+- **Hậu quả:** Nếu G1 chưa được merge vào `main` của `skyradar-nisar` (bao gồm cả file `data/web/stats/sowing_check.csv` đã cập nhật), thì khi merge G2/G3/G4 vào `main` của `water-pulse-fe`, GitHub Actions sẽ lấy nhánh `main` cũ của `skyradar-nisar` để chạy `export_pages.py`, làm bản production hiển thị lại số cũ (131 xã: 53/40/38) hoặc lỗi test!
+
+---
+
+### 🟢 Mức P2 — Rủi ro nghiệm thu, đa ngôn ngữ và hoàn thiện
+
+#### P2-1. Chỉ tiêu "< 350 chữ (đo bằng `innerText`)" ở G4 dễ trượt trên bản tiếng Việt (`?lang=vi`)
+- **Dẫn chứng:** [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md) (mục G4): *"Nghiệm thu: tab Tổng quan < 350 chữ (đo bằng `innerText`)."*
+- **Vấn đề:** Trong tiếng Việt, mỗi âm tiết cách nhau bằng khoảng trắng (1 từ ghép tiếng Việt = 2–4 token khi tách theo `\s+`). Cùng một nội dung, bản tiếng Việt có số token theo khoảng trắng nhiều hơn tiếng Anh **35%–50%**. Đồng thời G2 lại **thêm** khối Hero lên đầu tab Tổng quan. Nếu test đếm bằng `innerText.trim().split(/\s+/).length < 350` ở cả VI và EN, bản VI rất dễ vượt ngưỡng 350 dù đã gập 2 mục `<details>`.
+
+#### P2-2. Ghi chú kiểm chứng (`v.notes`) từ API chỉ có tiếng Anh
+- **Dẫn chứng:** [validation.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/validation.ts#L86): `...(lang === 'en' ? v.notes.map((n) => h('p', { class: 'note', text: n })) : [])`.
+- **Vấn đề:** Ở `?lang=vi`, toàn bộ 5 ghi chú phương pháp từ `frontend.py` (bao gồm giải thích SWOT Ka-band cùng pixel và loại trừ ngày hiệu chỉnh DSWx-S1) bị ẩn hoàn toàn nếu không được đưa vào `src/locales/vi.ts`.
+
+---
+
+## 3. Phân tích chuyên sâu các lỗi khoa học và ngữ nghĩa
+
+### 3.1. Mẫu số của `water_pct` vs `observed_pct` (Nguy cơ diễn giải sai bản chất vật lý)
+- Trong [timing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/timing.py#L51-L56):
+  ```python
+  valid_km2=round(v[z] * 4e-4, 2), water_km2=round(ww[z] * 4e-4, 2),
+  water_pct=round(ww[z] / v[z] * 100, 1)
+  ```
+- **Bản chất toán học:**
+  - $\text{observed\_pct} = \frac{\text{valid\_km2}}{\text{area\_km2}} \times 100\%$ (tỷ lệ diện tích hành chính xã nằm trong dải quét hợp lệ).
+  - $\text{water\_pct} = \frac{\text{water\_km2}}{\text{valid\_km2}} \times 100\%$ (tỷ lệ diện tích ngập **trên phần diện tích xã quan sát được**, KHÔNG phải trên tổng diện tích hành chính `area_km2`).
+- **Lỗi ngữ nghĩa cần tránh:** Ngay cả khi đã lọc $\text{observed\_pct} \ge 50\%$ ở G1 (ví dụ một xã được quan sát 55% diện tích thật và có $\text{water\_pct} = 40\%$), con số $40\%$ là **40% của phần diện tích quan sát được**, tương đương tối thiểu $22\%$ diện tích toàn xã. Do đó, trên UI và tài liệu (G1, G2), **không được viết** `water_pct` là *"% diện tích xã bị ngập"* mà phải giữ chuẩn xác là *"% diện tích ngập trên phần xã quan sát được (với các xã quan sát được ≥ 50% diện tích)"*.
+
+### 3.2. Quy tắc chọn ảnh ≥ 50% và cờ `tracks_agree` trong `sowing.py`
+- Trong [sowing.py](file:///Users/Chris/nisar/skyradar-nisar/src/skyradar_nisar/sowing.py#L47):
+  `tracks_agree=len({status(v[1]) for v in pt.values()}) == 1`
+- Hiện tại `pt` chứa mọi track có `valid_km2 >= 5` km² (kể cả các track chỉ quét sượt qua rìa xã 5–10 km²). Khi tính `tracks_agree`, code đang so sánh `status(v[1])` của cả các track rìa (< 50% diện tích xã). Về mặt khoa học, chỉ nên xét `tracks_agree` giữa các track đủ độ phủ ($\text{valid\_km2} \ge 0.5 \times \text{area\_km2}$), hoặc ghi rõ trong tài liệu đây là độ đồng thuận giữa mọi track có $\ge 5\text{ km}^2$.
+
+### 3.3. Đơn vị mẫu so sánh ở G2 & G3: "Cặp ảnh theo ngày–quỹ đạo (`date_track`)" vs "Ngày (`date`)"
+- Trong [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L133-L145):
+  - `vs_dswx_hls` tách `date, track = r["key"].split("_")` → mỗi dòng là một lần chụp `(date, track)`, tổng cộng 16 dòng.
+  - `vs_swot` mỗi dòng là một cặp đối chiếu `(swot_date, nisar_key)`.
+- Trong [validation.ts](file:///Users/Chris/nisar/water-pulse-fe/src/ui/validation.ts#L29), bảng HLS hiện chỉ hiển thị `fmtShort(r.date)` mà bỏ qua `r.track`.
+- Nếu trong 16 dòng `vsHls` hoặc 12 dòng `vsSwot` có 2 track trong cùng một ngày (hoặc 1 ảnh SWOT khớp với nhiều ảnh NISAR lệch ngày `daysApart`), việc vẽ biểu đồ cột trục X chỉ theo `date` sẽ làm đè cột hoặc gây hiểu nhầm. Trục X của biểu đồ cột ở G3 và bảng HLS nên hiển thị nhãn `date` kèm `track` (hoặc kiểm tra chắc chắn 16 dòng là 16 ngày phân biệt), và câu chữ nên dùng *"14/16 lần chụp đối chiếu (mùa lũ tháng 8–11)"* hoặc *"14/16 ngày chụp đối chiếu"*.
+
+### 3.4. So sánh "Cùng pixel" với SWOT ở G3
+- Trong [frontend.py](file:///Users/Chris/nisar/skyradar-nisar/water-pulse-be/app/frontend.py#L144), mỗi phần tử `vsSwot` có `f1_nisar`, `f1_s1` và `f1_nisar_same_px`.
+- Khi tính tỷ lệ thắng giữa NISAR và Sentinel-1 trước SWOT, bắt buộc phải:
+  1. Chỉ đếm các dòng có đủ cả S-1 và NISAR (`r.f1_s1 !== null && r.f1_nisar_same_px !== null`).
+  2. Dùng **`f1_nisar_same_px`** (F1 của NISAR tính trên đúng vùng pixel giao với S-1 và SWOT) để so với `f1_s1`, tránh so sánh hai mẫu có diện tích phủ khác nhau.
+
+---
+
+## 4. Phụ thuộc bị thiếu (Missing Dependencies)
+
+1. **Phụ thuộc dữ liệu trong G1 (`data/processed` không tồn tại):**
+   - `sowing.py` phụ thuộc vào `data/processed/stats/commune_water_by_date.csv` và ghi ra `data/processed/stats/sowing_check.csv`.
+   - `figures.py` (`fig3`) trong G1: nếu `figures.py` đọc từ `data/processed/` (như GeoTIFF hoặc `data/processed/stats/`), việc chạy lại `python -m skyradar_nisar.figures` sẽ lỗi vì không có `data/processed`. Cần sửa đường dẫn đọc trong `sowing.py` (và `figures.py` nếu chỉ dùng CSV) để fallback sang `data/web/stats/`, đồng thời ghi trực tiếp (hoặc đồng bộ) sang `data/web/stats/sowing_check.csv`.
+2. **Phụ thuộc thuộc tính `area_km2` giữa `communes_aoi.geojson` và `data/web/communes.geojson`:**
+   - `sowing.py` đọc `data/boundaries/communes_aoi.geojson` (có `area_km2`), nhưng `water-pulse-be/app/data.py` chỉ đọc `data/web/communes.geojson` và `data/web/stats/sowing_check.csv`.
+   - Để `frontend.py` trả về `area_km2` và `observed_pct` cho **cả 140 xã** (kể cả 9 xã không có trong `sowing_check.csv`), cần đảm bảo `data/web/communes.geojson` có sẵn `area_km2` hoặc nạp bổ sung từ `communes_aoi.geojson` / cập nhật `communes.geojson`.
+3. **Phụ thuộc build tĩnh Cloudflare (`export_pages.py`) giữa 2 repo:**
+   - [build-cloudflare.mjs](file:///Users/Chris/nisar/water-pulse-fe/scripts/build-cloudflare.mjs#L6-L18) gọi trực tiếp `../skyradar-nisar/water-pulse-be/scripts/export_pages.py` để chụp cứng JSON `/api/frontend/*` vào `dist/`.
+   - Do đó, `water-pulse-fe` **không thể pass nghiệm thu G2, G3** với số liệu mới nếu repo `../skyradar-nisar` đặt cạnh chưa chạy xong G1 và chưa cập nhật `data/web/stats/sowing_check.csv`.
+4. **Phụ thuộc thứ tự giữa G2 và G4 (`viewMode: 'simple'`):**
+   - G2 yêu cầu gọi `set({ ..., viewMode: 'simple' })`, nhưng việc thêm `viewMode` vào `src/state.ts` lại nằm ở G4 (nếu đang ở commit `6a13caa`). Phải đưa khai báo `viewMode` lên trước hoặc tách khỏi G2 nếu chưa làm G4.
+
+---
+
+## 5. Phạm vi tối thiểu trước hạn (MVP trước 09:30–11:00 ngày 15/11 GMT+7)
+
+Tính từ `18:29 ngày 14/11/2026 (GMT+7)`, đội chỉ còn **~15–16,5 giờ** trước giờ đóng băng tính năng (`09:30` theo `HANDOFF.md` hoặc `11:00` theo `UX_PLAN.md`). Để tránh vỡ bản prod `nisar-flood.skyradar.vn` vào phút chót, đề xuất phạm vi tối thiểu (MVP):
+
+1. **Làm trọn vẹn G1 (Ưu tiên số 1 - tính đúng đắn khoa học / Validity):**
+   - Sửa `sowing.py` (cho phép đọc/ghi trực tiếp với `data/web/stats/` khi thiếu `data/processed`), xử lý an toàn màu `"partial"` trong `fig5`, cập nhật `frontend.py` (chặn `no_flood` đè lên `partial`), cập nhật `test_frontend.py` / `test_api.py` và các con số trong `README.md`, `docs/METHOD.md`, `docs/SUBMISSION.md`, `docs/HANDOFF.md`.
+   - Với `fig3` (`figures.py`): chỉ chạy lại nếu `fig3` chỉ đọc CSV có sẵn trong `data/web/stats/`; nếu `fig3` đòi GeoTIFF trong `data/processed` thì giữ hình cũ kèm chú thích rõ diện tích quan sát của xã ví dụ thay vì chạy lại cả pipeline GCOV.
+2. **Làm G2 gọn và an toàn (Presentation):**
+   - Đưa khối Hero lên đầu tab Tổng quan với 3 con số lấy động từ API.
+   - Sửa nút CTA chính: điều hướng qua `location.hash = 'map'`, chọn scene đầu tiên, tắt `activeSummary: null`, và gọi hàm kích hoạt Play thực sự (sửa `timeline.ts` để lắng nghe `state.playing` khởi động `timer`).
+3. **Làm G3 mức tối giản (Validity & Presentation):**
+   - Bổ sung kiểu `vsSwot` vào `src/data/types.ts`.
+   - Đưa câu kết luận 14/16 (HLS), 11/12 (SWOT, tính trên `f1_nisar_same_px` vs `f1_s1`) và biểu đồ F1 lên ngoài khối `<details>` ở tab Độ tin cậy; giữ nguyên bảng chi tiết bên trong `<details>`.
+4. **Thu hẹp G4 để tránh hồi quy (De-risk):**
+   - **Làm:** Tăng cỡ chữ tối thiểu lên 13 px (`tokens.css`), chuẩn hóa tiêu đề Sentence case, gập 2 khối giải thích dài ở tab Tổng quan vào `<details>`.
+   - **KHÔNG làm (hoặc hoãn nếu sát giờ):** Không xóa/ẩn 2 dòng chú thích ngữ cảnh trên `timeline.ts` thành tooltip; không đập lại cấu trúc DOM của thanh chọn track và sidebar vào nút "Nâng cao" nếu chưa kiểm tra kỹ bộ test `npm run test:ux` (tránh làm gãy selector của bài test tự động).
+
+---
+
+## 6. Tiêu chí nghiệm thu bổ sung (Bổ sung vào UX_PLAN)
+
+Ngoài các tiêu chí sẵn có trong [UX_PLAN.md](file:///Users/Chris/Downloads/UX_PLAN.md), cần bổ sung các điều kiện nghiệm thu bắt buộc sau:
+
+- **Cho G1:**
+  1. **Kiểm tra chống ghi đè `no_flood`:** Mọi xã có `observed_pct < 50` (hoặc `coverage_sufficient == false`) phải có `status == "uncertain"` trên `/api/frontend/communes`, tuyệt đối không có xã nào rơi vào `status == "no_flood"` ngay cả khi `peak_pct < 5`.
+  2. **Kiểm tra tổng bảo toàn:** Trên `/api/frontend/communes`, tổng số xã `receded + uncertain (draining) + not_receded + no_flood` có `coverage_sufficient == true` phải bằng đúng tổng số xã đủ độ phủ trong `sowing_check.csv` (dự kiến ~115 xã); `140 - số xã đủ độ phủ` phải có `coverage_sufficient == false` và `status == "uncertain"`.
+  3. **Kiểm tra toàn vẹn 140 xã:** Cả 140 feature trong `/api/frontend/communes` đều có `area_km2 > 0` và `observed_pct` hợp lệ (không bị `null` ở 9 xã có `valid_km2 < 5`).
+  4. **Kiểm tra `fig5`:** Ảnh `docs/figures/fig5_sowing_check.png` sinh ra không lỗi, không gắn nhãn tên các xã `partial` (như Sơn Kiên, Hòn Đất, Mỹ Thuận) trong top 6 xã trên bản đồ.
+- **Cho G2:**
+  5. **Kiểm tra Play thực tế:** Sau khi bấm nút CTA "Xem mùa lũ 2026" ở tab Tổng quan, đợi `2 * PLAY_INTERVAL_MS`: `state.selectedDate` / `state.selectedTrack` phải **thực sự dịch chuyển** sang ảnh tiếp theo (chứng minh `window.setInterval` đã chạy, không chỉ đổi icon nút Play).
+  6. **Kiểm tra điều hướng quay lại:** Sau khi bấm CTA sang bản đồ, `location.hash` phải là `#map`, và bấm lại tab "Tổng quan" trên thanh header phải quay về được tab Tổng quan ngay ở lần bấm đầu tiên.
+- **Cho G3:**
+  7. **Kiểm tra công thức SWOT cùng pixel:** Con số thắng của NISAR trước Sentinel-1 trên SWOT phải được tính từ các dòng có `f1_s1 !== null` và so sánh `f1_nisar_same_px > f1_s1` (khớp đúng 11/12).
+- **Cho G4:**
+  8. **Kiểm tra tiếp cận trên mobile (`390×844`):** Ở chế độ `latest` và `scene`, người dùng trên màn hình cảm ứng vẫn nhìn thấy hoặc mở được bằng thao tác chạm (tap) thông tin giải thích *"không phải tình trạng trực tiếp hôm nay"* và phân biệt *Tạm thời / Đã kiểm định*.
+
+---
+
+## 7. Điểm chưa đủ bằng chứng trong gói dữ liệu tĩnh
+
+Do tuân thủ nghiêm ngặt quy tắc **chỉ phân tích tĩnh trên các file được đính kèm trong đề bài** (không đọc thêm file ngoài gói, không chạy lệnh), các điểm sau chưa có mặt trong nội dung đính kèm và cần kiểm tra ngay khi bắt đầu làm:
+
+1. **Lịch sử commit giữa `6a13caa` và `4f59e90` (frontend) / `f937b04` và `79ec208` (backend):** Chưa có log git để biết vì sao HEAD local (`6a13caa`) thiếu `viewMode` trong `state.ts` và `vsSwot` trong `types.ts` so với mô tả của Claude trong `UX_PLAN.md`.
+2. **Nội dung các file frontend chưa đính kèm:** `src/ui/overview.ts`, `src/ui/sidebar.ts`, `src/ui/mapContext.ts`, `src/charts/areaChart.ts`, `src/locales/vi.ts`, `src/locales/en.ts` và file test `npm run test:ux` / `npm run test:cloudflare` chưa có trong gói văn bản nguồn, nên chưa xác nhận được các CSS selector cụ thể mà `test:ux` đang kiểm tra.
+3. **Nội dung thực tế của `data/web/stats/sowing_check.csv`, `vs_dswx_hls.csv`, `vs_swot.csv` và `src/skyradar_nisar/figures.py`:** Cần đọc trực tiếp các file này ở bước thực thi để chốt con số chính xác sau khi áp ngưỡng `valid_km2 >= 0.5 * area_km2` (xác nhận có lệch 1–2 xã so với ước tính 43/39/33 hay không) và xác nhận `fig3` trong `figures.py` có phụ thuộc vào raster trong `data/processed` hay không.

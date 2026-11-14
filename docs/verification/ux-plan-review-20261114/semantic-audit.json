@@ -1,0 +1,42 @@
+{
+  "snapshot": "f937b04",
+  "current_api_status_counts": {
+    "uncertain": 49,
+    "not_receded": 38,
+    "no_flood": 21,
+    "receded": 32
+  },
+  "partial_that_would_still_trigger_no_flood": [
+    {
+      "osm_id": "9590585",
+      "name": "Phường Tân Lộc",
+      "peak_pct": 0.1,
+      "status": "no_flood"
+    },
+    {
+      "osm_id": "14718332",
+      "name": "Xã Ba Chúc",
+      "peak_pct": 0.1,
+      "status": "no_flood"
+    },
+    {
+      "osm_id": "14726383",
+      "name": "Xã Tân Phú Trung",
+      "peak_pct": 3.6,
+      "status": "no_flood"
+    },
+    {
+      "osm_id": "14985755",
+      "name": "Xã Cái Bè",
+      "peak_pct": 0.0,
+      "status": "no_flood"
+    },
+    {
+      "osm_id": "14985757",
+      "name": "Xã Hội Cư",
+      "peak_pct": 0.5,
+      "status": "no_flood"
+    }
+  ],
+  "note": "Chỉ đọc API hiện tại và đối chiếu16ID với audit; chưa thay dữ liệu/logic."
+}
