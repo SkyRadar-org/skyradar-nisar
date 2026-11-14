@@ -23,6 +23,8 @@ src/skyradar_nisar/
   communes.py     2025 commune boundaries from OpenStreetMap (admin_level=6)
   timing.py       per-date water maps, first-flood / recession rasters, commune tables
   export_web.py   small static package for the web app (data/web)
+  release.py      controlled flood-release (xả lũ) timing signature per commune + figure
+  figures.py      slide figures (docs/figures)
 data/boundaries/communes_aoi.geojson   140 communes in the demo AOI (OSM, ODbL)
 data/web/                              PNG overlays + manifest + commune GeoJSON + CSV stats (for the web app)
 ```
@@ -41,7 +43,9 @@ python -m skyradar_nisar.fetch_dswx hls      # OPERA DSWx-HLS optical reference
 python -m skyradar_nisar.communes            # optional: refresh OSM commune boundaries
 python -m skyradar_nisar.calibrate           # thresholds + validation tables
 python -m skyradar_nisar.timing              # water maps, timing rasters, commune stats
+python -m skyradar_nisar.release             # flood-release signature per commune (needs timing)
 python -m skyradar_nisar.export_web          # data/web package
+python -m skyradar_nisar.figures             # docs/figures
 ```
 
 Your Earthdata account must authorise the application *"Alaska Satellite Facility Data Access"*.
