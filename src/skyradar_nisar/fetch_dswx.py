@@ -10,6 +10,7 @@ import numpy as np, rasterio
 from rasterio.warp import reproject, Resampling
 from . import config as C
 from .cmr import granules, https_link
+from .fastread import _auth_headers
 from .grid import Grid
 
 PRODUCTS = {"s1": ("OPERA_L3_DSWX-S1_V1", 1, [0, 1, 3]), "hls": ("OPERA_L3_DSWX-HLS_V1", 2, [0, 1, 2])}
@@ -37,7 +38,7 @@ def main(kind="s1"):
             if not fn.exists():
                 for a in range(5):
                     try:
-                        fn.write_bytes(urllib.request.urlopen(u, timeout=180).read()); break
+                        fn.write_bytes(urllib.request.urlopen(urllib.request.Request(u, headers=_auth_headers()), timeout=180).read()); break
                     except Exception:
                         time.sleep(5 * (a + 1))
                 else:

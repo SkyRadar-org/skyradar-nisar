@@ -69,7 +69,7 @@ def main(ref="2026-11-01"):
     for r in table[:6]:
         f = next(x for x in fc["features"] if str(x["properties"]["osm_id"]) == str(r["osm_id"]))
         c = shape(f["geometry"]).representative_point()
-        ax.annotate(f"{r["commune"].replace("Xã ", "").replace("Phường ", "")}\n{r["status_pct"]:.0f}%", (c.x, c.y), fontsize=6.5, ha="center")
+        ax.annotate(f"{r['commune'].replace('Xã ', '').replace('Phường ', '')}\n{r['status_pct']:.0f}%", (c.x, c.y), fontsize=6.5, ha="center")
     from shapely.ops import unary_union
     W, S, E, N = unary_union([shape(f["geometry"]) for f in fc["features"] if f["properties"]["osm_id"] in st]).bounds
     ax.set_aspect(1 / np.cos(np.radians(10.6))); ax.set_xlim(W - .01, E + .01); ax.set_ylim(S - .01, N + .01)
