@@ -178,4 +178,3 @@ NISAR: NASA/JPL-Caltech & ISRO, ASF DAAC. OPERA DSWx: NASA JPL, PO.DAAC, contain
 - [Gemini — AI assistance for research and independent text review](https://gemini.google.com/)
 - [Viet Nam Ministry of Agriculture and Environment — crop-planning context (Vietnamese)](https://mae.gov.vn/dbscl-chu-dong-ne-han-man-bao-dam-san-xuat-vu-dong-xuan-20262027-23153.htm)
 - [Báo Đồng Tháp — Tân Hồng winter–spring crop context (Vietnamese)](https://baodongthap.vn/xa-tan-hong-tap-trung-san-xuat-ben-vung-vu-dong-xuan-a247109.html)
-
