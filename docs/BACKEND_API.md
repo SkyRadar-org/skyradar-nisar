@@ -1,4 +1,8 @@
-# Proposed backend API (repo `water-pulse-be`) — contract between backend and web
+# Backend API (repo `water-pulse-be`) — contract between backend and web
+
+> **Implemented** (FastAPI) in `water-pulse-be`: all endpoints below plus `/api/flood-release`, `/api/search?q=`
+> (accent-insensitive) and `/api/provinces`; `/api/sowing-check` takes `status` and `province` filters (the reference date
+> is fixed by the pipeline run, 2026-11-01). Interactive docs at `/docs`.
 
 Source of truth: the static package produced by this repository in `data/web` (see `WEB_DATA.md`).
 The backend can be as simple as a static file server plus a few JSON endpoints; everything below is read-only.
