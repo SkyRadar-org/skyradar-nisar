@@ -5,7 +5,7 @@ Needs the same Earthdata token as the other steps (PO.DAAC host archive.swot.pod
 
 SWOT Raster cells exist only where the pixel cloud has water or near-water samples; dry land is *empty*, not 0.
 We rebuild the swath footprint from the cross-track distance (10-60 km either side of nadir, the KaRIn swaths)
-and treat empty cells inside it as dry. Water = water_frac >= 0.5 with water_area_qual <= 1 (good/suspect).
+and treat empty cells inside it as dry when a SWOT sample lies within 1.5 km (larger voids = no data). Water = water_frac >= 0.5 with water_area_qual <= 1 (good/suspect).
 
 Outputs (data/processed):
   swot/<date>_swot.tif                 uint8 0 dry, 1 water, 255 no data, on the common 20 m grid
@@ -27,6 +27,7 @@ from .water import permanent_water
 SHORT = "SWOT_L2_HR_Raster_D"
 MAIN_TILES = {("577", "087F"), ("396", "068F")}   # the two pass/tiles that cover most of the AOI (86 % and 77 %)
 MAX_DAYS = 2
+NEAR_M = 1500   # an empty cell is 'dry' only within this distance of a SWOT sample
 
 
 def _rd(p):
@@ -61,6 +62,11 @@ def classify(fn, grid):
     coef, *_ = np.linalg.lstsq(np.c_[X[m], Y[m], np.ones(m.sum())], ct[m], rcond=None)   # cross-track ~ planar in UTM
     ctp = coef[0] * X + coef[1] * Y + coef[2]
     swath = (np.abs(ctp) > 10e3) & (np.abs(ctp) < 60e3)
+    # Empty cells count as dry only near actual SWOT samples: large voids (no sample within NEAR_M) are data gaps,
+    # not dry land (e.g. whole communes without a single sample on pass 577).
+    from scipy.ndimage import distance_transform_edt
+    near = distance_transform_edt(~valid) * float(x[1] - x[0]) <= NEAR_M
+    swath &= near
     out = np.full(wf.shape, 255, np.uint8)
     out[swath] = 0
     out[swath & valid & (q <= 1) & (wf >= 0.5)] = 1

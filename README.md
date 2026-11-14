@@ -93,7 +93,7 @@ $env:EARTHDATA_TOKEN = "..."; $env:PYTHONPATH = "src"; $env:PYTHONUTF8 = "1"
   water in the optical product.
 - vs **SWOT** (NASA/CNES Ka-band interferometric radar, L2 HR Raster 100 m; a third, independent radar), 13 SWOT dates
   ≤ 2 days from a NISAR acquisition: NISAR agrees with SWOT better than Sentinel-1 does on **11 of 12** dates (flood
-  season F1 0.38–0.68 vs 0.28–0.60; the exception is 10 Sep, when SWOT shows only 10 % water at the flood peak).
+  season F1 0.38–0.68 vs 0.28–0.62; the exception is 10 Sep, when SWOT shows only 11 % water at the flood peak).
   SWOT maps more water than both (partly shallow water in paddies, partly over-detection); against the optical
   product NISAR scores equal or higher than SWOT on 6 of 8 dates. SWOT is a comparison source, not ground truth.
 - Tested and **rejected**: an "inundated vegetation" rule from HH brightening (F1 ≈ 0.02; rice growth also brightens HH).

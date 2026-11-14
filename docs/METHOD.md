@@ -57,14 +57,15 @@ there is little water (see Limitations).
 
 **c) Third independent radar — SWOT (NASA/CNES, Ka-band interferometry, L2 HR Raster 100 m, version D).**
 Two SWOT passes cover 86 % and 77 % of the area (14 dates, ~every 10 days). Raster cells exist only where water or
-near-water was sampled, so we rebuild the swath (10–60 km cross-track) and treat empty cells inside it as dry;
+near-water was sampled, so we rebuild the swath (10–60 km cross-track) and treat empty cells inside it as dry when
+a SWOT sample lies within 1.5 km (larger voids are data gaps, e.g. whole communes without samples on pass 577);
 water = water fraction ≥ 0.5, quality good/suspect. Each SWOT date is paired with the nearest NISAR acquisition
 (≤ 2 days; three same-day pairs: 19 Jun, 15 Oct, 22 Oct) and scored on the same pixels (permanent water excluded):
 
-- NISAR agrees with SWOT better than Sentinel-1 DSWx on **11 of 12** dates (flood season F1 0.38–0.68 vs 0.28–0.60).
-  The exception, 10 Sep, is a SWOT anomaly (10 % water at the flood peak, NISAR 33 %, DSWx-S1 similar to NISAR).
-- SWOT maps more water than both radars (Aug–Nov 31–67 % of land); against optical DSWx-HLS (8 dates) SWOT F1
-  0.55–0.86 vs NISAR 0.59–0.87 (NISAR ≥ SWOT on 6 of 8). In June–July SWOT shows 14–27 % water where NISAR shows
+- NISAR agrees with SWOT better than Sentinel-1 DSWx on **11 of 12** dates (flood season F1 0.38–0.68 vs 0.28–0.62).
+  The exception, 10 Sep, is a SWOT anomaly (11 % water at the flood peak, NISAR 33 %, DSWx-S1 similar to NISAR).
+- SWOT maps more water than both radars (Aug–Nov 35–68 % of land); against optical DSWx-HLS (8 dates) SWOT F1
+  0.55–0.88 vs NISAR 0.59–0.88 (NISAR ≥ SWOT on 6 of 8). In June–July SWOT shows 14–28 % water where NISAR shows
   3–7 % and DSWx-S1 ~1 %, probably shallow water in summer–autumn paddies; without clear optical scenes this is not verified.
 - SWOT is a comparison source, not ground truth; its revisit (~10 days, 2 passes) is sparser than NISAR's 3 tracks.
 
