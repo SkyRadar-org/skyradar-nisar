@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-15 — Bilingual presentation and VieNeu demo (Codex, Gemini reviewed)
+
+- Add a seven-slide editable Vietnamese–English deck, PDF and one 29.8-second 1080p demo with both caption languages visible together.
+- Include local VieNeu-TTS Hải Đăng narration, bilingual subtitles, script, speaker notes and a downloadable package in `docs/demo/vi-en/`.
+- Verify 32 editable chart values against the source CSV, PPTX structure/layout/re-import, all PDF pages, video metadata and narration with Whisper. Preserve credits and the observed-area denominator; Gemini reviewed slide text only.
+- Add portable validation/checksum records and a handoff link. No application, scientific data or deployment configuration changes. (Codex)
+
 ## 2026-11-14 — Full-commune coverage gate and reproducible assessment (Codex, Gemini reviewed)
 
 - Select the newest acquisition observing ≥50% of each full OSM commune and ≥5 km², before rounding; retain partial observations as evidence only. Search all acquisitions so a newer sliver cannot replace an older eligible pass on the same track.

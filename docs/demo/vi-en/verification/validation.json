@@ -1,0 +1,89 @@
+{
+  "verified_at_gmt7": "2026-11-15T00:26:58+07:00",
+  "source_data_commit": "7e0b1278e3f348b56cb438917596a2897a51baac",
+  "languages": [
+    "vi",
+    "en"
+  ],
+  "same_slide_and_video": true,
+  "presentation": {
+    "slides": 7,
+    "native_editable_charts": 1,
+    "chart_source_values_verified": 32,
+    "package_pass": true,
+    "layout_warnings": 0,
+    "reimport_pass": true,
+    "native_powerpoint_verified": false
+  },
+  "pdf": {
+    "pages": 7,
+    "rendered_and_visually_reviewed": true,
+    "image_based": true
+  },
+  "video": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "nb_frames": "894"
+      },
+      {
+        "codec_name": "aac",
+        "r_frame_rate": "0/0",
+        "nb_frames": "2795"
+      }
+    ],
+    "format": {
+      "duration": "29.800000",
+      "size": "7327006"
+    }
+  },
+  "audio": {
+    "engine": "VieNeu-TTS",
+    "package_version": "3.8.3",
+    "preset": "Hải Đăng",
+    "sample_rate_hz": 48000,
+    "peak_db": -1.5,
+    "selection_asr": "Whisper medium",
+    "selected_normalized_text_match_min": 0.9907407407407407,
+    "independent_listening_verified": false
+  },
+  "gemini_review": "PASS on provided slide text; not runtime, image or audio verification",
+  "files": {
+    "SkyRadar_Water_Pulse_VI_EN.pptx": {
+      "bytes": 1307123,
+      "sha256": "382e3e3a0c5cd94a1b5adeef80cdd5ebae28a2c7c4ebef8cf39620351e759c45"
+    },
+    "SkyRadar_Water_Pulse_VI_EN.pdf": {
+      "bytes": 2248676,
+      "sha256": "738b883e26b7d2beddd23a3ae7ec6daeafc5915ab5c23691eada14c3a025126e"
+    },
+    "SkyRadar_Demo_VI_EN.mp4": {
+      "bytes": 7327006,
+      "sha256": "88ebde168aa915eee79ea512dfd652f24ccb348434c0a4073a381e74f3d3eb1d"
+    },
+    "Loi_doc_VieNeu_Hai_Dang.wav": {
+      "bytes": 2860878,
+      "sha256": "d73653393ed00bb8bcb1084291bb902b6b2d463ca3f90667b31d6a5ba69cf743"
+    },
+    "Phu_de_VI_EN.srt": {
+      "bytes": 1021,
+      "sha256": "98765090beb5817722316710cef15c2f4777aef714a042bc7e9aa95f2849bb67"
+    },
+    "Ghi_chu_thuyet_trinh_VI_EN.md": {
+      "bytes": 5698,
+      "sha256": "e5615dadf8286917481979a5e693a28609c32cb6fd50b181ca404851e70c40c2"
+    },
+    "Kich_ban_VI_EN.md": {
+      "bytes": 2075,
+      "sha256": "a452bf6d546eff51fb73165eab5eaede4d419b1edaed6ee30a19ad0b5b5631c8"
+    },
+    "README.md": {
+      "bytes": 4596,
+      "sha256": "fd06aeb47e7ca250b988ae078e2b97243c1020300fe0e6916050056336450d44"
+    }
+  }
+}

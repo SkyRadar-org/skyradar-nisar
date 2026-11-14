@@ -1,0 +1,6 @@
+# Keep media as binary; PDF syntax must not be treated as source whitespace.
+*.pdf binary
+*.pptx binary
+*.mp4 binary
+*.wav binary
+*.zip binary

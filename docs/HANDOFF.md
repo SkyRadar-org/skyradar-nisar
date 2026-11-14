@@ -4,6 +4,8 @@ Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ l
 **Việc UI/UX còn lại và kế hoạch 4 gói việc: xem `docs/UX_PLAN.md`.**
 **Đã merge main và phát hành UX cùng bản sửa khung Play (`5ccc76c`); kiểm production thành công. Xem [checkpoint hiện hành](verification/ux-implementation-20261114/checkpoint.md).**
 **Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Bản đánh giá ban đầu; trạng thái triển khai xem checkpoint mới ở trên. Đính chính: mục hướng dẫn đã có wrapper `<details>` tại chỗ `root.replaceChildren`; nhận xét bác Gemini về điểm này trong bản đánh giá là sai.**
+**Bộ demo song ngữ Việt–Anh cùng slide/cùng video, giọng VieNeu–Hải Đăng (15/11/2026): [tệp giao và kiểm chứng](demo/vi-en/README.md). Theo yêu cầu trực tiếp của chủ dự án; bản sửa thay cho bản chỉ tiếng Anh. Đã tạo và kiểm tệp; việc có mặt trên GitHub phụ thuộc commit/nhánh chứa bản bàn giao này. Chưa nộp bài, không đổi mã sản phẩm.**
+
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---
