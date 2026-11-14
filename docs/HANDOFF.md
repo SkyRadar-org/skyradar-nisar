@@ -6,6 +6,8 @@ Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ l
 **Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Bản đánh giá ban đầu; trạng thái triển khai xem checkpoint mới ở trên. Đính chính: mục hướng dẫn đã có wrapper `<details>` tại chỗ `root.replaceChildren`; nhận xét bác Gemini về điểm này trong bản đánh giá là sai.**
 **Bộ demo song ngữ Việt–Anh cùng slide/cùng video, giọng VieNeu–Hải Đăng (15/11/2026): [tệp giao và kiểm chứng](demo/vi-en/README.md). Theo yêu cầu trực tiếp của chủ dự án; bản sửa thay cho bản chỉ tiếng Anh. Đã tạo và kiểm tệp; việc có mặt trên GitHub phụ thuộc commit/nhánh chứa bản bàn giao này. Chưa nộp bài, không đổi mã sản phẩm.**
 
+**Bản sửa ứng dụng ngày 15/11/2026 (Codex + Gemini):** đã thay bộ demo tại [docs/demo/vi-en](demo/vi-en/README.md), lấy quy trình canh tác làm trọng tâm và giải thích partial HDF5. Đã kiểm 7 slide/PDF, 32 giá trị biểu đồ, video 29,8 giây, VieNeu và metadata. App hỗ trợ quan trắc/chọn xã; lịch gieo và vận hành cống/bơm do địa phương quyết định. [Hướng dẫn đã đọc](demo/vi-en/YEU_CAU_NOP_BAI.md): chấm Hà Nội 11:00 ngày 15/11 GMT+7, toàn cầu 23:59; NASA yêu cầu slide EN hoặc video có phụ đề EN. Chưa sửa/nộp trang NASA. Bản giao nằm trên nhánh `codex/bilingual-demo-vieneu-20261115`, chưa merge/deploy.
+
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---
@@ -18,7 +20,7 @@ Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu 
 - **Ba câu hỏi sản phẩm trả lời:** xã nào đang có nước? Nước về từ khi nào? Đã rút kịp trước lịch xuống giống Đông Xuân (từ 1/11) chưa?
 - **Vùng demo:** Tứ giác Long Xuyên và Đồng Tháp Mười, khung 104,95–106,0°E, 10,25–11,0°N, gồm 140 xã (ranh giới xã mới 2025 lấy từ OSM).
 - **Dữ liệu:** 33 lần chụp NISAR L2 GCOV trên 3 track (047D, 083A, 148D), từ 17/06 đến 03/11/2026.
-- **Hạn nộp: 15/11/2026 23:59.** Frontend đóng băng **09:30 Chủ nhật 15/11**. Đông deploy bản web 1 **trước 18:45 hôm nay (14/11)**.
+- **Hạn chấm Hà Nội: 11:00 ngày 15/11/2026 GMT+7; hạn toàn cầu: 23:59 cùng ngày.** Frontend đóng băng **09:30 Chủ nhật 15/11**. Đông deploy bản web 1 **trước 18:45 hôm nay (14/11)**.
 
 ## 1. Người và vai trò
 

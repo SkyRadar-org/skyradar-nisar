@@ -1,89 +1,128 @@
 {
-  "verified_at_gmt7": "2026-11-15T00:26:58+07:00",
-  "source_data_commit": "7e0b1278e3f348b56cb438917596a2897a51baac",
-  "languages": [
-    "vi",
-    "en"
-  ],
-  "same_slide_and_video": true,
-  "presentation": {
+  "data_snapshot": "7e0b1278e3f348b56cb438917596a2897a51baac",
+  "pptx": {
     "slides": 7,
-    "native_editable_charts": 1,
-    "chart_source_values_verified": 32,
-    "package_pass": true,
-    "layout_warnings": 0,
-    "reimport_pass": true,
-    "native_powerpoint_verified": false
+    "native_chart_slide": 6,
+    "native_table_slide": 4,
+    "chart_source_values_matched": 32,
+    "chart_source": "data/web/stats/vs_dswx_hls.csv",
+    "higher_f1_dates": 14,
+    "comparison_dates": 16,
+    "finalizer_receipt": "private local validation-v3.json",
+    "package_geometry_fonts_import": "passed",
+    "native_powerpoint_opened": false,
+    "chart_source_sha256": "ac5b799bf0c4a14c922036fe9133a48f50df6bddab438add9b1d491b9b2f8708"
   },
   "pdf": {
     "pages": 7,
-    "rendered_and_visually_reviewed": true,
-    "image_based": true
+    "type": "rasterized final PPTX slides",
+    "visual_review": "7 pages inspected; changed pages 2 and 6 re-rendered and inspected after final v3 edits"
   },
   "video": {
-    "programs": [],
-    "streams": [
+    "duration_seconds": 29.8,
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "frames": 894,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_sample_rate_hz": 48000,
+    "synthetic_voice_disclosure_in_metadata": true,
+    "watermark": "AI-assisted edit; synthetic narration",
+    "visual_review": "5 scenes inspected, final encoding end frame inspected; metadata and timing verified"
+  },
+  "narration": {
+    "engine": "VieNeu-TTS",
+    "version": "3.8.3",
+    "voice": "Hải Đăng",
+    "selected_normalized_asr_match_min": 1.0,
+    "selected_normalized_asr_match_max": 1.0,
+    "method": "Whisper medium CPU int8; up to 3 takes; automatic text matching does not certify pronunciation",
+    "takes": [
       {
-        "codec_name": "h264",
-        "width": 1920,
-        "height": 1080,
-        "r_frame_rate": "30/1",
-        "nb_frames": "894"
+        "segment": "a",
+        "text": "SkyRadar dùng Ni sa xuyên mây để hỗ trợ chuẩn bị vụ lúa.",
+        "selected_take": 1,
+        "asr_heard": "SkyRadar dùng NISAR xuyên mây để hỗ trợ chuẩn bị vụ lúa.",
+        "match_score": 1.0
       },
       {
-        "codec_name": "aac",
-        "r_frame_rate": "0/0",
-        "nb_frames": "2795"
+        "segment": "b",
+        "text": "Lọc xã còn nhiều nước, rồi xem nước đang tăng hay giảm.",
+        "selected_take": 2,
+        "asr_heard": "Lọc xã còn nhiều nước, rồi xem nước đang tăng hay giảm.",
+        "match_score": 1.0
+      },
+      {
+        "segment": "c",
+        "text": "Tân Hồng đang rút. Vĩnh Hưng còn nhiều nước, chưa giảm.",
+        "selected_take": 1,
+        "asr_heard": "Tân Hồng đang rút, Vĩnh Hưng còn nhiều nước chưa giảm.",
+        "match_score": 1.0
+      },
+      {
+        "segment": "d",
+        "text": "Chỉ đọc phần ảnh cần thiết, hệ thống tạo bản đồ và báo cáo theo xã.",
+        "selected_take": 3,
+        "asr_heard": "Chỉ đọc phần ảnh cần thiết, hệ thống tạo bản đồ và báo cáo theo xã.",
+        "match_score": 1.0
+      },
+      {
+        "segment": "e",
+        "text": "Giúp cán bộ chọn nơi kiểm tra, theo dõi tiêu nước và đối chiếu lịch gieo sạ.",
+        "selected_take": 1,
+        "asr_heard": "Giúp cán bộ chọn nơi kiểm tra, theo dõi tiêu nước và đối chiếu lịch gieo sạ.",
+        "match_score": 1.0
       }
     ],
-    "format": {
-      "duration": "29.800000",
-      "size": "7327006"
-    }
+    "wav_peak_dbfs": -1.5
   },
-  "audio": {
-    "engine": "VieNeu-TTS",
-    "package_version": "3.8.3",
-    "preset": "Hải Đăng",
-    "sample_rate_hz": 48000,
-    "peak_db": -1.5,
-    "selection_asr": "Whisper medium",
-    "selected_normalized_text_match_min": 0.9907407407407407,
-    "independent_listening_verified": false
+  "gemini_review": {
+    "model": "gemini-4-argon-high",
+    "verdict": "PASS",
+    "scope": "PPTX extracted text, speaker notes and subtitles only; no visual/audio inspection",
+    "accepted_changes": "Clarify app supports workflow steps 2–3; show 29/33 provisional inputs. Trend counts retained in notes."
   },
-  "gemini_review": "PASS on provided slide text; not runtime, image or audio verification",
+  "external_submission": {
+    "project_page_edited": false,
+    "submitted": false
+  },
   "files": {
     "SkyRadar_Water_Pulse_VI_EN.pptx": {
-      "bytes": 1307123,
-      "sha256": "382e3e3a0c5cd94a1b5adeef80cdd5ebae28a2c7c4ebef8cf39620351e759c45"
+      "bytes": 1306802,
+      "sha256": "ed5c5a4fbd3994f89d0dd5c86b5217a5209f29d68cde39fe94fdf7684ea01730"
     },
     "SkyRadar_Water_Pulse_VI_EN.pdf": {
-      "bytes": 2248676,
-      "sha256": "738b883e26b7d2beddd23a3ae7ec6daeafc5915ab5c23691eada14c3a025126e"
+      "bytes": 2165714,
+      "sha256": "100023e682ca5e0e99859e59f7d77ddd5bf9dceb417b91b174a68a926d764123"
     },
     "SkyRadar_Demo_VI_EN.mp4": {
-      "bytes": 7327006,
-      "sha256": "88ebde168aa915eee79ea512dfd652f24ccb348434c0a4073a381e74f3d3eb1d"
+      "bytes": 3299106,
+      "sha256": "e45c66769e29c207af718321aa22678b35a9659f433f5fdc136d8a70fcab6e57"
     },
     "Loi_doc_VieNeu_Hai_Dang.wav": {
-      "bytes": 2860878,
-      "sha256": "d73653393ed00bb8bcb1084291bb902b6b2d463ca3f90667b31d6a5ba69cf743"
+      "bytes": 2861036,
+      "sha256": "1766838d9ad2bdf07eb2bb1bc9fabeea564c0a5cf8d66f8580653eaee48b760d"
     },
     "Phu_de_VI_EN.srt": {
-      "bytes": 1021,
-      "sha256": "98765090beb5817722316710cef15c2f4777aef714a042bc7e9aa95f2849bb67"
+      "bytes": 950,
+      "sha256": "2c5f881060933b840baddf79f302f406e003b96c444033ca888f8a02e4e467e3"
+    },
+    "YEU_CAU_NOP_BAI.md": {
+      "bytes": 3296,
+      "sha256": "c5c2c8223003f27555f548fb2737887db303a8d754cd110c5e70f1e454f4e24c"
     },
     "Ghi_chu_thuyet_trinh_VI_EN.md": {
-      "bytes": 5698,
-      "sha256": "e5615dadf8286917481979a5e693a28609c32cb6fd50b181ca404851e70c40c2"
+      "bytes": 8165,
+      "sha256": "0bd7f7ced3e4f4a31746c13631897c59e7557eacc1ad25596cd515d7e7644557"
     },
     "Kich_ban_VI_EN.md": {
-      "bytes": 2075,
-      "sha256": "a452bf6d546eff51fb73165eab5eaede4d419b1edaed6ee30a19ad0b5b5631c8"
+      "bytes": 2721,
+      "sha256": "393cb2267810695d857b624891cbeb3dcd18dc33311e6ccb592edb915fa4f55c"
     },
     "README.md": {
-      "bytes": 4596,
-      "sha256": "fd06aeb47e7ca250b988ae078e2b97243c1020300fe0e6916050056336450d44"
+      "bytes": 7354,
+      "sha256": "c58675d9e4a73600db28c191cbb7b1b8f11fd85290419ac11d89bd9b434a6a70"
     }
   }
 }

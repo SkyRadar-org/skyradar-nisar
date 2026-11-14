@@ -1,29 +1,24 @@
 1
-00:00:00,400 --> 00:00:03,400
-Mùa lũ đang rút. Xã nào vẫn còn nước?
-The flood is receding. Which communes still hold water?
+00:00:00,250 --> 00:00:04,250
+SkyRadar dùng NISAR xuyên mây để hỗ trợ chuẩn bị vụ lúa.
+SkyRadar uses cloud-penetrating NISAR to support rice-crop preparation.
 
 2
-00:00:04,000 --> 00:00:09,600
-NISAR nhìn xuyên mây. 33 ảnh vệ tinh thành bản đồ theo xã.
-NISAR sees through clouds. 33 acquisitions become commune water maps.
+00:00:04,500 --> 00:00:08,800
+Lọc xã còn nhiều nước, rồi xem nước đang tăng hay giảm.
+Filter high-water communes, then check whether water is rising or falling.
 
 3
-00:00:10,400 --> 00:00:15,200
-Tại Tân Hồng, tỷ lệ nước trên phần quan sát đang giảm.
-At Tân Hồng, water share of the observed area is falling.
+00:00:09,000 --> 00:00:14,800
+Tân Hồng đang rút. Vĩnh Hưng còn nhiều nước, chưa giảm.
+Water is receding in Tân Hồng; Vĩnh Hưng remains high and steady.
 
 4
-00:00:16,000 --> 00:00:22,600
-Mùa lũ, NISAR có F1 cao hơn Sentinel-1 ở 14/16 ngày so với bản đồ nước quang học.
-NISAR achieved higher F1 than Sentinel-1 on 14 of 16 flood-season optical comparison dates.
+00:00:15,000 --> 00:00:20,800
+Chỉ đọc phần ảnh cần thiết, hệ thống tạo bản đồ và báo cáo theo xã.
+Read only the needed image chunks to produce commune maps and reports.
 
 5
-00:00:23,000 --> 00:00:26,200
-Quan sát nước cần đi cùng lịch thời vụ và kiểm tra thực địa.
-Use water observations alongside sowing calendars and local field checks.
-
-6
-00:00:26,800 --> 00:00:29,400
-SkyRadar, theo dõi nước theo từng xã.
-SkyRadar, tracking water commune by commune.
+00:00:21,000 --> 00:00:27,000
+Giúp cán bộ chọn nơi kiểm tra, theo dõi tiêu nước và đối chiếu lịch gieo sạ.
+Help officers target checks, track drainage and consult local sowing calendars.

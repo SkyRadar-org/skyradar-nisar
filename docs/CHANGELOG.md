@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-15 — Crop preparation and NISAR workflow demo revision (Codex, Gemini reviewed)
+
+- Replace the bilingual deck and video with an operational story: target commune checks, monitor drainage and prepare the rice crop; illustrate different follow-up questions in Vĩnh Hưng, Tân Hồng and Lấp Vò.
+- Explain partial-HDF5 processing and distinguish current observation/prioritization tools from local calendar, pump and field decisions. Preserve provisional-data and operational-validation limits.
+- Regenerate VieNeu Hải Đăng narration and simultaneous VI/EN captions; add synthetic-audio metadata and an AI-assisted-edit label. Validate 7 slides/PDF pages, 32 source chart values and 29.8-second 1080p video.
+- Read the public team page, NASA submission guide and SEPA guidance in the browser; record the Hanoi 11:00 GMT+7 deadline and English-slide/English-subtitle requirements. Keep the requested bilingual deck and propose the captioned video for the demo link. No form submission, application code/data change, merge or deployment.
+- Refresh the downloadable package, speaker notes, verification and Gemini text review in `docs/demo/vi-en/`.
+
 ## 2026-11-15 — Bilingual presentation and VieNeu demo (Codex, Gemini reviewed)
 
 - Add a seven-slide editable Vietnamese–English deck, PDF and one 29.8-second 1080p demo with both caption languages visible together.

@@ -1,53 +1,44 @@
-# Kịch bản song ngữ / Bilingual script
+# Kịch bản / Demo script
 
-Một video chung. Giọng Việt VieNeu–Hải Đăng; hai dòng phụ đề Việt–Anh cùng lúc.
+Một video 29,8 giây, giọng tiếng Việt VieNeu-TTS 3.8.3, Hải Đăng; phụ đề Việt–Anh đồng thời. Đây là giọng tổng hợp, được khai báo trên hình và trong metadata MP4/WAV.
 
-## 00:00:00,400 --> 00:00:03,400
+One 29.8-second video, synthetic Vietnamese narration by VieNeu-TTS 3.8.3, Hải Đăng; simultaneous Vietnamese–English subtitles. Synthetic audio is disclosed on screen and in MP4/WAV metadata.
 
-**VI:** Mùa lũ đang rút. Xã nào vẫn còn nước?
+| Thời gian / Time | Cảnh / Scene | Mục đích / Purpose |
+|---|---|---|
+| 0–4 s | Tổng quan thật / Actual Overview | Đặt bài toán chuẩn bị vụ lúa / Introduce crop preparation |
+| 4–9 s | Tra cứu xã / Commune lookup | Đọc mức nước, ngày và xu hướng / Inspect water share, date and trend |
+| 9–15 s | Tân Hồng; đối chiếu Vĩnh Hưng bằng chữ / Tân Hồng with a Vĩnh Hưng text comparison | Cùng còn nước nhưng câu hỏi khác nhau / Different operational questions |
+| 15–21 s | Ảnh NISAR thật và sơ đồ xử lý / Actual NISAR imagery and processing diagram | Chỉ đọc phần cần, xuất thông tin theo xã / Read needed chunks, produce commune evidence |
+| 21–29,8 s | Giá trị sử dụng, liên kết, ghi nguồn / Use, link and credits | Chọn nơi kiểm tra, theo dõi tiêu nước, đối chiếu lịch địa phương / Target checks, track drainage, consult local calendars |
 
-**EN:** The flood is receding. Which communes still hold water?
+Lịch gieo sạ được đối chiếu bên ngoài app. Các cảnh không chứng minh hiệu quả thực địa hoặc chức năng điều hành bơm tự động.
 
-**Đầu vào VieNeu:** Mùa lũ đang rút. Xã nào vẫn còn nước?
+Sowing calendars are consulted outside the app. These scenes do not demonstrate field outcomes or automated pump control.
 
-## 00:00:04,000 --> 00:00:09,600
+## Lời đọc và phụ đề / Narration and subtitles
 
-**VI:** NISAR nhìn xuyên mây. 33 ảnh vệ tinh thành bản đồ theo xã.
+1
+00:00:00,250 --> 00:00:04,250
+SkyRadar dùng NISAR xuyên mây để hỗ trợ chuẩn bị vụ lúa.
+SkyRadar uses cloud-penetrating NISAR to support rice-crop preparation.
 
-**EN:** NISAR sees through clouds. 33 acquisitions become commune water maps.
+2
+00:00:04,500 --> 00:00:08,800
+Lọc xã còn nhiều nước, rồi xem nước đang tăng hay giảm.
+Filter high-water communes, then check whether water is rising or falling.
 
-**Đầu vào VieNeu:** Ni sa nhìn xuyên mây. Ba mươi ba ảnh vệ tinh thành bản đồ theo xã.
+3
+00:00:09,000 --> 00:00:14,800
+Tân Hồng đang rút. Vĩnh Hưng còn nhiều nước, chưa giảm.
+Water is receding in Tân Hồng; Vĩnh Hưng remains high and steady.
 
-## 00:00:10,400 --> 00:00:15,200
+4
+00:00:15,000 --> 00:00:20,800
+Chỉ đọc phần ảnh cần thiết, hệ thống tạo bản đồ và báo cáo theo xã.
+Read only the needed image chunks to produce commune maps and reports.
 
-**VI:** Tại Tân Hồng, tỷ lệ nước trên phần quan sát đang giảm.
-
-**EN:** At Tân Hồng, water share of the observed area is falling.
-
-**Đầu vào VieNeu:** Tại Tân Hồng, tỷ lệ nước trên phần quan sát đang giảm.
-
-## 00:00:16,000 --> 00:00:22,600
-
-**VI:** Mùa lũ, NISAR có F1 cao hơn Sentinel-1 ở 14/16 ngày so với bản đồ nước quang học.
-
-**EN:** NISAR achieved higher F1 than Sentinel-1 on 14 of 16 flood-season optical comparison dates.
-
-**Đầu vào VieNeu:** Trong mùa lũ, Ni sa có F một cao hơn Sentinel một ở mười bốn trên mười sáu ngày so với bản đồ nước quang học.
-
-## 00:00:23,000 --> 00:00:26,200
-
-**VI:** Quan sát nước cần đi cùng lịch thời vụ và kiểm tra thực địa.
-
-**EN:** Use water observations alongside sowing calendars and local field checks.
-
-**Đầu vào VieNeu:** Quan sát nước cần đi cùng lịch thời vụ và kiểm tra thực địa.
-
-## 00:00:26,800 --> 00:00:29,400
-
-**VI:** SkyRadar, theo dõi nước theo từng xã.
-
-**EN:** SkyRadar, tracking water commune by commune.
-
-**Đầu vào VieNeu:** SkyRadar, theo dõi nước theo từng xã.
-
-Tên nhiệm vụ NISAR được viết “Ni sa” trong đầu vào tổng hợp để đọc rõ bằng tiếng Việt; phụ đề giữ đúng tên NISAR.
+5
+00:00:21,000 --> 00:00:27,000
+Giúp cán bộ chọn nơi kiểm tra, theo dõi tiêu nước và đối chiếu lịch gieo sạ.
+Help officers target checks, track drainage and consult local sowing calendars.
