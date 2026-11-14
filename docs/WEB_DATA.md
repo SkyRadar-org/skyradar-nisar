@@ -6,6 +6,8 @@ Everything the web app needs is static (no backend). Regenerate with `python -m 
 |---|---|
 | `manifest.json` | `frames` (one per NISAR acquisition: `date`, `track`, `maturity`, `png`), `bounds` of all PNG overlays, `tracks`, water `rule`, `timing_png`, `gibs_template`, `attribution` |
 | `water/<date>_<track>.png` | Transparent PNG, water = blue (RGBA 30,110,230,200), EPSG:4326, covers `manifest.bounds` |
+| `radar/<date>_<track>.jpg` | **Radar background** for that date (R = HH, G = HV, B = HH−HV), ~60 m, same `bounds` — use this instead of GIBS when zoomed in |
+| `gibs_availability.json` | GIBS tiles present per frame (zoom 9 test): 30/33 complete; 13/07, 18/07, 03/11 partial |
 | `summary/recession.png` | Recession date colour map (blue = late Sep → red = end Oct; **purple = still wet on the last image**) |
 | `summary/first_flood.png` | First flooded date (blue = early Aug → red = late Oct) |
 | `communes.geojson` | 140 communes (OSM 2025): `name`, `province`, `osm_id`, `area_km2`, `timing[track]` (`peak_pct`, `peak_date`, `first_date_ge20pct`, `halved_after_peak`, `last_date`, `last_pct`), `flood_class` (A = water in early & out while river high → controlled release timing; B = other; C = still wet at last image) |
@@ -14,6 +16,11 @@ Everything the web app needs is static (no backend). Regenerate with `python -m 
 | `stats/commune_flood_class.csv` | Flood-release classification (A/B/C) |
 | `stats/sowing_check.csv` | Per commune: latest water % per track; `status` from the most recent image covering ≥ 50 % of the commune (ready < 10 %, draining 10–30 %, still_wet ≥ 30 %); `worst_*` = worst case across tracks; `tracks_agree` |
 | `stats/vs_dswx_hls.csv`, `vs_dswx_s1.csv`, `calibration.json` | Validation numbers for the "Does it work?" panel |
+
+## ⚠️ NASA GIBS NISAR layer
+Tiles render correctly **only up to zoom 10**; zoom 11–13 tiles are corrupted (checked 2026-11-14). Set `maxzoom: 10` on the
+GIBS source (MapLibre over-zooms it) or use `radar/<frame>.jpg` as the radar background. Our water PNG aligns pixel-exact
+with `radar/*.jpg` (same bounds).
 
 ## Rules for the UI
 - **Plot each track as its own line** (047D, 083A, 148D). Do not average tracks: viewing geometry differs.
@@ -30,7 +37,7 @@ const corners = [[W, N], [E, N], [E, S], [W, S]];            // MapLibre image s
 
 // 1) NISAR radar background from NASA GIBS for the selected date
 function gibsUrl(date) { return m.gibs_template.replace('{date}', date); }
-map.addSource('nisar', { type: 'raster', tiles: [gibsUrl(m.frames[0].date)], tileSize: 256, maxzoom: 13,
+map.addSource('nisar', { type: 'raster', tiles: [gibsUrl(m.frames[0].date)], tileSize: 256, maxzoom: 10,  // >10 is corrupted
                          attribution: 'NASA GIBS / NISAR' });
 map.addLayer({ id: 'nisar', type: 'raster', source: 'nisar', paint: { 'raster-opacity': 0.9 } });
 

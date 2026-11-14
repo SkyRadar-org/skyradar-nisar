@@ -16,6 +16,7 @@ def test_manifest_and_frames():
     f = c.get("/api/frames", params={"track": "047D"}).json()
     assert f and all(x["track"] == "047D" for x in f)
     assert c.get(f[0]["png_url"]).status_code == 200
+    assert c.get(f[0]["radar_url"]).status_code == 200
 
 
 def test_commune_and_series():

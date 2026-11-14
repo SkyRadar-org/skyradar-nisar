@@ -35,6 +35,13 @@ def _fold(s):
 TRACKS = Literal["047D", "083A", "148D"]
 
 
+def _frame(f):
+    out = dict(f, png_url=f"/static/{f['png']}")
+    if f.get("radar_jpg"):
+        out["radar_url"] = f"/static/{f['radar_jpg']}"   # own radar background (GIBS breaks above zoom 10)
+    return out
+
+
 def _404(what):
     raise HTTPException(status_code=404, detail=f"{what} not found")
 
@@ -49,7 +56,7 @@ def health():
 def manifest():
     """Dates, tracks, maturity, overlay bounds ([[S, W], [N, E]]), GIBS tile template, water rule, attribution."""
     m = dict(store().manifest)
-    m["frames"] = [dict(f, png_url=f"/static/{f['png']}") for f in m["frames"]]
+    m["frames"] = [_frame(f) for f in m["frames"]]
     return m
 
 
@@ -57,7 +64,7 @@ def manifest():
 def frames(track: Optional[TRACKS] = None):
     """NISAR acquisitions (one per date and track) with the URL of the water overlay."""
     fr = store().manifest["frames"]
-    return [dict(f, png_url=f"/static/{f['png']}") for f in fr if track is None or f["track"] == track]
+    return [_frame(f) for f in fr if track is None or f["track"] == track]
 
 
 @app.get("/api/communes")

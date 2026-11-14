@@ -22,6 +22,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-06-17_047D.png",
+   "radar_jpg": "radar/2026-06-17_047D.jpg",
    "gibs_date": "2026-06-17"
   },
   {
@@ -30,6 +31,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-06-19_083A.png",
+   "radar_jpg": "radar/2026-06-19_083A.jpg",
    "gibs_date": "2026-06-19"
   },
   {
@@ -38,6 +40,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-06-24_148D.png",
+   "radar_jpg": "radar/2026-06-24_148D.jpg",
    "gibs_date": "2026-06-24"
   },
   {
@@ -46,6 +49,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-06-29_047D.png",
+   "radar_jpg": "radar/2026-06-29_047D.jpg",
    "gibs_date": "2026-06-29"
   },
   {
@@ -54,6 +58,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-07-01_083A.png",
+   "radar_jpg": "radar/2026-07-01_083A.jpg",
    "gibs_date": "2026-07-01"
   },
   {
@@ -62,6 +67,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-07-06_148D.png",
+   "radar_jpg": "radar/2026-07-06_148D.jpg",
    "gibs_date": "2026-07-06"
   },
   {
@@ -70,6 +76,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-07-11_047D.png",
+   "radar_jpg": "radar/2026-07-11_047D.jpg",
    "gibs_date": "2026-07-11"
   },
   {
@@ -78,6 +85,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-07-13_083A.png",
+   "radar_jpg": "radar/2026-07-13_083A.jpg",
    "gibs_date": "2026-07-13"
   },
   {
@@ -86,6 +94,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-07-18_148D.png",
+   "radar_jpg": "radar/2026-07-18_148D.jpg",
    "gibs_date": "2026-07-18"
   },
   {
@@ -94,6 +103,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-07-23_047D.png",
+   "radar_jpg": "radar/2026-07-23_047D.jpg",
    "gibs_date": "2026-07-23"
   },
   {
@@ -102,6 +112,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-07-25_083A.png",
+   "radar_jpg": "radar/2026-07-25_083A.jpg",
    "gibs_date": "2026-07-25"
   },
   {
@@ -110,6 +121,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-08-11_148D.png",
+   "radar_jpg": "radar/2026-08-11_148D.jpg",
    "gibs_date": "2026-08-11"
   },
   {
@@ -118,6 +130,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-08-16_047D.png",
+   "radar_jpg": "radar/2026-08-16_047D.jpg",
    "gibs_date": "2026-08-16"
   },
   {
@@ -126,6 +139,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-08-18_083A.png",
+   "radar_jpg": "radar/2026-08-18_083A.jpg",
    "gibs_date": "2026-08-18"
   },
   {
@@ -134,6 +148,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-08-23_148D.png",
+   "radar_jpg": "radar/2026-08-23_148D.jpg",
    "gibs_date": "2026-08-23"
   },
   {
@@ -142,6 +157,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-08-28_047D.png",
+   "radar_jpg": "radar/2026-08-28_047D.jpg",
    "gibs_date": "2026-08-28"
   },
   {
@@ -150,6 +166,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-08-30_083A.png",
+   "radar_jpg": "radar/2026-08-30_083A.jpg",
    "gibs_date": "2026-08-30"
   },
   {
@@ -158,6 +175,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-09-04_148D.png",
+   "radar_jpg": "radar/2026-09-04_148D.jpg",
    "gibs_date": "2026-09-04"
   },
   {
@@ -166,6 +184,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-09-09_047D.png",
+   "radar_jpg": "radar/2026-09-09_047D.jpg",
    "gibs_date": "2026-09-09"
   },
   {
@@ -174,6 +193,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-09-11_083A.png",
+   "radar_jpg": "radar/2026-09-11_083A.jpg",
    "gibs_date": "2026-09-11"
   },
   {
@@ -182,6 +202,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-09-16_148D.png",
+   "radar_jpg": "radar/2026-09-16_148D.jpg",
    "gibs_date": "2026-09-16"
   },
   {
@@ -190,6 +211,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-09-21_047D.png",
+   "radar_jpg": "radar/2026-09-21_047D.jpg",
    "gibs_date": "2026-09-21"
   },
   {
@@ -198,6 +220,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-09-23_083A.png",
+   "radar_jpg": "radar/2026-09-23_083A.jpg",
    "gibs_date": "2026-09-23"
   },
   {
@@ -206,6 +229,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-09-28_148D.png",
+   "radar_jpg": "radar/2026-09-28_148D.jpg",
    "gibs_date": "2026-09-28"
   },
   {
@@ -214,6 +238,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-10-03_047D.png",
+   "radar_jpg": "radar/2026-10-03_047D.jpg",
    "gibs_date": "2026-10-03"
   },
   {
@@ -222,6 +247,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-10-05_083A.png",
+   "radar_jpg": "radar/2026-10-05_083A.jpg",
    "gibs_date": "2026-10-05"
   },
   {
@@ -230,6 +256,7 @@
    "track": "148D",
    "maturity": "provisional",
    "png": "water/2026-10-10_148D.png",
+   "radar_jpg": "radar/2026-10-10_148D.jpg",
    "gibs_date": "2026-10-10"
   },
   {
@@ -238,6 +265,7 @@
    "track": "047D",
    "maturity": "provisional",
    "png": "water/2026-10-15_047D.png",
+   "radar_jpg": "radar/2026-10-15_047D.jpg",
    "gibs_date": "2026-10-15"
   },
   {
@@ -246,6 +274,7 @@
    "track": "083A",
    "maturity": "provisional",
    "png": "water/2026-10-17_083A.png",
+   "radar_jpg": "radar/2026-10-17_083A.jpg",
    "gibs_date": "2026-10-17"
   },
   {
@@ -254,6 +283,7 @@
    "track": "148D",
    "maturity": "validated",
    "png": "water/2026-10-22_148D.png",
+   "radar_jpg": "radar/2026-10-22_148D.jpg",
    "gibs_date": "2026-10-22"
   },
   {
@@ -262,6 +292,7 @@
    "track": "047D",
    "maturity": "validated",
    "png": "water/2026-10-27_047D.png",
+   "radar_jpg": "radar/2026-10-27_047D.jpg",
    "gibs_date": "2026-10-27"
   },
   {
@@ -270,6 +301,7 @@
    "track": "083A",
    "maturity": "validated",
    "png": "water/2026-10-29_083A.png",
+   "radar_jpg": "radar/2026-10-29_083A.jpg",
    "gibs_date": "2026-10-29"
   },
   {
@@ -278,6 +310,7 @@
    "track": "148D",
    "maturity": "validated",
    "png": "water/2026-11-03_148D.png",
+   "radar_jpg": "radar/2026-11-03_148D.jpg",
    "gibs_date": "2026-11-03"
   }
  ],
@@ -297,6 +330,7 @@
   "day_zero": "2026-06-01",
   "legend": "blue=early, red=late, purple=still wet at last image"
  },
+ "gibs_note": "GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
  "gibs_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
  "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team."
 }

@@ -40,8 +40,15 @@ def main():
         a, bounds = _to_4326(f)
         rgba = np.zeros(a.shape + (4,), np.uint8); rgba[a == 1] = (30, 110, 230, 200)
         Image.fromarray(rgba).save(OUT / f"water/{k}.png", optimize=True)
+        # own radar background (GIBS NISAR tiles are corrupted above zoom 10): R = HH, G = HV, B = HH - HV, same bounds
+        hh, _ = _to_4326(P / f"gcov/{k}_HH.tif", 3); hv, _ = _to_4326(P / f"gcov/{k}_HV.tif", 3)   # ~60 m, light for 4G
+        hh = np.where(hh == C.NODATA_DB, np.nan, hh / 100); hv = np.where(hv == C.NODATA_DB, np.nan, hv / 100)
+        s = lambda x, lo, hi: np.clip((x - lo) / (hi - lo) * 255, 0, 255)
+        rgb = np.dstack([s(hh, -22, 0), s(hv, -30, -8), s(hh - hv, 0, 15)]); rgb[~np.isfinite(hh)] = 0
+        (OUT / "radar").mkdir(exist_ok=True)
+        Image.fromarray(np.nan_to_num(rgb).astype(np.uint8)).save(OUT / f"radar/{k}.jpg", quality=60, optimize=True)
         frames.append(dict(key=k, date=k[:10], track=k[11:], maturity=qa[k]["maturity"], png=f"water/{k}.png",
-                           gibs_date=k[:10]))
+                           radar_jpg=f"radar/{k}.jpg", gibs_date=k[:10]))
     # timing maps: colour by date (blue early -> red late); purple = still wet on last image
     for name, lo, hi in [("recession_day", 115, 160), ("first_flood_day", 60, 150)]:
         a, _ = _to_4326(P / f"summary/{name}.tif")
@@ -74,6 +81,7 @@ def main():
         rule=dict(th_hh_db=C.TH_HH_DB, th_hv_db=C.TH_HV_DB, mmu_ha=C.MMU_PX * C.RES ** 2 / 1e4),
         timing_png=dict(recession="summary/recession.png", first_flood="summary/first_flood.png",
                         day_zero="2026-06-01", legend="blue=early, red=late, purple=still wet at last image"),
+        gibs_note="GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
         gibs_template="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
         attribution=ATTRIBUTION), indent=1, ensure_ascii=False))
     print(len(frames), "frames exported to", OUT)
