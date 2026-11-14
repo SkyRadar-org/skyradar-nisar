@@ -55,9 +55,15 @@ def commune_collection():
         peak_pct = timing.get("peak_pct", peak["water_pct"] if peak else None)
         status = {"ready": "receded", "draining": "uncertain", "still_wet": "not_receded"}.get(
             sowing["status"] if sowing else None, "uncertain")
-        if sowing and peak_pct is not None and peak_pct < 5:
+        area = p.get("area_km2")
+        observed = 100 * last["valid_km2"] / area if last and area and area > 0 else None
+        sufficient = bool(sowing and sowing["status"] != "partial" and observed is not None and observed >= 50)
+        if not sufficient:
+            status = "uncertain"
+        if sufficient and peak_pct is not None and peak_pct < 5:
             status = "no_flood"
         props = dict(osm_id=str(oid), name=p["name"], province=p["province"],
+                     area_km2=area, observed_pct=round(observed, 6) if observed is not None else None,
                      valid_km2=last["valid_km2"] if last else None,
                      first_flood_date=timing.get("first_date_ge20pct"),
                      peak_pct=peak_pct, peak_date=timing.get("peak_date", peak["date"] if peak else None),
@@ -65,7 +71,7 @@ def commune_collection():
                      recession_date=timing.get("halved_after_peak"),
                      last_pct=last["water_pct"] if last else None, last_date=last["date"] if last else None,
                      max_flooded_km2=max((r["water_km2"] for r in track_rows), default=None),
-                     status=status, reference_track=track, coverage_sufficient=bool(sowing))
+                     status=status, reference_track=track, coverage_sufficient=sufficient)
         features.append(dict(type="Feature", id=str(oid), properties=props, geometry=feature["geometry"]))
     return dict(type="FeatureCollection", features=features)
 

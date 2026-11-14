@@ -1,0 +1,40 @@
+{
+  "heroObservations": [
+    {
+      "ctaBottom": 368.6875,
+      "height": 900,
+      "kpis": "33/115xã nhiều nước / xã đủ phủ đánh giá14/16F1 cao hơn Sentinel-1 · đối chiếu quang học, tháng 8–1133lần chụp NISAR thực tế",
+      "language": "vi",
+      "overflow": false,
+      "width": 1440
+    },
+    {
+      "ctaBottom": 464.9609375,
+      "height": 844,
+      "language": "vi",
+      "overflow": false,
+      "width": 390
+    }
+  ],
+  "flows": {
+    "viPlayReached16AugFrom11Aug": true,
+    "viPauseStable": true,
+    "enPlayReached16AugFrom11Aug": true,
+    "enPauseStable": true,
+    "arrowKeysVi": [
+      "16/08/2026",
+      "18/08/2026",
+      "16/08/2026"
+    ],
+    "advancedProfessionalAndTrack047D": true,
+    "backForward": true,
+    "ctaClearsCommuneSelection": true,
+    "sonKienInsufficientWith19_6PercentCoverage": true
+  },
+  "desktopMapRatio": {
+    "viExpandedTimeline": 0.6230555555555556,
+    "enExpandedTimeline": 0.6447222222222222
+  },
+  "console": [],
+  "method": "Kiểm trực tiếp qua cua_repl trên localhost:8794; screenshot 1440×900 và390×844, VI/EN. Không đọc state nội bộ hoặc sửa trang bằng evaluate."
+}

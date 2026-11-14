@@ -21,7 +21,7 @@ def test_manifest_and_frames():
 
 def test_commune_and_series():
     p = c.get(f"/api/communes/{SON_KIEN}").json()
-    assert p["name"] == "Xã Sơn Kiên" and p["sowing"]["status"] == "still_wet"
+    assert p["name"] == "Xã Sơn Kiên" and p["sowing"]["status"] == "partial"
     s = c.get(f"/api/communes/{SON_KIEN}/series").json()
     assert {x["track"] for x in s} >= {"047D", "083A"} and s == sorted(s, key=lambda x: (x["date"], x["track"]))
     assert c.get("/api/communes/1").status_code == 404
@@ -30,7 +30,10 @@ def test_commune_and_series():
 def test_sowing_ranking_release_validation():
     sc = c.get("/api/sowing-check", params={"status": "still_wet"}).json()
     assert sc["communes"] and all(x["status"] == "still_wet" for x in sc["communes"])
-    assert sum(sc["counts_all"].values()) >= 100
+    assert sc["counts_all"] == {"ready": 43, "draining": 39, "still_wet": 33}
+    assert sc["partial_count"] == 16
+    partial = c.get("/api/sowing-check", params={"status": "partial"}).json()["communes"]
+    assert len(partial) == 16 and all(p["observed_pct"] < 50 for p in partial)
     rk = c.get("/api/ranking", params={"limit": 5}).json()
     assert len(rk) == 5 and rk[0]["last_pct"] >= rk[-1]["last_pct"]
     assert all(x["cls"] == "A" for x in c.get("/api/flood-release", params={"cls": "A"}).json())

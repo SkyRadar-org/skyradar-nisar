@@ -2,7 +2,8 @@
 
 Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ lý của Chí). Đọc hết file này trước khi đụng vào code.
 **Việc UI/UX còn lại và kế hoạch 4 gói việc: xem `docs/UX_PLAN.md`.**
-**Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Kết luận: cần chỉnh kế hoạch trước triển khai; số mô phỏng 115 xã = 43/39/33 chưa phải dữ liệu đã phát hành. Chưa triển khai G1–G4.**
+**Triển khai đã kiểm, chờ duyệt production trên nhánh `codex/ux-implementation-20261114`: [checkpoint](verification/ux-implementation-20261114/checkpoint.md). Chưa phát hành production.**
+**Phản biện kế hoạch ngày 14/11/2026 (Codex + Gemini, hai vòng): xem [báo cáo và bằng chứng](verification/ux-plan-review-20261114/README.md). Bản đánh giá ban đầu; trạng thái triển khai xem checkpoint mới ở trên. Đính chính: mục hướng dẫn đã có wrapper `<details>` tại chỗ `root.replaceChildren`; nhận xét bác Gemini về điểm này trong bản đánh giá là sai.**
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---
@@ -79,10 +80,10 @@ NASA GIBS (lớp NISAR, frontend gọi trực tiếp)                     data/w
 | Quy tắc tách nước | HH < −14 dB **và** HV < −22 dB; mảng ≥ 3 ha; bỏ nước thường xuyên | `src/skyradar_nisar/config.py`, `data/web/stats/calibration.json` |
 | So với DSWx-S1 (25 ngày độc lập) | F1 trung vị 0,63; mùa lũ 0,57–0,76; recall 0,87 | `data/web/stats/vs_dswx_s1.csv` |
 | **So với ảnh quang học DSWx-HLS (16 ngày, chỉ mùa lũ tháng 8–11)** | **NISAR tốt hơn Sentinel-1 ở 14/16 ngày.** F1 0,57–0,86 so với 0,50–0,78. **Recall 0,47–0,82 so với 0,35–0,64.** 53–98% diện tích chỉ NISAR thấy nước thì ảnh quang học cũng thấy nước | `data/web/stats/vs_dswx_hls.csv` |
-| Kiểm tra xuống giống (ảnh gần nhất phủ xã) | 131 xã: 53 sẵn sàng, 40 đang rút, **38 còn ngập** | `data/web/stats/sowing_check.csv` |
-| Theo tỉnh (sẵn sàng / đang rút / còn ngập) | An Giang 28/22/6; Đồng Tháp 20/11/21; Tây Ninh 0/6/9; Cần Thơ 2/1/2; Vĩnh Long 3/0/0 | như trên |
+| Kiểm tra xuống giống (ảnh gần nhất phủ xã) | 115 xã đủ phủ: 43 ít nước, 39 một phần nước, **33 nhiều nước**; 25/140 xã chưa đủ đánh giá | `data/web/stats/sowing_check.csv` |
+| Theo tỉnh (sẵn sàng / đang rút / còn ngập) | Ít / trung bình / nhiều: An Giang 24/22/3; Đồng Tháp 16/11/21; Tây Ninh 0/5/8; Cần Thơ 0/1/1; Vĩnh Long 3/0/0 | như trên |
 | Dấu hiệu xả lũ | Lớp A 10 xã, B 15, C 55. Ba xã có tên trong tin xả lũ (Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông) đều thuộc lớp A | `data/web/stats/commune_flood_class.csv` |
-| Ví dụ xã còn ngập | Sơn Kiên còn khoảng 78–87% nước ngày 03/11 (tuỳ track) | `commune_water_by_date.csv` |
+| Ví dụ xã còn ngập | Vĩnh Hưng (Tây Ninh, ID 15012314): 61,3% phần quan trắc có nước ngày 27/10, phủ gần 100% xã; Sơn Kiên chỉ phủ 19,68%, không được đánh giá | `commune_water_by_date.csv` |
 | Đầu mùa (tháng 6–7) | Yếu: F1 so với DSWx-S1 chỉ 0,07–0,19 (báo thừa nước trên ruộng khô). Sản phẩm dành cho mùa lũ và nước rút (tháng 8–11) | `vs_dswx_s1.csv` |
 | Diện tích NISAR so với DSWx-S1 (mùa lũ, cùng pixel) | 1,0–2,1 lần, trung vị 1,65 lần | `vs_dswx_s1.csv` (recall / precision) |
 | Đã thử nhưng loại | Lớp "ngập dưới tán" (HH sáng lên): F1 khoảng 0,02 | `docs/METHOD.md` |
@@ -175,7 +176,8 @@ Lịch chi tiết từng người: trang "Giao việc chiều 14/11: Đông & Đ
 - **Overpass API:** máy chủ chính hay timeout, dùng mirror `overpass.kumi.systems` và Nominatim.
 - **Kiểm tra xuống giống:**
   - lấy **ảnh gần nhất phủ ≥ 50% xã** (không lấy trường hợp xấu nhất của mọi track, vì cách đó gây sai, ví dụ ở Tân Hồng);
-  - ngưỡng: < 10% là sẵn sàng, 10–30% là đang rút, ≥ 30% là còn ngập.
+  - ngưỡng tỷ lệ nước trên phần quan trắc: <10% ít nước, 10–<30% một phần nước, ≥30% nhiều nước; không tự suy ra sẵn sàng xuống giống hoặc xu thế nước rút.
+  - chọn ảnh mới nhất đạt ≥50% diện tích toàn xã OSM và ≥5 km² trước làm tròn; ảnh mới phủ ít không thay thế ảnh cũ đủ điều kiện.
 - **Web research:**
   - API của editor (BlockNote) từ chối text vừa **đậm vừa code**;
   - trạng thái task chỉ nhận `todo | blocked | done`;

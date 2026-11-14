@@ -104,13 +104,14 @@ def ranking(metric: Literal["last_pct", "peak_pct"] = "last_pct", track: TRACKS 
 
 
 @app.get("/api/sowing-check")
-def sowing_check(status: Optional[Literal["ready", "draining", "still_wet"]] = None, province: Optional[str] = None):
+def sowing_check(status: Optional[Literal["ready", "draining", "still_wet", "partial"]] = None, province: Optional[str] = None):
     """Sowing readiness per commune on the most recent covering image: ready < 10 %, draining 10-30 %, still_wet >= 30 % water."""
     rows = list(store().sowing.values())
     rows = [r for r in rows if (status is None or r["status"] == status) and (province is None or province.lower() in r["province"].lower())]
     rows.sort(key=lambda r: -(r["status_pct"] or 0))
     counts = {k: sum(r["status"] == k for r in store().sowing.values()) for k in ("ready", "draining", "still_wet")}
-    return {"reference_date": rows[0]["ref_date"] if rows else None, "counts_all": counts, "communes": rows}
+    return {"reference_date": rows[0]["ref_date"] if rows else None, "counts_all": counts,
+            "partial_count": sum(r["status"] == "partial" for r in store().sowing.values()), "communes": rows}
 
 
 @app.get("/api/flood-release")

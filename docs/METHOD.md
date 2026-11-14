@@ -82,12 +82,19 @@ inundated vegetation): rice growth brightens HH as well, so this layer is not pa
   on the 27–29 Oct images.
 - Two contrasting groups of communes:
   - **Early flood, early recession** — Tây Phú, Vĩnh Hanh (An Giang): 73–79 % under water at the end of August, almost dry by early October.
-  - **Late flood, not receded** — Sơn Kiên, Hòn Đất, Mỹ Thuận (An Giang): peak 70–90 % in October and still **58–78 %
-    under water on 3 November**, after the sowing window opened.
+  - **Substantial water at the latest observation** — Vĩnh Hưng, Tây Ninh (`15012314`), 61.3%, and Phương Thịnh,
+    Đồng Tháp (`15586694`), 59.8%, on 27 October; both images cover approximately the full commune.
+    These percentages refer to observed area and do not establish sowing readiness.
 - Of 80 communes that were ever > 30 % flooded, 50 had not halved their water area by 29 October.
-- **Sowing check** on the most recent image covering each commune (27 Oct – 3 Nov): of 131 communes, **38 still wet
-  (≥ 30 % water)**, 40 draining (10–30 %), 53 ready (< 10 %); all tracks agree on the status for 99 communes. Consistent
-  with press reports of early November: Dong Thap Muoi fields being pumped dry, first sowing round from 5 Nov.
+- **Latest eligible water-share assessment**: **115 communes**, with **33 high (≥30%)**, **39 moderate (10–<30%)**,
+  and **43 low (<10%)** observed water share. An acquisition must cover ≥50% of the full OSM commune and ≥5 km²,
+  evaluated before rounding. The newest eligible acquisition is selected across all dates/tracks; a more recent
+  partial pass remains evidence, not a replacement assessment. Six communes have no observations and 19 have only
+  insufficient observations under this rule (including 16 `partial` records in `sowing_check.csv`). The legacy CSV
+  codes `ready`, `draining`, `still_wet` label these bins; they are not agronomic recommendations or proof of a trend.
+- **Coverage denominator:** `observed_pct = valid_km2 / area_km2 × 100`; `water_pct = water_km2 / valid_km2 × 100`.
+  Communes at the AOI/swath edge may only be partially observed. The 50% gate is a product screening rule, not a
+  validated guarantee that the observed part represents the whole commune.
 
 ### Controlled flood release (xả lũ) is visible in the timing
 

@@ -19,8 +19,10 @@ files on NASA Earthdata Cloud (≈ 40 s per acquisition instead of 6 GB), classi
 dates against OPERA DSWx-S1, and summarise 33 acquisitions from three tracks (June–November 2026) for 140 communes.
 
 Validated independently against optical OPERA DSWx-HLS, NISAR detects more of the real water than Sentinel-1 on 14 of
-16 flood-season comparison dates, Aug–Nov (F1 0.57–0.86 vs 0.50–0.78). The tool shows, for example, that Sơn Kiên and Hòn Đất communes were
-still 58–78 % under water on 3 November, after the sowing window opened, while Tây Phú had drained by early October.
+16 flood-season comparison dates, Aug–Nov (F1 0.57–0.86 vs 0.50–0.78). The latest eligible assessment covers 115 communes: 33 high, 39 moderate and 43 low observed water share.
+For example, Vĩnh Hưng (Tây Ninh) and Phương Thịnh (Đồng Tháp) show 61.3% and 59.8% observed water on 27 October
+with almost full commune coverage. Water share refers to the observed area, not necessarily the entire commune;
+25 communes lack sufficient observations and are never treated as dry.
 
 We are explicit about limits: provisional data, 5–7-day effective revisit, and that radar sees water on the field, not
 whether it came from the river, a controlled flood release or pumping.
@@ -40,11 +42,11 @@ whether it came from the river, a controlled flood release or pumping.
 | 3 | **Data & method** | Stream AOI from Earthdata Cloud → 20 m grid → HH/HV water rule (calibrated on 2 dates) → per-commune timing | Pipeline diagram |
 | 4 | **Demo** | Time slider over 33 NISAR dates, commune table (first flood, peak, recession), per-track charts | Screenshot of the web app |
 | 5 | **Does it work?** | vs optical DSWx-HLS (flood season Aug–Nov): NISAR better on 14/16 dates (2 ties within 0.02); 53–98 % of NISAR-only water confirmed optically; rejected method (inundated vegetation) | fig2_validation_optical |
-| 6 | **What it tells farmers' managers** | Sơn Kiên/Hòn Đất still wet on 3 Nov vs Tây Phú drained in Oct; controlled flood release visible in Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông | fig3_commune_examples + fig4_flood_release |
+| 6 | **What it tells farmers' managers** | Vĩnh Hưng/Phương Thịnh high observed water on 27 Oct vs Tây Phú low in Oct; controlled flood release visible in Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông | fig3_commune_examples + fig4_flood_release |
 | 7 | **Limits & next steps / Team** | Provisional data; cause of water unknown; not early warning. Next: whole delta, sowing-date alerts, field (dyke compartment) level | Team |
 
 ## 30-second video script
 - 0–5 s: "Mekong Delta, October 2026. Clouds everywhere. Is this rice field ready to sow?"
-- 5–20 s: screen recording — slide through NISAR dates, click Sơn Kiên → timeline still high after 1 Nov; click Tây Phú → drained.
+- 5–20 s: screen recording — slide through NISAR dates, click Vĩnh Hưng (Tây Ninh, ID 15012314) → latest high-water observation on 27 Oct; click Tây Phú → drained.
 - 20–27 s: "NISAR L-band finds up to 82 % of the water seen by optical satellites; Sentinel-1 finds up to 64 %."
 - 27–30 s: "SkyRadar NISAR Water Pulse — NASA Space Apps 2026." + link.

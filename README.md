@@ -98,6 +98,26 @@ $env:EARTHDATA_TOKEN = "..."; $env:PYTHONPATH = "src"; $env:PYTHONUTF8 = "1"
   product NISAR scores equal or higher than SWOT on 6 of 8 dates. SWOT is a comparison source, not ground truth.
 - Tested and **rejected**: an "inundated vegetation" rule from HH brightening (F1 ≈ 0.02; rice growth also brightens HH).
 
+## Commune coverage and latest water-share assessment
+
+The latest eligible acquisition must observe at least **50% of the full OSM commune area** (and at least 5 km²).
+The gate is checked before rounding, across all acquisitions; a newer edge sliver cannot replace an older eligible image.
+The current package has **115 assessed communes: 43 low (<10%), 39 moderate (10–<30%), 33 high (≥30%) water share**.
+Another 16 CSV records are `partial`; across all 140 communes, 25 lack a sufficient assessment (6 without observations,
+19 with partial observations). Percent water means water / observed area, not water / full commune area. Low water is
+not proof of soil readiness, and a moderate value alone does not establish a recession trend.
+Vĩnh Hưng, Tây Ninh (`15012314`), has 61.3% observed water on 27 October with almost full commune coverage.
+
+Without processed rasters, regenerate the assessment and CSV-based figures from the committed data:
+
+```bash
+PYTHONPATH=src python -m skyradar_nisar.sowing
+PYTHONPATH=src python -m skyradar_nisar.figures --csv-only
+```
+
+The first command updates `data/web/stats/sowing_check.csv` and fig5; the second redraws fig2 and fig3.
+No Earthdata token is needed for these commands.
+
 ## Limitations
 
 - Mostly PROVISIONAL NISAR products; 12-day repeat per track (≈ 5–7 days with 2–3 tracks).

@@ -7,22 +7,23 @@
 """
 import csv, json, datetime as dt
 from collections import defaultdict
-import numpy as np, rasterio
+import numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt, matplotlib.dates as mdates
 from . import config as C
-from .water import permanent_water
 
 OUT = C.ROOT / "docs" / "figures"
 COL = {"047D": "#1f6feb", "083A": "#e8590c", "148D": "#2f9e44"}
 
 
 def _rd(p):
+    import rasterio
     with rasterio.open(p) as s:
         return s.read(1)
 
 
 def fig1():
+    from .water import permanent_water
     P = C.PROCESSED; qa = json.loads((P / "qa.json").read_text(encoding="utf-8"))
     s1 = {k: _rd(P / f"dswx_s1/{k}_WTR.tif") for k in qa if (P / f"dswx_s1/{k}_WTR.tif").exists()}
     perm = permanent_water(list(s1.values()))
@@ -46,7 +47,7 @@ def fig1():
 
 
 def fig2():
-    rows = list(csv.DictReader(open(C.PROCESSED / "validation/vs_dswx_hls.csv", encoding="utf-8")))
+    rows = list(csv.DictReader(open((C.PROCESSED / "validation/vs_dswx_hls.csv") if (C.PROCESSED / "validation/vs_dswx_hls.csv").exists() else C.WEB / "stats/vs_dswx_hls.csv", encoding="utf-8")))
     rows.sort(key=lambda r: r["key"])
     lab = [r["key"][5:10].replace("-", "/") + "\n" + r["key"][11:] for r in rows]
     x = np.arange(len(rows)); w = .38
@@ -58,19 +59,30 @@ def fig2():
     ax.set_ylim(0, 1.12); ax.legend(fontsize=8, loc="upper left", ncol=2, frameon=False); ax.grid(axis="y", alpha=.3); fig.tight_layout(); fig.savefig(OUT / "fig2_validation_optical.png", dpi=150)
 
 
-def fig3(names=("Xã Sơn Kiên", "Xã Hòn Đất", "Xã Tây Phú", "Xã Vĩnh Hanh")):
-    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv", encoding="utf-8")))
-    fig, axes = plt.subplots(1, len(names), figsize=(12, 3.2), sharey=True)
-    for ax, nm in zip(axes, names):
+def fig3(ids=("15012314", "15586694")):
+    source = C.PROCESSED / "stats/commune_water_by_date.csv"
+    if not source.exists():
+        source = C.WEB / "stats/commune_water_by_date.csv"
+    rows = list(csv.DictReader(open(source, encoding="utf-8")))
+    fc = json.loads((C.DATA / "boundaries/communes_aoi.geojson").read_text())
+    props = {str(f["properties"]["osm_id"]): f["properties"] for f in fc["features"]}
+    # Resolve the two low-water examples by name once, keeping the flooded examples unambiguous by ID.
+    ids = ids[:2] + tuple(next(oid for oid, p in props.items() if p["name"] == name) for name in ("Xã Tây Phú", "Xã Vĩnh Hanh"))
+    fig, axes = plt.subplots(1, len(ids), figsize=(12, 3.2), sharey=True)
+    for ax, oid in zip(axes, ids):
+        p = props[oid]
         for trk in COL:
-            rr = sorted([r for r in rows if r["commune"] == nm and r["track"] == trk and float(r["valid_km2"]) >= 5], key=lambda r: r["date"])
+            rr = sorted([r for r in rows if r["osm_id"] == oid and r["track"] == trk
+                         and float(r["valid_km2"]) >= max(5, 0.5 * float(p["area_km2"]))], key=lambda r: r["date"])
             if rr:
                 ax.plot([dt.date.fromisoformat(r["date"]) for r in rr], [float(r["water_pct"]) for r in rr], "-o", ms=3, c=COL[trk], label=trk)
         ax.axvline(dt.date(2026, 11, 1), c="k", lw=1, ls=":")
-        ax.set_title(nm.replace("Xã ", ""), fontsize=10); ax.xaxis.set_major_formatter(mdates.DateFormatter("%b")); ax.grid(alpha=.3)
-    axes[0].set_ylabel("% of commune under water"); axes[0].legend(fontsize=7, title="track", title_fontsize=7)
-    fig.suptitle("Commune timelines: early recession (Tay Phu, Vinh Hanh) vs still flooded after 1 Nov (Son Kien, Hon Dat)", fontsize=10)
-    fig.tight_layout(); fig.savefig(OUT / "fig3_commune_examples.png", dpi=150)
+        ax.set_title(p["name"].replace("Xã ", ""), fontsize=10)
+        ax.xaxis.set_major_locator(mdates.MonthLocator()); ax.xaxis.set_major_formatter(mdates.DateFormatter("%b")); ax.grid(alpha=.3)
+    axes[0].set_ylabel("Water / observed area (%)"); axes[-1].legend(fontsize=7, title="track", title_fontsize=7)
+    fig.suptitle("Water timelines: Vinh Hung / Phuong Thinh vs Tay Phu / Vinh Hanh; only >=50% commune coverage", fontsize=10)
+    OUT.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout(); fig.savefig(OUT / "fig3_commune_examples.png", dpi=150); plt.close(fig)
 
 
 def main():
@@ -80,4 +92,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "--csv-only" in __import__("sys").argv:
+        OUT.mkdir(parents=True, exist_ok=True)
+        fig2(); fig3()
+    else:
+        main()

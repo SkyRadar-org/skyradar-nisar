@@ -1,0 +1,7 @@
+{
+  "purpose": "Gói đầu vào frontend dùng để Gemini phản biện; giữ local vì repo frontend là private. Không đưa toàn bộ mã frontend vào repo backend public.",
+  "sha256": "05d0f77887c117b519d4b19720d4cf0e9a0e20b7bea5147191520a4627d0691f",
+  "local_path": "/Users/Chris/nisar/.review-private/ux-implementation-20261114/gemini-frontend-input.txt",
+  "frontend_base": "4f59e90f907c84b006d3ecb7a34097fea5ad003f",
+  "source_state": "Gói mã sau triển khai, trước các chỉnh nhỏ lời nhắc/hiển thị cuối; xem báo cáo."
+}

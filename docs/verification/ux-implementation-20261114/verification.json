@@ -1,0 +1,62 @@
+{
+  "time_gmt7": "2026-11-14T19:11:07.184561+07:00",
+  "base_url": "http://localhost:8794",
+  "checks": [
+    {
+      "route": "/health",
+      "status": 200,
+      "content_type": "application/json"
+    },
+    {
+      "route": "/api/frontend/communes",
+      "status": 200,
+      "content_type": "application/json",
+      "water_groups_low_medium_high": [
+        43,
+        39,
+        33
+      ],
+      "assessed": 115,
+      "insufficient": 25
+    },
+    {
+      "route": "/api/frontend/scenes",
+      "status": 200,
+      "content_type": "application/json"
+    },
+    {
+      "route": "/api/frontend/validation",
+      "status": 200,
+      "content_type": "application/json"
+    },
+    {
+      "route": "/api/unknown",
+      "status": 404,
+      "content_type": "application/json"
+    }
+  ],
+  "csv_sha256": "cb2d8741e16fc1e8473aafee4f0a7b7a9c8b83a284fde4d3ef771d98fc3d5277",
+  "tests": {
+    "backend": {
+      "passed": 17,
+      "command": "python -m pytest -q"
+    },
+    "frontend_ux": {
+      "passed": 10,
+      "command": "npm run test:ux"
+    },
+    "worker": {
+      "passed": 4,
+      "command": "npm run test:cloudflare"
+    }
+  },
+  "build": {
+    "command": "PYTHON=/Users/Chris/nisar/.venv/bin/python npm run build:cloudflare",
+    "exit_code": 0,
+    "api_responses": 212,
+    "scenes": 33,
+    "communes": 140,
+    "files": 472
+  },
+  "note": "Các test đã chạy qua terminal; metadata này ghi lại kết quả. HTTP checks được chạy thật trong script này; chưa phát hành production."
+}

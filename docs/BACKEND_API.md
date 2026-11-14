@@ -36,3 +36,11 @@ Example `/api/communes/15416586/series` (Xã Sơn Kiên):
  {"date": "2026-11-03", "track": "148D", "maturity": "validated", "valid_km2": 32.1, "water_km2": 25.1, "water_pct": 78.2}]
 ```
 (values illustrative of the format; take real numbers from the CSV)
+
+## Coverage-aware assessment
+
+`GET /api/sowing-check` accepts `status=partial` in addition to the three legacy water-share groups. `counts_all`
+counts only the 115 eligible assessments (43/39/33); `partial_count=16` counts partial records separately.
+`GET /api/frontend/communes` adds `area_km2` and `observed_pct` (percent of full OSM area). Insufficient coverage
+is always `coverage_sufficient=false`, `status=uncertain`, even when the observed water peak is below 5%.
+The retained water percentage describes observed area and is evidence only for partial communes.

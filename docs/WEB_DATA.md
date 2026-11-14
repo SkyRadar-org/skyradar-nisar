@@ -62,3 +62,11 @@ map.on('click', 'communes-fill', e => openCommunePanel(e.features[0].properties)
 ```
 
 Note: `properties.timing` comes back from MapLibre as a JSON string; use `JSON.parse(props.timing)`.
+
+## Coverage-aware assessment (14 November 2026)
+
+`sowing_check.csv` now adds `area_km2` and `observed_pct` (0–100, full OSM commune denominator), and `partial` status.
+Only the newest acquisition with ≥50% commune coverage and ≥5 km² can supply an assessment. Counts: 43 low,
+39 moderate, 33 high water share; 16 `partial` CSV records. Water percentages retain the observed-area denominator.
+The frontend adapter exposes these fields for all 140 communes, including unassessed communes (`observed_pct=null`
+when there is no observation); `coverage_sufficient=false` always has `status=uncertain`.

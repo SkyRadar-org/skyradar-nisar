@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-14 — Full-commune coverage gate and reproducible assessment (Codex, Gemini reviewed)
+
+- Select the newest acquisition observing ≥50% of each full OSM commune and ≥5 km², before rounding; retain partial observations as evidence only. Search all acquisitions so a newer sliver cannot replace an older eligible pass on the same track.
+- Regenerate the committed assessment CSV: 43 low, 39 moderate, 33 high water-share assessments, plus 16 partial CSV records; 25/140 communes lack an eligible assessment overall.
+- Add area_km2 / observed_pct to the frontend API, guard no_flood behind sufficient coverage, expose status=partial and partial_count in the original API.
+- Rebuild CSV-based figures without Earthdata/raster inputs; replace partially observed examples with Vĩnh Hưng and Phương Thịnh. Water share uses the observed-area denominator and is not a sowing recommendation.
+- Update method, submission draft, API/data documentation and handoff. Preserve original review evidence, with an explicit correction about the existing disclosure wrapper in Overview.
+- Regression and UI evidence, Gemini static reviews and release status: `verification/ux-implementation-20261114/README.md`. No production release is implied by this branch.
+
 ## 2026-11-14 — Export aligned radar images for the evidence view (Codex)
 
 - Add radarJpg to frontend scene metadata, using the existing processed image for the same acquisition. Original FastAPI routes and scientific datasets remain unchanged.

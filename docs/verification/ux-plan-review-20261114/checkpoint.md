@@ -13,3 +13,5 @@ Owner: Codex; Gemini là người phản biện tĩnh hai vòng qua Antigravity 
 - ASSUMPTION: Dùng 09:30 ngày 15/11 để dự trù, vì HANDOFF ghi 09:30 nhưng UX_PLAN ghi 11:00; chưa có bằng chứng chủ dự án chốt lại.
 - BLOCKED: Trang Judging Guide trả 502 qua công cụ web; chưa xác nhận hướng dẫn 2026. Không chặn hoàn tất đánh giá kỹ thuật plan.
 - SYNC: Các file đã ghi và đọc lại tại workspace. Nhánh bàn giao: codex/review-ux-plan-20261114; trạng thái commit/push phải kiểm bằng Git, không suy từ checkpoint. Chưa PR/merge/deploy; không đổi mã hoặc CSV sản phẩm.
+
+- CORRECTION khi triển khai 14/11: Gemini đúng về wrapper `<details>` tại `root.replaceChildren`; nhận xét bác bỏ trước đó của Codex chỉ dựa nơi định nghĩa `section` là sai. Trạng thái triển khai hiện hành: [checkpoint mới](../ux-implementation-20261114/checkpoint.md).

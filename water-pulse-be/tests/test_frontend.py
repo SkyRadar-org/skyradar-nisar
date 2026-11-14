@@ -31,7 +31,7 @@ def test_commune_uses_sowing_track_without_merging_observations():
         assert feature["id"] == str(oid)
         sowing = store().sowing.get(oid)
         if sowing:
-            assert p["coverage_sufficient"]
+            assert p["coverage_sufficient"] == (sowing["status"] != "partial")
             assert p["last_date"] == sowing["status_date"]
             assert p["reference_track"] == sowing["status_track"]
             assert p["last_pct"] == sowing["status_pct"]
@@ -42,9 +42,19 @@ def test_commune_uses_sowing_track_without_merging_observations():
             assert p["last_pct"] is None and p["peak_pct"] is None and p["last_date"] is None
         rows = [r for r in store().series[oid] if r["track"] == p["reference_track"]]
         assert p["max_flooded_km2"] == max((r["water_km2"] for r in rows), default=None)
-    assert counts == {"ready": 53, "draining": 40, "still_wet": 38}
+    assert counts == {"ready": 43, "draining": 39, "still_wet": 33, "partial": 16}
+    assert sum(f["properties"]["coverage_sufficient"] for f in features) == 115
+    assert all(f["properties"]["area_km2"] > 0 for f in features)
+    for f in features:
+        p = f["properties"]
+        if not p["coverage_sufficient"]:
+            assert p["status"] == "uncertain"
+        if p["coverage_sufficient"]:
+            assert p["observed_pct"] >= 50
     son_kien = next(f["properties"] for f in features if f["id"] == "15416586")
-    assert son_kien["status"] == "not_receded" and son_kien["last_pct"] == 78.2
+    assert son_kien["status"] == "uncertain" and son_kien["last_pct"] == 78.2
+    assert not son_kien["coverage_sufficient"]
+    assert 19 < son_kien["observed_pct"] < 20
 
 
 def test_choropleth_and_series_match_source_per_track():
