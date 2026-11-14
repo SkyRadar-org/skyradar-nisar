@@ -10,10 +10,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from .data import DATA_DIR, store
+from .frontend import router as frontend_router
 
 app = FastAPI(title="SkyRadar NISAR Water Pulse API", version="0.2.0",
               description="Commune-level flood and recession monitoring for Mekong Delta rice land from NISAR L-band radar. "
                           "Data: NASA/JPL-Caltech & ISRO NISAR (ASF DAAC), OPERA DSWx (PO.DAAC), © OpenStreetMap contributors.")
+app.include_router(frontend_router)
 app.add_middleware(CORSMiddleware, allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","), allow_methods=["GET"], allow_headers=["*"])
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.mount("/static", StaticFiles(directory=DATA_DIR), name="static")   # /static/water/<date>_<track>.png, /static/summary/*.png
