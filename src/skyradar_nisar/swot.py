@@ -1,4 +1,5 @@
-"""SWOT (NASA/CNES, Ka-band interferometric radar) water maps as a third, independent comparison source.
+"""SWOT (NASA/CNES, Ka-band interferometric radar) as a third, independent comparison source for validation
+(comparison figures only; not shown as a map layer in the web app).
 
     python -m skyradar_nisar.swot            # download SWOT L2 HR Raster 100 m, compare, write tables
 Needs the same Earthdata token as the other steps (PO.DAAC host archive.swot.podaac.earthdata.nasa.gov).

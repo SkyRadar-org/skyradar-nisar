@@ -12,16 +12,6 @@ router = APIRouter(prefix="/api/frontend", tags=["frontend"])
 Track = Literal["047D", "083A", "148D"]
 
 
-def _nearest_swot(date: str, max_days: int = 2):
-    """SWOT (Ka-band) comparison map closest to a NISAR date, within max_days; None if there is none."""
-    d0 = dt.date.fromisoformat(date)
-    best = min(((abs((dt.date.fromisoformat(f["date"]) - d0).days), f) for f in store().manifest.get("swot_frames", [])),
-               key=lambda x: x[0], default=None)
-    if best is None or best[0] > max_days:
-        return None
-    return dict(date=best[1]["date"], png=f"/static/{best[1]['png']}", daysApart=best[0])
-
-
 def _composite_of(key: str):
     c = store().composites.get(key)
     if c is None:
@@ -39,7 +29,7 @@ def scenes():
     return [dict(date=f["date"], track=f["track"], maturity=f["maturity"],
                  bounds=[w, s, e, n], waterPng=f"/static/{f['png']}",
                  radarJpg=f"/static/{f['radar_jpg']}" if f.get("radar_jpg") else None,
-                 gibsDate=f.get("gibs_date", f["date"]), swot=_nearest_swot(f["date"]),
+                 gibsDate=f.get("gibs_date", f["date"]),
                  composite=_composite_of(f["key"])) for f in m["frames"]]
 
 
@@ -91,14 +81,6 @@ def series(osm_id: int):
         raise HTTPException(404, "Commune not found")
     return [{k: r[k] for k in ("date", "track", "water_pct", "water_km2", "valid_km2")}
             for r in store().series[osm_id]]
-
-
-@router.get("/communes/{osm_id}/swot")
-def swot_series(osm_id: int):
-    """Water % of the commune on SWOT dates (independent Ka-band comparison source)."""
-    if osm_id not in store().by_id:
-        raise HTTPException(404, "Commune not found")
-    return [{k: r[k] for k in ("date", "water_pct", "water_km2", "valid_km2")} for r in store().swot_series.get(osm_id, [])]
 
 
 @router.get("/choropleth")
