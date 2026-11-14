@@ -54,6 +54,6 @@ Gói nguồn backend và phản hồi JSON nguyên văn được giữ cạnh b�
 - Hai repo dùng nhánh `codex/ux-implementation-20261114`. Mốc đầu: backend `f937b04` cùng commit review `95bdad7`; frontend `4f59e90`. `main` từ xa vẫn đúng hai mốc dữ liệu/mã đầu khi kiểm lại trước chốt.
 - Bản chạy thử tại [localhost:8794](http://localhost:8794/?lang=vi). Đây là server local của phiên kiểm; cần server còn chạy để mở được.
 - Frontend workflow luôn lấy backend `main`: khi được duyệt production, đưa dữ liệu/backend đúng bản lên trước rồi frontend, build và kiểm số lần cuối trước phát hành. Build với backend cũ sẽ không thỏa test115xã.
-- Chưa tạo PR, chưa merge, chưa deploy. Trạng thái commit/push được xác nhận riêng trước bàn giao; không suy từ việc đã có file này.
+- Đã commit/push và kiểm SHA remote: backend `2f451ad`, frontend `8e9daf8`. Xem [bằng chứng bàn giao](delivery.json). Commit tài liệu ghi nhận bàn giao được thêm sau cặp commit mã này. Chưa tạo PR, chưa merge, chưa deploy.
 - Không có memory canonical được cấu hình trong workspace; đã cập nhật HANDOFF hiện có và [checkpoint](checkpoint.md), không tạo kho nhớ song song.
 - Ngoài phạm vi: tải ảnh Earthdata mới, sửa thuật toán cảnh ghép, thêm lớp SWOT lên bản đồ, biên tập slide/video, các thay đổi tài khoản/hosting. Hướng dẫn chấm2026 và giờ đóng băng 09:30/11:00 vẫn cần chủ dự án xác nhận nếu sử dụng cho kế hoạch nộp bài.

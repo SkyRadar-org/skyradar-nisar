@@ -1,0 +1,24 @@
+{
+  "time_gmt7": "2026-11-14T19:20:51.422572+07:00",
+  "source_pair": {
+    "backend": {
+      "repo": "skyradar-nisar",
+      "implementation_commit": "2f451ad4bb93b8fa1e60f9523caedbfcb61e4a14",
+      "remote_branch": "codex/ux-implementation-20261114",
+      "remote_verified": true
+    },
+    "frontend": {
+      "repo": "water-pulse-fe",
+      "implementation_commit": "8e9daf8a9b036c9da57b8842fb810406c9f52668",
+      "remote_branch": "codex/ux-implementation-20261114",
+      "remote_verified": true
+    }
+  },
+  "release_status": "Đã commit/push hai nhánh và kiểm remote, chưa PR/merge/deploy; chờ chủ dự án duyệt production.",
+  "release_order": [
+    "backend/data",
+    "frontend build with the matching backend",
+    "production verification"
+  ],
+  "note": "Bản ghi này được thêm bằng commit tài liệu sau hai commit triển khai; mã và CSV sản phẩm không thay đổi."
+}

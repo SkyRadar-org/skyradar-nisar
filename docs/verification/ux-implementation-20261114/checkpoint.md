@@ -9,6 +9,7 @@ Cập nhật: 19:17 ngày 14/11/2026 (GMT+7). Owner: Codex; Gemini phản biện
 - VERIFIED: Gemini gọi thật 2 lượt, G1 và frontend PASS phạmvi tĩnh. Codex phụ trách kiểm thực thi, không quy kết model đã chạy test/trình duyệt.
 - CORRECTION: Phần hướng dẫn Tổng quan vốn đã bọc details tại root.replaceChildren; Codex đã bác sai Gemini khi chỉ xem nơi định nghĩa section. Đã sửa ghi chú trong báo cáo đánh giá và HANDOFF.
 - COMPLETED_UNVERIFIED: Không có phần triển khai nào tuyên bố xong nhưng chưa kiểm; không kiểm định SAR độc lập ngoài các nguồn đối chiếu sẵn có.
-- PENDING: Commit/push đúng nhánh, xác minh remote rồi ghi bằng chứng bàn giao; chờ chủ dự án duyệt production. Khi phát hành phải cập nhật backend main trước frontend do workflow lấy backend main.
+- VERIFIED: Đã commit/push hai nhánh và đối chiếu SHA remote khớp local: backend 2f451ad, frontend 8e9daf8; hai checkout sạch tại thời điểm kiểm. Xem delivery.json.
+- PENDING: Chờ chủ dự án duyệt production. Khi phát hành phải cập nhật backend main trước frontend do workflow lấy backend main.
 - ASSUMPTION: Giờ đóng băng 09:30/11:00 và Judging Guide 2026 chưa được xác nhận; không dùng để tự thay lịch hoặc phạm vi.
 - SYNC: File đã ghi và đọc lại local. Không có memory canonical; dùng HANDOFF hiện có, không tạo kho mới. Chưa PR/merge/deploy.
