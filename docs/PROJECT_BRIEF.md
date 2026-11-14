@@ -81,7 +81,7 @@
   in both HH and HV polarisations; dry fields and rice plants scatter energy back and look brighter.
 - We use the **L2 GCOV** product: terrain-corrected backscatter (γ⁰) in HH and HV, already on a map grid.
 - Three NISAR tracks cover the area (047D, 083A, 148D), each repeating every **12 days**; together they give an image of a
-  given place about every **4–7 days**.
+  given place about every **5–7 days**.
 - **Measured advantage:** against independent optical water maps, NISAR finds more of the real water than Sentinel-1 on
   **14 of 16** flood-season dates (section 6).
 
