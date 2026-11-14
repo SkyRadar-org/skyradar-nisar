@@ -3,13 +3,14 @@
     python -m skyradar_nisar.export_web
   manifest.json            dates, tracks, maturity, image bounds (lon/lat), file names, attribution
   water/<date>_<track>.png  transparent PNG, water in blue, EPSG:4326 (use as an image overlay with the bounds)
-  summary/recession.png, first_flood.png
+  summary/recession.png, first_flood.png       all tracks merged
+  summary/<recession|first_flood>_<track>.png  one track only (use these: viewing geometry differs per track)
   swot/<date>.png          SWOT water (pink), same bounds; manifest.swot_frames links each to the nearest NISAR frame
   composite/<key>.webp, <key>_radar.jpg   playback mosaics (latest valid pass per pixel, any track; see composite.py)
   communes.geojson         simplified commune polygons + latest/peak stats per track
   stats/*.csv              copied from data/processed/stats (+ validation)
 """
-import json, shutil, csv
+import json, shutil, csv, datetime as dt
 import numpy as np, rasterio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from PIL import Image
@@ -28,6 +29,40 @@ def _to_4326(src_path, scale=2):
         reproject(rasterio.band(s, 1), dst, dst_transform=tf, dst_crs="EPSG:4326", resampling=Resampling.nearest)
     W, N = tf.c, tf.f; E = W + tf.a * w; S = N + tf.e * h
     return dst, [[float(S), float(W)], [float(N), float(E)]]   # Leaflet-style [[south, west], [north, east]]
+
+
+# timing maps: colour by date (blue early -> red late) between lo and hi (days since DAY0); purple = still wet on last image;
+# outside [lo, hi] transparent
+DAY0 = dt.date(2026, 6, 1)
+TIMING_SCALE = {"recession_day": (115, 160), "first_flood_day": (60, 150)}
+STILL_WET = (130, 0, 140, 210)
+
+
+def _ramp(t):
+    return np.stack([255 * t, 80 + 100 * (1 - t), 255 * (1 - t), np.full_like(t, 210)], -1).astype(np.uint8)
+
+
+def _timing_png(src, dst, lo, hi):
+    a, b = _to_4326(src)
+    rgba = np.zeros(a.shape + (4,), np.uint8)
+    m = (a >= lo) & (a <= hi); t = (a[m] - lo) / (hi - lo)
+    rgba[m] = _ramp(t)
+    rgba[a == 9999] = STILL_WET
+    Image.fromarray(rgba).save(dst, optimize=True)
+    return b
+
+
+def _timing_scale():
+    """Colour stops of the timing PNGs, so the web legend matches the pixels."""
+    hexc = lambda c: "#%02x%02x%02x" % tuple(int(v) for v in c[:3])
+    out = dict(day_zero=DAY0.isoformat(), outside_range="transparent",
+               still_wet=dict(color=hexc(STILL_WET), alpha=STILL_WET[3], label="still wet at the last image of the track"))
+    for name, (lo, hi) in TIMING_SCALE.items():
+        days = np.linspace(lo, hi, 4)
+        out[name.replace("_day", "")] = dict(lo_day=lo, hi_day=hi, stops=[
+            dict(day=int(d), date=(DAY0 + dt.timedelta(days=int(d))).isoformat(), color=hexc(c))
+            for d, c in zip(days, _ramp((days - lo) / (hi - lo)))])
+    return out
 
 
 def main():
@@ -63,14 +98,19 @@ def main():
             Image.fromarray(rgba).save(OUT / f"swot/{r['swot_date']}.png", optimize=True)
             swot_frames.append(dict(date=r["swot_date"], png=f"swot/{r['swot_date']}.png", nisar_key=r["nisar"],
                                     days_apart=int(r["days_apart"])))
-    # timing maps: colour by date (blue early -> red late); purple = still wet on last image
-    for name, lo, hi in [("recession_day", 115, 160), ("first_flood_day", 60, 150)]:
-        a, _ = _to_4326(P / f"summary/{name}.tif")
-        rgba = np.zeros(a.shape + (4,), np.uint8)
-        m = (a >= lo) & (a <= hi); t = (a[m] - lo) / (hi - lo)
-        rgba[m] = np.stack([255 * t, 80 + 100 * (1 - t), 255 * (1 - t), np.full_like(t, 210)], -1).astype(np.uint8)
-        rgba[a == 9999] = (130, 0, 140, 210)
-        Image.fromarray(rgba).save(OUT / f"summary/{name.replace('_day', '')}.png", optimize=True)
+    # timing maps (merged + per track): colour by date (blue early -> red late); purple = still wet on last image
+    for name, (lo, hi) in TIMING_SCALE.items():
+        _timing_png(P / f"summary/{name}.tif", OUT / f"summary/{name.replace('_day', '')}.png", lo, hi)
+    by_track = {}
+    for trk in sorted({f["track"] for f in frames}):
+        season = [f["date"] for f in frames if f["track"] == trk and f["date"] >= C.FLOOD_SEASON_START]
+        by_track[trk] = dict(season_dates=season, last_date=season[-1])
+        for name, (lo, hi) in TIMING_SCALE.items():
+            png = f"summary/{name.replace('_day', '')}_{trk}.png"
+            if _timing_png(P / f"summary/{name}_{trk}.tif", OUT / png, lo, hi) != bounds:
+                raise ValueError(f"{png}: bounds differ from the water PNGs")
+            by_track[trk][name.replace("_day", "")] = png
+        by_track[trk].update(day_zero=DAY0.isoformat(), legend="blue=early, red=late, purple=still wet at last image of this track")
     # communes with stats
     fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text(encoding="utf-8"))
     timing = list(csv.DictReader(open(P / "stats/commune_flood_timing.csv", encoding="utf-8")))
@@ -95,6 +135,7 @@ def main():
         rule=dict(th_hh_db=C.TH_HH_DB, th_hv_db=C.TH_HV_DB, mmu_ha=C.MMU_PX * C.RES ** 2 / 1e4),
         timing_png=dict(recession="summary/recession.png", first_flood="summary/first_flood.png",
                         day_zero="2026-06-01", legend="blue=early, red=late, purple=still wet at last image"),
+        timing_png_by_track=by_track, timing_scale=_timing_scale(),
         gibs_note="GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
         gibs_template="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
         attribution=ATTRIBUTION), indent=1, ensure_ascii=False), encoding="utf-8")

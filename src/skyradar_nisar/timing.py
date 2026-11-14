@@ -4,6 +4,7 @@
 Outputs (data/processed):
   water/<date>_<track>_water.tif        uint8 0 dry, 1 water, 255 no data (permanent water excluded)
   summary/{flood_count,first_flood_day,recession_day}.tif   days since 2026-06-01; 9999 = still wet at last image
+  summary/{first_flood_day,recession_day}_<track>.tif        same, one track only (viewing geometry differs per track)
   stats/commune_water_by_date.csv       one row per commune x date x track (keep tracks separate!)
   stats/commune_flood_timing.csv        per commune: peak, first/last date >= 20 %, halved-after-peak date
 """
@@ -58,17 +59,11 @@ def main():
     _write(P / "stats/commune_water_by_date.csv", rows)
 
     # flood timing over the season, all tracks merged by date (a water/dry map is geometry-independent)
-    season = [k for k in keys if k[:10] >= C.FLOOD_SEASON_START]
-    days = np.array([(dt.date.fromisoformat(k[:10]) - D0).days for k in season], np.int16)[:, None, None]
-    st = np.stack([maps[k] for k in season]); obs = st != 255; wet = st == 1
-    ever = wet.any(0); BIG = 32767
-    first = np.where(wet, days, BIG).min(0); last = np.where(wet, days, -1).max(0)
-    reces = np.where(obs & ~wet & (days > last[None]), days, BIG).min(0)
-    for name, arr in [("flood_count", np.where(obs.any(0), wet.sum(0), 255)), ("first_flood_day", np.where(ever, first, -1)),
-                      ("recession_day", np.where(ever, np.where(reces < BIG, reces, 9999), -1))]:
-        dtype, nod = ("uint8", 255) if name == "flood_count" else ("int16", -1)
-        with rasterio.open(P / f"summary/{name}.tif", "w", **grid.profile(dtype, nod)) as dst:
-            dst.write(arr.astype(dtype), 1)
+    _write_timing(P, grid, season_timing(maps, keys), "")
+    # the same per track, so the web summary never mixes viewing geometries
+    for trk in sorted({k[11:] for k in keys}):
+        t = season_timing(maps, [k for k in keys if k[11:] == trk])
+        _write_timing(P, grid, {n: t[n] for n in ("first_flood_day", "recession_day")}, f"_{trk}")
 
     # per-commune timing table (per track to avoid mixing viewing geometries; 047D first if present)
     tab = []
@@ -88,6 +83,25 @@ def main():
                         last_date_ge20pct=above[-1]["date"] if above else None, halved_after_peak=halved,
                         last_date=seas[-1]["date"], last_pct=seas[-1]["water_pct"]))
     _write(P / "stats/commune_flood_timing.csv", tab)
+
+
+def season_timing(maps, keys):
+    """flood_count, first_flood_day, recession_day (days since D0) over the flood-season acquisitions among keys."""
+    season = [k for k in keys if k[:10] >= C.FLOOD_SEASON_START]
+    days = np.array([(dt.date.fromisoformat(k[:10]) - D0).days for k in season], np.int16)[:, None, None]
+    st = np.stack([maps[k] for k in season]); obs = st != 255; wet = st == 1
+    ever = wet.any(0); BIG = 32767
+    first = np.where(wet, days, BIG).min(0); last = np.where(wet, days, -1).max(0)
+    reces = np.where(obs & ~wet & (days > last[None]), days, BIG).min(0)
+    return {"flood_count": np.where(obs.any(0), wet.sum(0), 255), "first_flood_day": np.where(ever, first, -1),
+            "recession_day": np.where(ever, np.where(reces < BIG, reces, 9999), -1)}
+
+
+def _write_timing(P, grid, arrays, suffix):
+    for name, arr in arrays.items():
+        dtype, nod = ("uint8", 255) if name == "flood_count" else ("int16", -1)
+        with rasterio.open(P / f"summary/{name}{suffix}.tif", "w", **grid.profile(dtype, nod)) as dst:
+            dst.write(arr.astype(dtype), 1)
 
 
 def _write(path, rows):

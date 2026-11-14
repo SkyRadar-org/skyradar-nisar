@@ -4,13 +4,14 @@ Everything the web app needs is static (no backend). Regenerate with `python -m 
 
 | File | Content |
 |---|---|
-| `manifest.json` | `frames` (one per NISAR acquisition: `date`, `track`, `maturity`, `png`), `bounds` of all PNG overlays, `tracks`, water `rule`, `timing_png`, `gibs_template`, `attribution` |
+| `manifest.json` | `frames` (one per NISAR acquisition: `date`, `track`, `maturity`, `png`), `bounds` of all PNG overlays, `tracks`, water `rule`, `timing_png` (merged), `timing_png_by_track`, `timing_scale` (colour stops of the timing maps: `first_flood`/`recession` `stops` with day, date, colour; `still_wet` colour; outside the range = transparent), `gibs_template`, `attribution` |
 | `water/<date>_<track>.png` | Transparent PNG, water = blue (RGBA 30,110,230,200), EPSG:4326, covers `manifest.bounds` |
 | `radar/<date>_<track>.jpg` | **Radar background** for that date (R = HH, G = HV, B = HH−HV), ~60 m, same `bounds` — use this instead of GIBS when zoomed in |
 | `composite/<date>_<track>.webp`, `_simple.webp`, `_radar.webp` | **Playback mosaics** (visual aid, half resolution, same `bounds`, transparent outside Vietnamese land = union of commune polygons). Per pixel: the latest valid observation from any track up to that date, ≤ `composite_rule.max_age_days` (12) old; single-pass flips are cancelled by a temporal median (previous / current / next valid observation). `<key>.webp` = professional view (water faded by age, light grey veil = no recent observation); `_simple.webp` = one colour, no fading or veil, window `simple_max_age_days` (30) so the 25 Jul → 11 Aug gap has no hole; `_radar.webp` = radar mosaic, transparent where unobserved. Listed in `manifest.composites` (`png`, `simple_png`, `radar`, `observed_pct` over Vietnamese land, `sources`). Built by `python -m skyradar_nisar.composite` (also run by `export_web`; needs shapely). Statistics always use the raw frames |
 | `gibs_availability.json` | GIBS tiles present per frame (zoom 9 test): 30/33 complete; 13/07, 18/07, 03/11 partial |
 | `summary/recession.png` | Recession date colour map (blue = late Sep → red = end Oct; **purple = still wet on the last image**) |
 | `summary/first_flood.png` | First flooded date (blue = early Aug → red = late Oct) |
+| `summary/<first_flood\|recession>_<track>.png` | **Same maps for one track** (047D, 083A, 148D), same colours and `bounds`. Use these in the Season summary with a track selector: tracks must not be mixed. Listed in `manifest.timing_png_by_track[track]` (with `season_dates`, `last_date`: "still wet" means wet on that track's last image) |
 | `communes.geojson` | 140 communes (OSM 2025): `name`, `province`, `osm_id`, `area_km2`, `timing[track]` (`peak_pct`, `peak_date`, `first_date_ge20pct`, `halved_after_peak`, `last_date`, `last_pct`), `flood_class` (A = water in early & out while river high → controlled release timing; B = other; C = still wet at last image) |
 | `stats/commune_water_by_date.csv` | One row per commune × date × track: `valid_km2`, `water_km2`, `water_pct` → per-commune chart |
 | `stats/commune_flood_timing.csv` | Same as `timing` in the GeoJSON, as a table |
