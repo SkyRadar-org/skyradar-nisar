@@ -412,5 +412,713 @@
  },
  "gibs_note": "GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
  "gibs_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
- "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC); SWOT L2 HR Raster (NASA/CNES, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team."
+ "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC); SWOT L2 HR Raster (NASA/CNES, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team.",
+ "composites": [
+  {
+   "key": "2026-06-17_047D",
+   "date": "2026-06-17",
+   "track": "047D",
+   "png": "composite/2026-06-17_047D.webp",
+   "radar_jpg": "composite/2026-06-17_047D_radar.jpg",
+   "observed_pct": 83.1,
+   "sources": [
+    {
+     "date": "2026-06-17",
+     "track": "047D",
+     "share_pct": 100.0
+    }
+   ]
+  },
+  {
+   "key": "2026-06-19_083A",
+   "date": "2026-06-19",
+   "track": "083A",
+   "png": "composite/2026-06-19_083A.webp",
+   "radar_jpg": "composite/2026-06-19_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-06-17",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-06-19",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-06-24_148D",
+   "date": "2026-06-24",
+   "track": "148D",
+   "png": "composite/2026-06-24_148D.webp",
+   "radar_jpg": "composite/2026-06-24_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-06-17",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-06-19",
+     "track": "083A",
+     "share_pct": 30.7
+    },
+    {
+     "date": "2026-06-24",
+     "track": "148D",
+     "share_pct": 37.0
+    }
+   ]
+  },
+  {
+   "key": "2026-06-29_047D",
+   "date": "2026-06-29",
+   "track": "047D",
+   "png": "composite/2026-06-29_047D.webp",
+   "radar_jpg": "composite/2026-06-29_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-06-24",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-06-29",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-07-01_083A",
+   "date": "2026-07-01",
+   "track": "083A",
+   "png": "composite/2026-07-01_083A.webp",
+   "radar_jpg": "composite/2026-07-01_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-06-29",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-07-01",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-07-06_148D",
+   "date": "2026-07-06",
+   "track": "148D",
+   "png": "composite/2026-07-06_148D.webp",
+   "radar_jpg": "composite/2026-07-06_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-06-29",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-07-01",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-07-06",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  },
+  {
+   "key": "2026-07-11_047D",
+   "date": "2026-07-11",
+   "track": "047D",
+   "png": "composite/2026-07-11_047D.webp",
+   "radar_jpg": "composite/2026-07-11_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-07-06",
+     "track": "148D",
+     "share_pct": 16.9
+    },
+    {
+     "date": "2026-07-11",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-07-13_083A",
+   "date": "2026-07-13",
+   "track": "083A",
+   "png": "composite/2026-07-13_083A.webp",
+   "radar_jpg": "composite/2026-07-13_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-07-11",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-07-13",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-07-18_148D",
+   "date": "2026-07-18",
+   "track": "148D",
+   "png": "composite/2026-07-18_148D.webp",
+   "radar_jpg": "composite/2026-07-18_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-07-11",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-07-13",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-07-18",
+     "track": "148D",
+     "share_pct": 37.0
+    }
+   ]
+  },
+  {
+   "key": "2026-07-23_047D",
+   "date": "2026-07-23",
+   "track": "047D",
+   "png": "composite/2026-07-23_047D.webp",
+   "radar_jpg": "composite/2026-07-23_047D_radar.jpg",
+   "observed_pct": 100.0,
+   "sources": [
+    {
+     "date": "2026-07-18",
+     "track": "148D",
+     "share_pct": 16.9
+    },
+    {
+     "date": "2026-07-23",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-07-25_083A",
+   "date": "2026-07-25",
+   "track": "083A",
+   "png": "composite/2026-07-25_083A.webp",
+   "radar_jpg": "composite/2026-07-25_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-07-23",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-07-25",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-08-11_148D",
+   "date": "2026-08-11",
+   "track": "148D",
+   "png": "composite/2026-08-11_148D.webp",
+   "radar_jpg": "composite/2026-08-11_148D_radar.jpg",
+   "observed_pct": 36.9,
+   "sources": [
+    {
+     "date": "2026-08-11",
+     "track": "148D",
+     "share_pct": 100.0
+    }
+   ]
+  },
+  {
+   "key": "2026-08-16_047D",
+   "date": "2026-08-16",
+   "track": "047D",
+   "png": "composite/2026-08-16_047D.webp",
+   "radar_jpg": "composite/2026-08-16_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-11",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-08-16",
+     "track": "047D",
+     "share_pct": 83.2
+    }
+   ]
+  },
+  {
+   "key": "2026-08-18_083A",
+   "date": "2026-08-18",
+   "track": "083A",
+   "png": "composite/2026-08-18_083A.webp",
+   "radar_jpg": "composite/2026-08-18_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-16",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-08-18",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-08-23_148D",
+   "date": "2026-08-23",
+   "track": "148D",
+   "png": "composite/2026-08-23_148D.webp",
+   "radar_jpg": "composite/2026-08-23_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-16",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-08-18",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-08-23",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  },
+  {
+   "key": "2026-08-28_047D",
+   "date": "2026-08-28",
+   "track": "047D",
+   "png": "composite/2026-08-28_047D.webp",
+   "radar_jpg": "composite/2026-08-28_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-23",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-08-28",
+     "track": "047D",
+     "share_pct": 83.2
+    }
+   ]
+  },
+  {
+   "key": "2026-08-30_083A",
+   "date": "2026-08-30",
+   "track": "083A",
+   "png": "composite/2026-08-30_083A.webp",
+   "radar_jpg": "composite/2026-08-30_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-28",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-08-30",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-09-04_148D",
+   "date": "2026-09-04",
+   "track": "148D",
+   "png": "composite/2026-09-04_148D.webp",
+   "radar_jpg": "composite/2026-09-04_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-08-28",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-08-30",
+     "track": "083A",
+     "share_pct": 30.7
+    },
+    {
+     "date": "2026-09-04",
+     "track": "148D",
+     "share_pct": 37.0
+    }
+   ]
+  },
+  {
+   "key": "2026-09-09_047D",
+   "date": "2026-09-09",
+   "track": "047D",
+   "png": "composite/2026-09-09_047D.webp",
+   "radar_jpg": "composite/2026-09-09_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-04",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-09-09",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-09-11_083A",
+   "date": "2026-09-11",
+   "track": "083A",
+   "png": "composite/2026-09-11_083A.webp",
+   "radar_jpg": "composite/2026-09-11_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-09",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-09-11",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-09-16_148D",
+   "date": "2026-09-16",
+   "track": "148D",
+   "png": "composite/2026-09-16_148D.webp",
+   "radar_jpg": "composite/2026-09-16_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-09",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-09-11",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-09-16",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  },
+  {
+   "key": "2026-09-21_047D",
+   "date": "2026-09-21",
+   "track": "047D",
+   "png": "composite/2026-09-21_047D.webp",
+   "radar_jpg": "composite/2026-09-21_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-16",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-09-21",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-09-23_083A",
+   "date": "2026-09-23",
+   "track": "083A",
+   "png": "composite/2026-09-23_083A.webp",
+   "radar_jpg": "composite/2026-09-23_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-21",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-09-23",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-09-28_148D",
+   "date": "2026-09-28",
+   "track": "148D",
+   "png": "composite/2026-09-28_148D.webp",
+   "radar_jpg": "composite/2026-09-28_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-21",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-09-23",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-09-28",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  },
+  {
+   "key": "2026-10-03_047D",
+   "date": "2026-10-03",
+   "track": "047D",
+   "png": "composite/2026-10-03_047D.webp",
+   "radar_jpg": "composite/2026-10-03_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-09-28",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-10-03",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-10-05_083A",
+   "date": "2026-10-05",
+   "track": "083A",
+   "png": "composite/2026-10-05_083A.webp",
+   "radar_jpg": "composite/2026-10-05_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-03",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-05",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-10-10_148D",
+   "date": "2026-10-10",
+   "track": "148D",
+   "png": "composite/2026-10-10_148D.webp",
+   "radar_jpg": "composite/2026-10-10_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-03",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-05",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-10-10",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  },
+  {
+   "key": "2026-10-15_047D",
+   "date": "2026-10-15",
+   "track": "047D",
+   "png": "composite/2026-10-15_047D.webp",
+   "radar_jpg": "composite/2026-10-15_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-10",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-10-15",
+     "track": "047D",
+     "share_pct": 83.1
+    }
+   ]
+  },
+  {
+   "key": "2026-10-17_083A",
+   "date": "2026-10-17",
+   "track": "083A",
+   "png": "composite/2026-10-17_083A.webp",
+   "radar_jpg": "composite/2026-10-17_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-15",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-17",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-10-22_148D",
+   "date": "2026-10-22",
+   "track": "148D",
+   "png": "composite/2026-10-22_148D.webp",
+   "radar_jpg": "composite/2026-10-22_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-15",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-17",
+     "track": "083A",
+     "share_pct": 30.7
+    },
+    {
+     "date": "2026-10-22",
+     "track": "148D",
+     "share_pct": 37.0
+    }
+   ]
+  },
+  {
+   "key": "2026-10-27_047D",
+   "date": "2026-10-27",
+   "track": "047D",
+   "png": "composite/2026-10-27_047D.webp",
+   "radar_jpg": "composite/2026-10-27_047D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-22",
+     "track": "148D",
+     "share_pct": 16.8
+    },
+    {
+     "date": "2026-10-27",
+     "track": "047D",
+     "share_pct": 83.2
+    }
+   ]
+  },
+  {
+   "key": "2026-10-29_083A",
+   "date": "2026-10-29",
+   "track": "083A",
+   "png": "composite/2026-10-29_083A.webp",
+   "radar_jpg": "composite/2026-10-29_083A_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-27",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-29",
+     "track": "083A",
+     "share_pct": 67.7
+    }
+   ]
+  },
+  {
+   "key": "2026-11-03_148D",
+   "date": "2026-11-03",
+   "track": "148D",
+   "png": "composite/2026-11-03_148D.webp",
+   "radar_jpg": "composite/2026-11-03_148D_radar.jpg",
+   "observed_pct": 99.9,
+   "sources": [
+    {
+     "date": "2026-10-27",
+     "track": "047D",
+     "share_pct": 32.3
+    },
+    {
+     "date": "2026-10-29",
+     "track": "083A",
+     "share_pct": 30.8
+    },
+    {
+     "date": "2026-11-03",
+     "track": "148D",
+     "share_pct": 36.9
+    }
+   ]
+  }
+ ],
+ "composite_rule": {
+  "max_age_days": 12,
+  "median_window_days": 30,
+  "resolution_divisor": 2,
+  "note": "Per pixel: latest valid observation from any track, at most max_age_days old; older = fainter, none = grey veil. Single-pass flips are cancelled by a temporal median. Visual aid only: statistics use the raw frames."
+ }
 }

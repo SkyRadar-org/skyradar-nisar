@@ -7,6 +7,7 @@ Everything the web app needs is static (no backend). Regenerate with `python -m 
 | `manifest.json` | `frames` (one per NISAR acquisition: `date`, `track`, `maturity`, `png`), `bounds` of all PNG overlays, `tracks`, water `rule`, `timing_png`, `gibs_template`, `attribution` |
 | `water/<date>_<track>.png` | Transparent PNG, water = blue (RGBA 30,110,230,200), EPSG:4326, covers `manifest.bounds` |
 | `radar/<date>_<track>.jpg` | **Radar background** for that date (R = HH, G = HV, B = HH−HV), ~60 m, same `bounds` — use this instead of GIBS when zoomed in |
+| `composite/<date>_<track>.webp`, `composite/<date>_<track>_radar.jpg` | **Playback mosaic** (visual aid, half resolution, same `bounds`): per pixel the latest valid observation from any track up to that date, ≤ `composite_rule.max_age_days` (12) old. Water = blue, fainter with age; grey veil = no recent observation; single-pass flips cancelled by a temporal median. Listed in `manifest.composites` (`observed_pct`, `sources`). Built by `python -m skyradar_nisar.composite` (also run by `export_web`). Statistics always use the raw frames |
 | `gibs_availability.json` | GIBS tiles present per frame (zoom 9 test): 30/33 complete; 13/07, 18/07, 03/11 partial |
 | `summary/recession.png` | Recession date colour map (blue = late Sep → red = end Oct; **purple = still wet on the last image**) |
 | `summary/first_flood.png` | First flooded date (blue = early Aug → red = late Oct) |

@@ -41,6 +41,8 @@ def export(out: Path, template: Path):
         date, track = scene["date"], scene["track"]
         write(f"/api/frontend/choropleth?date={date}&track={track}", f"choropleth/{date}_{track}.json",
               frontend.choropleth(date, track))
+        write(f"/api/frontend/choropleth/composite?date={date}&track={track}", f"choropleth-composite/{date}_{track}.json",
+              frontend.choropleth_composite(date, track))
     shutil.copytree(DATA_DIR, out / "static", dirs_exist_ok=True)
     source = template.read_text(encoding="utf-8")
     if source.count("__API_FILES__") != 1:

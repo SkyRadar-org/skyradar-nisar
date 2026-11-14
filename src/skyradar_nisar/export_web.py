@@ -5,6 +5,7 @@
   water/<date>_<track>.png  transparent PNG, water in blue, EPSG:4326 (use as an image overlay with the bounds)
   summary/recession.png, first_flood.png
   swot/<date>.png          SWOT water (pink), same bounds; manifest.swot_frames links each to the nearest NISAR frame
+  composite/<key>.webp, <key>_radar.jpg   playback mosaics (latest valid pass per pixel, any track; see composite.py)
   communes.geojson         simplified commune polygons + latest/peak stats per track
   stats/*.csv              copied from data/processed/stats (+ validation)
 """
@@ -98,6 +99,8 @@ def main():
         gibs_template="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
         attribution=ATTRIBUTION), indent=1, ensure_ascii=False), encoding="utf-8")
     print(len(frames), "frames exported to", OUT)
+    from . import composite
+    composite.build(OUT)   # playback mosaics + manifest.composites (needs the manifest written above)
 
 
 if __name__ == "__main__":

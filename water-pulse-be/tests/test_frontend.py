@@ -58,6 +58,26 @@ def test_choropleth_and_series_match_source_per_track():
     assert c.get(f"{BASE}/choropleth", params={"date": "2026-10-27", "track": "invalid"}).status_code == 422
 
 
+def test_composite_playback_assets_and_values():
+    scenes = c.get(f"{BASE}/scenes").json()
+    for scene in scenes:
+        comp = scene["composite"]
+        assert comp and comp["maxAgeDays"] == 12 and comp["observedPct"] > 30
+        assert c.get(comp["png"]).content[:4] == b"RIFF" and c.get(comp["radarJpg"]).content.startswith(b"\xff\xd8")
+        # the newest contributing pass is the scene itself
+        assert comp["sources"][-1]["date"] == scene["date"] and comp["sources"][-1]["track"] == scene["track"]
+    assert sum(s["composite"]["observedPct"] > 80 for s in scenes) >= 28   # only the 25 Jul -> 11 Aug acquisition gap is thin
+    first = c.get(f"{BASE}/choropleth/composite", params={"date": scenes[0]["date"], "track": scenes[0]["track"]}).json()
+    exact = c.get(f"{BASE}/choropleth", params={"date": scenes[0]["date"], "track": scenes[0]["track"]}).json()
+    assert first and all(v["age"] == 0 and v["pct"] == exact[k] for k, v in first.items() if k in exact and v["age"] == 0)
+    last = scenes[-1]
+    values = c.get(f"{BASE}/choropleth/composite", params={"date": last["date"], "track": last["track"]}).json()
+    assert len(values) >= len(c.get(f"{BASE}/choropleth", params={"date": last["date"], "track": last["track"]}).json())
+    assert all(0 <= v["age"] <= 12 and 0 <= v["pct"] <= 100 for v in values.values())
+    assert c.get(f"{BASE}/choropleth/composite", params={"date": "1900-01-01", "track": "047D"}).status_code == 404
+    assert c.get(f"{BASE}/choropleth/composite", params={"date": "2026-10-27", "track": "bad"}).status_code == 422
+
+
 def test_area_does_not_invent_reference_totals():
     area = c.get(f"{BASE}/area").json()
     assert len(area) == 33

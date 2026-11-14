@@ -22,6 +22,14 @@ def _nearest_swot(date: str, max_days: int = 2):
     return dict(date=best[1]["date"], png=f"/static/{best[1]['png']}", daysApart=best[0])
 
 
+def _composite_of(key: str):
+    c = store().composites.get(key)
+    if c is None:
+        return None
+    return dict(png=f"/static/{c['png']}", radarJpg=f"/static/{c['radar_jpg']}", maxAgeDays=store().composite_max_age,
+                observedPct=c["observed_pct"], sources=c["sources"])
+
+
 @router.get("/scenes")
 def scenes():
     m = store().manifest
@@ -29,7 +37,8 @@ def scenes():
     return [dict(date=f["date"], track=f["track"], maturity=f["maturity"],
                  bounds=[w, s, e, n], waterPng=f"/static/{f['png']}",
                  radarJpg=f"/static/{f['radar_jpg']}" if f.get("radar_jpg") else None,
-                 gibsDate=f.get("gibs_date", f["date"]), swot=_nearest_swot(f["date"])) for f in m["frames"]]
+                 gibsDate=f.get("gibs_date", f["date"]), swot=_nearest_swot(f["date"]),
+                 composite=_composite_of(f["key"])) for f in m["frames"]]
 
 
 @lru_cache(maxsize=1)
@@ -96,6 +105,27 @@ def choropleth(date: str, track: Track):
         raise HTTPException(404, "Scene not found")
     return {str(oid): r["water_pct"] for oid, rows in store().series.items()
             for r in rows if r["date"] == date and r["track"] == track}
+
+
+@router.get("/choropleth/composite")
+def choropleth_composite(date: str, track: Track):
+    """Playback companion of the mosaic: per commune, its latest observation on or before (date, track) that covers
+    >= 50 % of the commune's best-covered pass and is at most max_age days old. Returns {osm_id: {pct, age, date, track}}."""
+    if not any(f["date"] == date and f["track"] == track for f in store().manifest["frames"]):
+        raise HTTPException(404, "Scene not found")
+    now = dt.date.fromisoformat(date)
+    max_age = store().composite_max_age
+    out = {}
+    for oid, rows in store().series.items():
+        best_valid = max((r["valid_km2"] for r in rows), default=0)
+        eligible = [r for r in rows if (r["date"], r["track"]) <= (date, track) and r["valid_km2"] >= 0.5 * best_valid]
+        if not eligible:
+            continue
+        r = max(eligible, key=lambda x: (x["date"], x["track"]))
+        age = (now - dt.date.fromisoformat(r["date"])).days
+        if age <= max_age:
+            out[str(oid)] = dict(pct=r["water_pct"], age=age, date=r["date"], track=r["track"])
+    return out
 
 
 @router.get("/area")
