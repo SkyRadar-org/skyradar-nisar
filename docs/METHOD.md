@@ -41,9 +41,12 @@ Demo area: Long Xuyen Quadrangle and Dong Thap Muoi (104.95–106.00 E, 10.25–
 ## 4. Validation
 
 **a) Against Sentinel-1 DSWx (25 independent dates, land only):** median F1 0.63; in the flood season (from 25 Aug)
-F1 0.57–0.76, recall 0.87. NISAR maps more water than DSWx-S1 (≈ 1.4–1.5× in the flood season).
+F1 0.57–0.76, recall 0.87. NISAR maps more water than DSWx-S1 on the same pixels (flood season, 18 dates: 1.0–2.1×, median 1.65×).
+Early season (June–July) is weak: F1 0.07–0.19, because the fixed rule over-reports water on smooth dry fields when
+there is little water (see Limitations).
 
-**b) Is the extra water real? Independent optical check (DSWx-HLS, clear-sky pixels, ±2 days, 16 dates, 3 tracks):**
+**b) Is the extra water real? Independent optical check, flood season Aug–Nov (DSWx-HLS, clear-sky pixels, ±2 days,
+16 dates, 3 tracks; June–July optical scenes are almost all cloudy and were not used):**
 
 - NISAR F1 **0.57–0.86** vs Sentinel-1 **0.50–0.78** — **NISAR is better on 14 of 16 dates**; the two exceptions
   (track 148D, 28 Sep and 10 Oct) differ by ≤ 0.02.
@@ -98,7 +101,9 @@ recession.
   (An Giang plan: 46 324 ha) or pumping for land preparation all look the same.
 - Revisit: 12 days per track, ≈ 5–7 days combining 2–3 tracks; latency ≈ 2–3 days → **not an early-warning tool**, and flash
   floods (e.g. Da Nang, 8–9 Oct) are only partly captured (≈ 15–30 km² of short-lived new water at Nui Thanh–Tam Ky).
-- References (DSWx) are products, not field surveys; optical validation covers clear-sky areas only.
+- References (DSWx) are products, not field surveys; optical validation covers clear-sky areas of the flood season (Aug–Nov) only.
+- **Early season is weak:** in June–July, with little water on the fields, the fixed HH/HV rule over-reports water on
+  smooth dry fields (F1 vs DSWx-S1 0.07–0.19). The tool is meant for the flood and recession period (Aug–Nov).
 
 ## 7. Impact
 

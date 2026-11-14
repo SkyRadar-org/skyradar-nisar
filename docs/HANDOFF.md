@@ -1,6 +1,6 @@
 # HANDOFF — tài liệu bàn giao cho AI trợ lý mới (GPT / Codex / Copilot…)
 
-Cập nhật: **14/11/2026 ~10:45 (giờ VN)**. Người viết: Claude (trợ lý của Chí). Đọc hết file này trước khi đụng vào code.
+Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ lý của Chí). Đọc hết file này trước khi đụng vào code.
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---
@@ -28,8 +28,8 @@ Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu 
 
 | Repo | Hiển thị | Nhánh | Nội dung | Ghi chú |
 |---|---|---|---|---|
-| **[SkyRadar-org/skyradar-nisar](https://github.com/SkyRadar-org/skyradar-nisar)** | **public** | **`claude/compassionate-fermat-nqqh5z`** (nhánh duy nhất, **chưa có `main`**) | Pipeline Python (`src/skyradar_nisar`), gói dữ liệu web (`data/web`, 32 MB), **backend `water-pulse-be/`**, tài liệu (`docs/`) | Repo nộp bài. Commit mới nhất `ce81a1a` |
-| **[SkyRadar-org/water-pulse-fe](https://github.com/SkyRadar-org/water-pulse-fe)** | private | `main` (lịch sử gộp thành 1 commit) | Frontend: Vite + TypeScript (không dùng framework), MapLibre GL 6, Chart.js, song ngữ VI/EN | Của Đông. **Đang ở `DATA_MODE = 'mock'`** (xem mục 5) |
+| **[SkyRadar-org/skyradar-nisar](https://github.com/SkyRadar-org/skyradar-nisar)** | **public** | **`main`** (nhánh chính, gộp nhánh Claude, Codex, Đạt) | Pipeline Python (`src/skyradar_nisar`), gói dữ liệu web (`data/web`, 32 MB), **backend `water-pulse-be/`**, tài liệu (`docs/`) | Repo nộp bài. Có thêm `scripts/export_pages.py` (xuất API cho Cloudflare) |
+| **[SkyRadar-org/water-pulse-fe](https://github.com/SkyRadar-org/water-pulse-fe)** | private | `main`; nhánh `codex/local-cloudflare-20261114` = **đúng bản đang chạy** (Đông merge vào `main`) | Frontend: Vite + TypeScript (không dùng framework), MapLibre GL 6, Chart.js, song ngữ VI/EN | Của Đông. Deploy tại **https://nisar-flood.skyradar.vn** (Cloudflare Pages + Worker, dữ liệu thật) |
 | **[SkyRadar-org/skyradar-research](https://github.com/SkyRadar-org/skyradar-research)** | private | `main` | Web ghi chú kiểu Notion của đội (Next.js, Neon Postgres, BlockNote). Deploy tại **https://skyradar-research.vercel.app** | Chỉ là kho ghi chú, xoá sau cuộc thi. Tiến độ frontend ở `docs/PROGRESS_WATER_PULSE_FE.md` |
 | duychris/skyradar-web | private | `main` | Dự án SkyRadar cũ (app mây và thời tiết) | Frontend đã chép sẵn file ranh giới tỉnh, biên giới và nhãn Hoàng Sa, Trường Sa vào `public/geo/`. Không cần đụng thêm |
 | duychris/skyradar-mobile, duychris/skyradar-memory | private | — | App Flutter cũ; ghi chú nội bộ | **Không dùng** cho cuộc thi |
@@ -49,7 +49,7 @@ NASA GIBS (lớp NISAR, frontend gọi trực tiếp)                     data/w
         │                                                                            │
         │                                                water-pulse-be (FastAPI, đọc file, không có database)
         │                                                                            │  /api/*, /static/*
-        └──────────────────────────────►  water-pulse-fe (Vite)  ◄───────────────────┘   ← CHƯA nối (mục 5)
+        └──────────────────────────────►  water-pulse-fe (Vite)  ◄───────────────────┘   (Cloudflare: bản chụp JSON của /api/frontend/*)
 ```
 
 ## 3. Trạng thái hiện tại
@@ -61,12 +61,13 @@ NASA GIBS (lớp NISAR, frontend gọi trực tiếp)                     data/w
   - tính thời gian ngập theo xã, dấu hiệu xả lũ, kiểm tra xuống giống;
   - xuất dữ liệu web và vẽ hình.
 - **Backend FastAPI** (`water-pulse-be/`):
-  - 14 endpoint, 6 test đều qua; có gzip, cache, CORS;
-  - đã có Dockerfile và cấu hình Vercel (`api/index.py`, `vercel.json`);
-  - **chưa deploy**.
+  - 14 endpoint gốc cộng adapter `/api/frontend/*` đúng định dạng frontend (Codex); 11 test đều qua;
+  - không cần chạy server: `scripts/export_pages.py` xuất toàn bộ câu trả lời thành JSON cho Cloudflare;
+  - vẫn có Dockerfile và cấu hình Vercel nếu cần server thật.
 - **Frontend** (Đông):
-  - xong các task T0–T6, T8, T9, T11, song ngữ VI/EN;
-  - **còn lại:** T7 deploy (Cloudflare Pages), **T10 nối dữ liệu thật**, T12 (tuỳ chọn), T13 đóng băng.
+  - đã nối dữ liệu thật và **deploy tại https://nisar-flood.skyradar.vn** (Codex, 14/11); có tab Tổng quan, lớp ảnh radar riêng;
+  - build: `npm run build:cloudflare` (cần repo `skyradar-nisar` đặt cạnh), rồi `npm run test:cloudflare`;
+  - **bản cũ dữ liệu giả vẫn còn ở water-pulse.pages.dev**, cần tắt hoặc chuyển hướng.
 - **Tài liệu:** `docs/METHOD.md` (Method & Validation), `docs/SUBMISSION.md` (bản nháp bài nộp: tóm tắt, mô tả, dàn ý slide, kịch bản video), `docs/WEB_DATA.md`, `docs/BACKEND_API.md`, `docs/figures/fig1–fig5`.
 
 ### Số liệu chuẩn (lấy từ file, KHÔNG lấy từ trí nhớ)
@@ -75,11 +76,13 @@ NASA GIBS (lớp NISAR, frontend gọi trực tiếp)                     data/w
 |---|---|---|
 | Quy tắc tách nước | HH < −14 dB **và** HV < −22 dB; mảng ≥ 3 ha; bỏ nước thường xuyên | `src/skyradar_nisar/config.py`, `data/web/stats/calibration.json` |
 | So với DSWx-S1 (25 ngày độc lập) | F1 trung vị 0,63; mùa lũ 0,57–0,76; recall 0,87 | `data/web/stats/vs_dswx_s1.csv` |
-| **So với ảnh quang học DSWx-HLS (16 ngày)** | **NISAR tốt hơn Sentinel-1 ở 14/16 ngày.** F1 0,57–0,86 so với 0,50–0,78. **Recall 0,47–0,82 so với 0,35–0,64.** 53–98% diện tích chỉ NISAR thấy nước thì ảnh quang học cũng thấy nước | `data/web/stats/vs_dswx_hls.csv` |
+| **So với ảnh quang học DSWx-HLS (16 ngày, chỉ mùa lũ tháng 8–11)** | **NISAR tốt hơn Sentinel-1 ở 14/16 ngày.** F1 0,57–0,86 so với 0,50–0,78. **Recall 0,47–0,82 so với 0,35–0,64.** 53–98% diện tích chỉ NISAR thấy nước thì ảnh quang học cũng thấy nước | `data/web/stats/vs_dswx_hls.csv` |
 | Kiểm tra xuống giống (ảnh gần nhất phủ xã) | 131 xã: 53 sẵn sàng, 40 đang rút, **38 còn ngập** | `data/web/stats/sowing_check.csv` |
 | Theo tỉnh (sẵn sàng / đang rút / còn ngập) | An Giang 28/22/6; Đồng Tháp 20/11/21; Tây Ninh 0/6/9; Cần Thơ 2/1/2; Vĩnh Long 3/0/0 | như trên |
 | Dấu hiệu xả lũ | Lớp A 10 xã, B 15, C 55. Ba xã có tên trong tin xả lũ (Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông) đều thuộc lớp A | `data/web/stats/commune_flood_class.csv` |
 | Ví dụ xã còn ngập | Sơn Kiên còn khoảng 78–87% nước ngày 03/11 (tuỳ track) | `commune_water_by_date.csv` |
+| Đầu mùa (tháng 6–7) | Yếu: F1 so với DSWx-S1 chỉ 0,07–0,19 (báo thừa nước trên ruộng khô). Sản phẩm dành cho mùa lũ và nước rút (tháng 8–11) | `vs_dswx_s1.csv` |
+| Diện tích NISAR so với DSWx-S1 (mùa lũ, cùng pixel) | 1,0–2,1 lần, trung vị 1,65 lần | `vs_dswx_s1.csv` (recall / precision) |
 | Đã thử nhưng loại | Lớp "ngập dưới tán" (HH sáng lên): F1 khoảng 0,02 | `docs/METHOD.md` |
 
 **Năm 2026 là năm lũ thấp.** Diện tích nước đạt đỉnh khoảng 36% vào cuối tháng 9 đến đầu tháng 10, khớp với mực nước trạm Tân Châu. Tin báo đầu tháng 11 cũng khớp: Đồng Tháp Mười đang bơm rút nước; Tân Hồng xuống giống đợt 1 từ 5/11.
@@ -88,7 +91,7 @@ NASA GIBS (lớp NISAR, frontend gọi trực tiếp)                     data/w
 
 ```bash
 # Pipeline (cần token Earthdata; KHÔNG commit token)
-git clone -b claude/compassionate-fermat-nqqh5z https://github.com/SkyRadar-org/skyradar-nisar.git
+git clone https://github.com/SkyRadar-org/skyradar-nisar.git
 cd skyradar-nisar && pip install -r requirements.txt
 export EARTHDATA_TOKEN=...   PYTHONPATH=src
 python -m skyradar_nisar.fetch_gcov && python -m skyradar_nisar.fetch_dswx s1 && python -m skyradar_nisar.fetch_dswx hls
@@ -108,45 +111,28 @@ npm install && npm run dev         # http://localhost:5173 ; npm run mock để 
 - **Không cần chạy lại pipeline** để làm web: `data/web` đã được commit.
 - Tài khoản Earthdata phải cấp quyền cho ứng dụng *"Alaska Satellite Facility Data Access"*.
 
-## 5. ⚠️ Việc gấp nhất: frontend và backend chưa nói cùng một ngôn ngữ
+## 5. Frontend và backend: đã nối (14/11)
 
-Frontend định nghĩa hợp đồng dữ liệu riêng trong `water-pulse-fe/src/data/types.ts` và `src/data/dataSource.ts` (3 chế độ `mock | static | api`). Backend được viết theo `docs/WEB_DATA.md` và `docs/BACKEND_API.md`. **Hai bên chưa khớp:**
-
-| Frontend cần | Backend / `data/web` hiện có | Cần làm |
-|---|---|---|
-| `GET /api/scenes`: `Scene{date, track, maturity, bounds:[W,S,E,N], waterPng, gibsDate}` | `/api/manifest`, `/api/frames`: `bounds` dạng **`[[S,W],[N,E]]`** (kiểu Leaflet), `png_url`, `radar_url` | Thêm endpoint thích ứng (adapter) hoặc file tĩnh `scenes.json` |
-| `waterPng`: 0 trong suốt, 1 nước (xanh), **3 nước thường xuyên (xám)** | PNG chỉ có nước xanh; nước thường xuyên đã bị bỏ | Chấp nhận như hiện tại, hoặc xuất thêm lớp xám |
-| `GET /api/communes`: `CommuneProps{osm_id (string), name, province, valid_km2, first_flood_date, peak_pct, peak_date, half_date, recession_date, last_pct, last_date, max_flooded_km2, status}` | GeoJSON có `timing` lồng theo track và `flood_class` | Làm phẳng thuộc tính; cần chọn quy tắc gộp track |
-| `status`: `receded \| not_receded \| uncertain \| no_flood` | Kiểm tra xuống giống: `ready \| draining \| still_wet` (`sowing_check.csv`) | **Chốt một bộ trạng thái.** Đề xuất: `ready`→`receded`, `still_wet`→`not_receded`, `draining`→`uncertain`; `no_flood` khi `peak_pct` < 5 |
-| `GET /api/communes/{id}/series`: `[{date, track, water_pct, water_km2, valid_km2}]` | Có, nhưng tên trường khác | Đổi tên trường |
-| `GET /api/choropleth?date=&track=`: `{osm_id: water_pct}` | Chưa có (dữ liệu có trong `commune_water_by_date.csv`) | Thêm mới |
-| `GET /api/area`: `[{date, track, nisar_km2, dswx_km2}]` | Chưa có. `nisar_km2` lấy tổng `water_km2` từ `commune_water_by_date.csv`; `dswx_km2` suy ra từ `vs_dswx_s1.csv` (trong vùng chồng phủ, diện tích NISAR / DSWx = recall / precision) | Thêm mới |
-| `GET /api/summary`: lớp `flood_count`, `first_flood_date`, `recession_date` (png, bounds, legend) | Có `summary/first_flood.png` và `summary/recession.png`; **chưa có `flood_count`** | Thêm mới hoặc bỏ lớp này |
-| `GET /api/validation`: `{vsHls:[{f1_nisar, f1_s1, recall_*, precision_*, nisar_only_true_pct}], vsDswxS1:[{date, track, f1}], notes}` | `/api/validation` trả nguyên nội dung CSV | Đổi định dạng |
-
-**Hướng đề xuất (nhanh và ít rủi ro):**
-- Viết `export_fe.py`, hoặc thêm các endpoint `/api/scenes|choropleth|area|summary` vào backend, sinh **đúng định dạng frontend** từ `data/web`.
-- Frontend chỉ cần chuyển sang `DATA_MODE='static'` (chép vào `public/data/`) hoặc `'api'` (backend đã deploy, CORS cho domain frontend).
-- **Chế độ `static` không cần backend deploy** nên an toàn nhất cho hạn chót.
-- Khi chuyển sang dữ liệu thật, dùng mock của Đông để đối chiếu: Sơn Kiên, top 10 xã, bảng F1.
-
-**Số liệu sai cần sửa trong frontend** (đang chép từ kế hoạch cũ 22 ngày, chưa đúng với 33 ảnh):
-- `src/locales/en.ts` dòng 155, 226 và `vi.ts` dòng 156, 227 ghi "64–77% vs 43–60%". Số đúng là recall **47–82% vs 35–64%**, NISAR tốt hơn ở **14/16 ngày**.
-- `en.ts` dòng 225 ghi "50 of 80 communes not drained halfway by 29 Oct": cần tính lại từ dữ liệu thật hoặc thay bằng "38 of 131 communes still wet on the latest image".
-- "NISAR area ~1.4–1.5× DSWx-S1": cần kiểm lại (tỉ lệ = recall / precision trong `vs_dswx_s1.csv`).
-- Trang About ghi "22 NISAR passes": số đúng là **33 lần chụp trên 3 track**.
+- Định dạng dữ liệu của frontend nằm ở `water-pulse-fe/src/data/types.ts`. Backend phục vụ đúng định dạng đó qua `water-pulse-be/app/frontend.py` (`/api/frontend/scenes|communes|communes/{id}/series|choropleth|area|summary|validation`).
+- **Trạng thái xã:** `ready`→`receded`, `draining`→`uncertain`, `still_wet`→`not_receded`. Thêm `no_flood` khi đỉnh < 5%. Xã không đủ ảnh phủ thì `uncertain` kèm `coverage_sufficient=false`.
+- **Số liệu thống kê dùng một track tham chiếu**, là track của ảnh gần nhất phủ ít nhất nửa xã (`reference_track`). Chuỗi thời gian giữ riêng từng track.
+- **Cố ý để trống:**
+  - `dswx_km2` là `null`, vì chưa có tổng DSWx trên cùng vùng;
+  - `summary` là `[]`, vì ảnh tổng kết hiện gộp các track. Đạt đang xuất bản theo từng track.
+- **Khi `data/web` thay đổi:** chạy `npm run build:cloudflare`, `npm run test:cloudflare`, rồi deploy lại.
 
 ## 6. Việc còn mở (theo thứ tự ưu tiên)
 
-1. **Nối frontend với dữ liệu thật** (mục 5): Chí làm, cùng Đông.
-2. Đông deploy frontend (Cloudflare Pages: `npm run build` ra thư mục `dist/`). Cần tài khoản của đội.
-3. Deploy backend (Vercel hoặc Docker/Render): **chỉ cần nếu dùng chế độ `api`**. Trước khi deploy, chạy `scripts/sync_data.sh ..`.
+Lịch chi tiết từng người: trang "Giao việc chiều 14/11: Đông & Đạt" trên web research.
+
+1. Đông đưa `main` của `water-pulse-fe` về đúng nhánh `codex/local-cloudflare-20261114`; tắt bản dữ liệu giả ở water-pulse.pages.dev.
+2. Sửa chữ trên web: ghi "mùa lũ (tháng 8–11)" cạnh số kiểm chứng với ảnh quang học, thêm giới hạn đầu mùa (mục 3).
+3. Tự host font bản đồ, vì `demotiles.maplibre.org` chỉ là máy chủ demo.
 4. Chốt `docs/SUBMISSION.md`: tóm tắt, mô tả, slide, video, link demo, link repo.
-5. Tạo nhánh `main` cho `skyradar-nisar` từ nhánh `claude/...` (repo nộp bài nên có `main`). **Hỏi Chí trước.**
-6. Đọc Judging Guide: https://www.spaceappschallenge.org/resources/judging-awards-guide/ (mỗi tiêu chí chấm 1–5 điểm). Môi trường của Claude không mở được trang này.
-7. Sáng 15/11 truy vấn lại CMR để lấy ảnh NISAR mới (nếu có), rồi chạy lại pipeline và `export_web`.
-8. Chưa tìm được văn bản gốc danh sách xã xả lũ theo Kế hoạch 457/KH-UBND (tuỳ chọn).
-9. Người Việt đọc lại bản dịch `water-pulse-fe/src/locales/vi.ts`.
+5. Đọc Judging Guide: https://www.spaceappschallenge.org/resources/judging-awards-guide/ (mỗi tiêu chí chấm 1–5 điểm).
+6. Sáng 15/11 truy vấn lại CMR để lấy ảnh NISAR mới (nếu có), rồi chạy lại pipeline và `export_web`. Nếu số liệu đổi, cập nhật luôn các số kiểm tra trong `water-pulse-be/tests`.
+7. Tuỳ chọn: lớp tổng kết mùa theo từng track (Đạt); văn bản gốc Kế hoạch 457/KH-UBND.
+8. Người Việt đọc lại bản dịch `water-pulse-fe/src/locales/vi.ts`.
 
 ## 7. Quy tắc bắt buộc
 

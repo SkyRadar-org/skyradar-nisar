@@ -1,0 +1,2 @@
+# keep shell scripts runnable from WSL/Docker on Windows checkouts
+*.sh text eol=lf

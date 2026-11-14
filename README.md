@@ -16,7 +16,7 @@ sowing window?*
 src/skyradar_nisar/
   config.py       AOI, NISAR tracks, calibrated water rule, paths
   cmr.py          NASA CMR search (GCOV, DSWx), newest product version per acquisition
-  fastread.py     fast AOI reader for GCOV HDF5 on Earthdata Cloud (parallel chunk download, ~40 s per date)
+  fastread.py     fast AOI reader for GCOV HDF5 on Earthdata Cloud (parallel chunk download, 0.5–3 min per date)
   grid.py         common 20 m UTM-48N grid, power-domain 2x2 averaging, dB*100 int16 GeoTIFF I/O
   fetch_gcov.py   download HH/HV for all dates of the configured tracks
   fetch_dswx.py   OPERA DSWx-S1 (radar) and DSWx-HLS (optical) reference water mosaics on the same grid
@@ -37,11 +37,13 @@ Large rasters (`data/raw`, `data/processed`) are **not** committed; the pipeline
 
 ## Run
 
+Python 3.11 or newer. Linux/macOS (bash):
+
 ```bash
 pip install -r requirements.txt
 export EARTHDATA_TOKEN=...        # Earthdata Login bearer token (never commit it)
 export PYTHONPATH=src
-python -m skyradar_nisar.fetch_gcov          # NISAR GCOV, all dates/tracks in config (~40 s per date)
+python -m skyradar_nisar.fetch_gcov          # NISAR GCOV, all dates/tracks in config (0.5–3 min per date, bandwidth-bound)
 python -m skyradar_nisar.fetch_dswx s1       # OPERA DSWx-S1 reference
 python -m skyradar_nisar.fetch_dswx hls      # OPERA DSWx-HLS optical reference
 python -m skyradar_nisar.communes            # optional: refresh OSM commune boundaries
@@ -53,21 +55,37 @@ python -m skyradar_nisar.export_web          # data/web package
 python -m skyradar_nisar.figures             # docs/figures
 ```
 
-Your Earthdata account must authorise the application *"Alaska Satellite Facility Data Access"*.
+Windows (PowerShell): same commands after
+
+```powershell
+$env:EARTHDATA_TOKEN = "..."; $env:PYTHONPATH = "src"; $env:PYTHONUTF8 = "1"
+```
+
+(`PYTHONUTF8=1` keeps console output of Vietnamese commune names safe; files are read and written as UTF-8.)
+
+- **Earthdata access:** the token must belong to an account that can download from **ASF** (authorise the application
+  *"Alaska Satellite Facility Data Access"*) and from **PO.DAAC** (OPERA DSWx; HTTP 401 means a missing/invalid token).
+  `fetch_dswx` stops with exit code 1 and lists the URLs if any reference file cannot be downloaded.
+- **Time:** the full run (33 acquisitions + references) takes about 1–2 h, dominated by downloads.
+- **Reproducibility check:** a teammate re-ran all steps from a fresh clone on Windows (14 Nov 2026); every table in
+  `data/web/stats` matched the committed version (≈ 20 of 6 million water pixels differ with other library versions).
+- The backend bundling script `water-pulse-be/scripts/sync_data.sh` is bash; `.gitattributes` keeps `*.sh` with LF
+  line endings so it also runs from WSL/Docker on a Windows checkout.
 
 ## Method (short)
 
 1. **Data:** NISAR L2 GCOV (HH, HV; γ⁰ power, terrain-corrected), tracks 047D/f083, 083A/f007 and 148D/f083 (11 dates each,
    33 acquisitions, 17 Jun – 3 Nov 2026); pixels with `mask` 0 or 255 are discarded; averaged to 20 m in power.
-2. **Water rule:** HH < −14 dB and HV < −22 dB, patches ≥ 3 ha, permanent water (DSWx-S1 water on ≥ 20 of 22 dates)
-   removed. Thresholds chosen by maximising F1 against OPERA DSWx-S1 on **two** dates (17 Jun, 21 Sep, track 047D).
+2. **Water rule:** HH < −14 dB and HV < −22 dB, patches ≥ 3 ha, permanent water (DSWx-S1 water on ≥ 20 of the
+   acquisition dates with Sentinel-1 coverage) removed. Thresholds chosen by maximising F1 against OPERA DSWx-S1 on **two** dates (17 Jun, 21 Sep, track 047D).
 3. **Timing:** per pixel and per commune — first flooded date, peak, date water halved, still-wet at the last image.
    Statistics are kept **per track** (viewing geometry differs; median inter-track difference 3.4 points).
 
 ## Validation (summary)
 
 - vs **DSWx-S1** on land, 25 independent dates: F1 median 0.63; flood season 0.57–0.76 (recall 0.87).
-- vs **optical DSWx-HLS** (independent of calibration; clear-sky pixels, ±2 days, 16 dates, 3 tracks):
+- vs **optical DSWx-HLS**, **flood season Aug–Nov only** (independent of calibration; clear-sky pixels, ±2 days,
+  16 dates, 3 tracks; June–July optical scenes are almost all cloudy and were not used):
   **NISAR F1 0.57–0.86 vs Sentinel-1 DSWx 0.50–0.78 — NISAR better on 14 of 16 dates** (the 2 exceptions, track 148D,
   differ by ≤ 0.02); NISAR recall 0.47–0.82 vs 0.35–0.64. 53–98 % of the area that only NISAR maps as water is also
   water in the optical product.
@@ -76,6 +94,9 @@ Your Earthdata account must authorise the application *"Alaska Satellite Facilit
 ## Limitations
 
 - Mostly PROVISIONAL NISAR products; 12-day repeat per track (≈ 5–7 days with 2–3 tracks).
+- **Early season (June–July) is weak:** with little water on the fields the fixed rule over-reports water on smooth dry
+  fields (F1 vs DSWx-S1 0.07–0.19 on Jun–Jul dates; an independent re-implementation by a teammate scored 0.30–0.57
+  against optical maps). The product is meant for the flood and recession period (Aug–Nov).
 - Detects *water on the field*, not its cause (river flood, controlled flood release into dyke compartments, or
   pumping for land preparation).
 - Not an early-warning system (product latency ~2–3 days; sparse revisit for flash floods).

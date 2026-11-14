@@ -19,7 +19,7 @@ files on NASA Earthdata Cloud (≈ 40 s per acquisition instead of 6 GB), classi
 dates against OPERA DSWx-S1, and summarise 33 acquisitions from three tracks (June–November 2026) for 140 communes.
 
 Validated independently against optical OPERA DSWx-HLS, NISAR detects more of the real water than Sentinel-1 on 14 of
-16 comparison dates (F1 0.57–0.86 vs 0.50–0.78). The tool shows, for example, that Sơn Kiên and Hòn Đất communes were
+16 flood-season comparison dates, Aug–Nov (F1 0.57–0.86 vs 0.50–0.78). The tool shows, for example, that Sơn Kiên and Hòn Đất communes were
 still 58–78 % under water on 3 November, after the sowing window opened, while Tây Phú had drained by early October.
 
 We are explicit about limits: provisional data, 5–7-day effective revisit, and that radar sees water on the field, not
@@ -39,7 +39,7 @@ whether it came from the river, a controlled flood release or pumping.
 | 2 | **Why NISAR L-band** | L-band (24 cm) penetrates rice canopy, sees water under young rice; dual-pol HH/HV; 12-day repeat, 3 tracks → 5–7 days | Side-by-side NISAR vs Sentinel-1 water map (fig: disagreement map) |
 | 3 | **Data & method** | Stream AOI from Earthdata Cloud → 20 m grid → HH/HV water rule (calibrated on 2 dates) → per-commune timing | Pipeline diagram |
 | 4 | **Demo** | Time slider over 33 NISAR dates, commune table (first flood, peak, recession), per-track charts | Screenshot of the web app |
-| 5 | **Does it work?** | vs optical DSWx-HLS: NISAR better on 14/16 dates (2 ties within 0.02); 53–98 % of NISAR-only water confirmed optically; rejected method (inundated vegetation) | fig2_validation_optical |
+| 5 | **Does it work?** | vs optical DSWx-HLS (flood season Aug–Nov): NISAR better on 14/16 dates (2 ties within 0.02); 53–98 % of NISAR-only water confirmed optically; rejected method (inundated vegetation) | fig2_validation_optical |
 | 6 | **What it tells farmers' managers** | Sơn Kiên/Hòn Đất still wet on 3 Nov vs Tây Phú drained in Oct; controlled flood release visible in Bình Mỹ, Thạnh Mỹ Tây, Bình Thạnh Đông | fig3_commune_examples + fig4_flood_release |
 | 7 | **Limits & next steps / Team** | Provisional data; cause of water unknown; not early warning. Next: whole delta, sowing-date alerts, field (dyke compartment) level | Team |
 
