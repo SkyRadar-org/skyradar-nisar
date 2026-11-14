@@ -84,8 +84,9 @@ recession.
   Thoại Sơn, Châu Phú area of An Giang); 55 were still wet at the last image.
 - Caveat: the flooded area in these communes is 2–17× the reported release areas, so natural flooding is mixed in; the
   release area itself cannot be isolated without the dyke sub-region boundaries (held by the province).
-- Prototype: grouping pixels that flood and dry on the *same dates* finds 45 field blocks ≥ 50 ha (≈ 3 000 ha) flooded on
-  16–18 Aug and drained before the last image, many bounded by straight canals — candidate dyke compartments.
+- Prototype: grouping pixels that flood and dry on the *same dates* finds 31 field blocks ≥ 50 ha (≈ 2 300 ha) flooded on
+  16–18 Aug and drained before the last image, many bounded by straight canals — candidate dyke compartments (exact-date
+  matching is strict, so this is a lower bound).
 
 ## 6. Limitations
 
