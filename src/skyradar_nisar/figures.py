@@ -31,6 +31,8 @@ def fig1():
         w = _rd(P / f"water/{k}_water.tif"); valid = w != 255
         if k in s1:
             ok = valid & np.isin(s1[k], [0, 1, 3]) & ~perm
+            if ok.mean() < 0.05:   # same rule as calibrate: almost no Sentinel-1 overlap (e.g. most 148D dates)
+                continue
             ser[k[11:]].append((dt.date.fromisoformat(k[:10]), np.mean(w[ok] == 1) * 100, np.mean(s1[k][ok] == 1) * 100))
     fig, ax = plt.subplots(figsize=(10, 4.2))
     for trk, rows in ser.items():
