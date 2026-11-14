@@ -40,14 +40,15 @@ Demo area: Long Xuyen Quadrangle and Dong Thap Muoi (104.95–106.00 E, 10.25–
 
 ## 4. Validation
 
-**a) Against Sentinel-1 DSWx (20 independent dates, land only):** median F1 0.60; in the flood season (from 25 Aug)
-F1 0.58–0.75, recall 0.89. NISAR maps more water than DSWx-S1 (≈ 1.4–1.5× in the flood season).
+**a) Against Sentinel-1 DSWx (25 independent dates, land only):** median F1 0.63; in the flood season (from 25 Aug)
+F1 0.57–0.76, recall 0.87. NISAR maps more water than DSWx-S1 (≈ 1.4–1.5× in the flood season).
 
-**b) Is the extra water real? Independent optical check (DSWx-HLS, clear-sky pixels, ±2 days, 11 dates):**
+**b) Is the extra water real? Independent optical check (DSWx-HLS, clear-sky pixels, ±2 days, 16 dates, 3 tracks):**
 
-- NISAR F1 **0.57–0.86** vs Sentinel-1 **0.51–0.78** — **NISAR is better on every date**.
-- NISAR detects **47–82 %** of the optical water area, Sentinel-1 **36–65 %**; NISAR precision stays high (0.72–0.97).
-- **53–95 %** of the area that only NISAR maps as water is also water in the optical product.
+- NISAR F1 **0.57–0.86** vs Sentinel-1 **0.50–0.78** — **NISAR is better on 14 of 16 dates**; the two exceptions
+  (track 148D, 28 Sep and 10 Oct) differ by ≤ 0.02.
+- NISAR detects **47–82 %** of the optical water area, Sentinel-1 **35–64 %**; NISAR precision stays high.
+- **53–98 %** of the area that only NISAR maps as water is also water in the optical product.
 
 → L-band sees flooded rice fields that C-band misses.
 

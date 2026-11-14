@@ -53,7 +53,7 @@ def fig2():
     ax.bar(x + w / 2, [float(r["s1"]) for r in rows], w, color="#adb5bd", label="Sentinel-1 C-band (OPERA DSWx-S1)")
     ax.set_xticks(x, lab, fontsize=7); ax.set_ylim(0, 1); ax.set_ylabel("F1 vs optical water (DSWx-HLS)")
     ax.set_title("Independent check against optical water maps (clear-sky pixels, ±2 days)")
-    ax.legend(fontsize=8, loc="lower right"); ax.grid(axis="y", alpha=.3); fig.tight_layout(); fig.savefig(OUT / "fig2_validation_optical.png", dpi=150)
+    ax.set_ylim(0, 1.12); ax.legend(fontsize=8, loc="upper left", ncol=2, frameon=False); ax.grid(axis="y", alpha=.3); fig.tight_layout(); fig.savefig(OUT / "fig2_validation_optical.png", dpi=150)
 
 
 def fig3(names=("Xã Sơn Kiên", "Xã Hòn Đất", "Xã Tây Phú", "Xã Vĩnh Hanh")):

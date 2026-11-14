@@ -52,8 +52,8 @@ Your Earthdata account must authorise the application *"Alaska Satellite Facilit
 
 ## Method (short)
 
-1. **Data:** NISAR L2 GCOV (HH, HV; γ⁰ power, terrain-corrected), tracks 047D/f083 and 083A/f007 (11 dates each,
-   17 Jun – 29 Oct 2026) and 148D/f083; pixels with `mask` 0 or 255 are discarded; averaged to 20 m in power.
+1. **Data:** NISAR L2 GCOV (HH, HV; γ⁰ power, terrain-corrected), tracks 047D/f083, 083A/f007 and 148D/f083 (11 dates each,
+   33 acquisitions, 17 Jun – 3 Nov 2026); pixels with `mask` 0 or 255 are discarded; averaged to 20 m in power.
 2. **Water rule:** HH < −14 dB and HV < −22 dB, patches ≥ 3 ha, permanent water (DSWx-S1 water on ≥ 20 of 22 dates)
    removed. Thresholds chosen by maximising F1 against OPERA DSWx-S1 on **two** dates (17 Jun, 21 Sep, track 047D).
 3. **Timing:** per pixel and per commune — first flooded date, peak, date water halved, still-wet at the last image.
@@ -61,10 +61,11 @@ Your Earthdata account must authorise the application *"Alaska Satellite Facilit
 
 ## Validation (summary)
 
-- vs **DSWx-S1** on land, 20 independent dates: F1 median 0.60; flood season 0.58–0.75 (recall 0.89).
-- vs **optical DSWx-HLS** (independent of calibration; clear-sky pixels, ±2 days, 11 dates):
-  **NISAR F1 0.57–0.86 vs Sentinel-1 DSWx 0.51–0.78 — NISAR better on every date**; NISAR recall 0.47–0.82 vs 0.36–0.65.
-  53–95 % of the area that only NISAR maps as water is also water in the optical product.
+- vs **DSWx-S1** on land, 25 independent dates: F1 median 0.63; flood season 0.57–0.76 (recall 0.87).
+- vs **optical DSWx-HLS** (independent of calibration; clear-sky pixels, ±2 days, 16 dates, 3 tracks):
+  **NISAR F1 0.57–0.86 vs Sentinel-1 DSWx 0.50–0.78 — NISAR better on 14 of 16 dates** (the 2 exceptions, track 148D,
+  differ by ≤ 0.02); NISAR recall 0.47–0.82 vs 0.35–0.64. 53–98 % of the area that only NISAR maps as water is also
+  water in the optical product.
 - Tested and **rejected**: an "inundated vegetation" rule from HH brightening (F1 ≈ 0.02; rice growth also brightens HH).
 
 ## Limitations
