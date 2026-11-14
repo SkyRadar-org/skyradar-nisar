@@ -1,5 +1,8 @@
 # Submission drafts (EN) — to be checked against the official Judging & Submission guide
 
+> **Superseded for slides and video by `docs/PROJECT_BRIEF.md`** (current numbers, demo path, claims to avoid).
+> Note: the app no longer uses NASA GIBS; the radar background is the team's own processed image.
+
 ## Project name
 **SkyRadar NISAR Water Pulse**
 
