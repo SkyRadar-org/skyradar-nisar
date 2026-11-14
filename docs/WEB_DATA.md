@@ -12,7 +12,7 @@ Everything the web app needs is static (no backend). Regenerate with `python -m 
 | `stats/commune_water_by_date.csv` | One row per commune × date × track: `valid_km2`, `water_km2`, `water_pct` → per-commune chart |
 | `stats/commune_flood_timing.csv` | Same as `timing` in the GeoJSON, as a table |
 | `stats/commune_flood_class.csv` | Flood-release classification (A/B/C) |
-| `stats/sowing_check.csv` | Per commune: latest water % per track, worst case, `status` (ready < 10 %, draining 10–30 %, still_wet ≥ 30 %), `tracks_agree` |
+| `stats/sowing_check.csv` | Per commune: latest water % per track; `status` from the most recent image covering ≥ 50 % of the commune (ready < 10 %, draining 10–30 %, still_wet ≥ 30 %); `worst_*` = worst case across tracks; `tracks_agree` |
 | `stats/vs_dswx_hls.csv`, `vs_dswx_s1.csv`, `calibration.json` | Validation numbers for the "Does it work?" panel |
 
 ## Rules for the UI

@@ -2,7 +2,7 @@
 
     python -m skyradar_nisar.sowing [YYYY-MM-DD]     # reference date, default 2026-11-01 (An Giang winter-spring window)
 Outputs: data/processed/stats/sowing_check.csv, docs/figures/fig5_sowing_check.png
-Status rule (per commune, using the most recent image of every track; worst case across tracks is shown):
+Status rule (per commune): the MOST RECENT image among tracks covering >= 50 % of the commune (worst case across tracks kept as worst_*):
   still_wet  >= 30 % of the commune under water on the latest image
   draining   10-30 %
   ready      < 10 %
@@ -34,16 +34,21 @@ def main(ref="2026-11-01"):
     out = {}
     for (oid, trk), r in latest.items():
         e = out.setdefault(oid, dict(osm_id=oid, commune=r["commune"], province=r["province"], per_track={}))
-        e["per_track"][trk] = (r["date"], float(r["water_pct"]))
+        e["per_track"][trk] = (r["date"], float(r["water_pct"]), float(r["valid_km2"]))
     table = []
     for e in out.values():
-        worst_trk, (d, p) = max(e["per_track"].items(), key=lambda kv: kv[1][1])
+        pt = e["per_track"]
+        worst_trk, (wd, wp, _) = max(pt.items(), key=lambda kv: kv[1][1])
+        # status = most recent image among tracks that cover >= 50 % of the best-covered track (avoid edge slivers)
+        cover = max(v[2] for v in pt.values())
+        cur_trk, (d, p, _) = max(((t, v) for t, v in pt.items() if v[2] >= 0.5 * cover), key=lambda kv: kv[1][0])
         table.append(dict(osm_id=e["osm_id"], commune=e["commune"], province=e["province"], ref_date=ref,
-                          latest_dates=";".join(f"{t}:{v[0]}" for t, v in sorted(e["per_track"].items())),
-                          water_pct_by_track=";".join(f"{t}:{v[1]:.1f}" for t, v in sorted(e["per_track"].items())),
-                          worst_track=worst_trk, worst_date=d, worst_pct=round(p, 1), status=status(p),
-                          tracks_agree=len({status(v[1]) for v in e["per_track"].values()}) == 1))
-    table.sort(key=lambda r: -r["worst_pct"])
+                          latest_dates=";".join(f"{t}:{v[0]}" for t, v in sorted(pt.items())),
+                          water_pct_by_track=";".join(f"{t}:{v[1]:.1f}" for t, v in sorted(pt.items())),
+                          status_track=cur_trk, status_date=d, status_pct=round(p, 1), status=status(p),
+                          worst_track=worst_trk, worst_date=wd, worst_pct=round(wp, 1), worst_status=status(wp),
+                          tracks_agree=len({status(v[1]) for v in pt.values()}) == 1))
+    table.sort(key=lambda r: -r["status_pct"])
     with open(C.PROCESSED / "stats/sowing_check.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(table[0])); w.writeheader(); w.writerows(table)
     cnt = {name: sum(r["status"] == name for r in table) for name, *_ in LEVELS}
@@ -64,14 +69,14 @@ def main(ref="2026-11-01"):
     for r in table[:6]:
         f = next(x for x in fc["features"] if str(x["properties"]["osm_id"]) == str(r["osm_id"]))
         c = shape(f["geometry"]).representative_point()
-        ax.annotate(f"{r['commune'].replace('Xã ', '').replace('Phường ', '')}\n{r['worst_pct']:.0f}%", (c.x, c.y), fontsize=6.5, ha="center")
+        ax.annotate(f"{r["commune"].replace("Xã ", "").replace("Phường ", "")}\n{r["status_pct"]:.0f}%", (c.x, c.y), fontsize=6.5, ha="center")
     from shapely.ops import unary_union
     W, S, E, N = unary_union([shape(f["geometry"]) for f in fc["features"] if f["properties"]["osm_id"] in st]).bounds
     ax.set_aspect(1 / np.cos(np.radians(10.6))); ax.set_xlim(W - .01, E + .01); ax.set_ylim(S - .01, N + .01)
     ax.legend(handles=[Patch(color=c, label=f"{n.replace('_', ' ')} ({lo}–{min(hi, 100)} % water)") for n, lo, hi, c in LEVELS] +
               [Patch(color="#e9ecef", label="no data")], fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     ax.set_title(f"Sowing readiness on the latest NISAR images (27 Oct – 3 Nov 2026), window opens {ref}\n"
-                 "worst case across tracks; © OpenStreetMap contributors", fontsize=9)
+                 "status from the most recent image covering the commune; © OpenStreetMap contributors", fontsize=9)
     ax.set_xticks([]); ax.set_yticks([])
     fig.tight_layout(); (C.ROOT / "docs" / "figures").mkdir(parents=True, exist_ok=True)
     fig.savefig(C.ROOT / "docs" / "figures" / "fig5_sowing_check.png", dpi=150)
