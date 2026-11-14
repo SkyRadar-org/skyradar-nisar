@@ -24,7 +24,7 @@ Run from this folder (`cd water-pulse-be`). For Docker/Vercel builds, bundle the
 | `GET /api/manifest` | dates, tracks, maturity, overlay `bounds` `[[S,W],[N,E]]`, `gibs_template`, water rule, `attribution`; each frame has `png_url` |
 | `GET /api/frames?track=047D` | acquisitions of one track with `png_url` |
 | `GET /static/water/{date}_{track}.png` | water overlay (EPSG:4326, `manifest.bounds`) |
-| `GET /static/summary/{recession,first_flood}.png` | timing maps |
+| `GET /static/summary/{recession,first_flood}_{track}.png` | timing maps per track (merged `{recession,first_flood}.png` kept for compatibility) |
 | `GET /api/communes` | GeoJSON of communes (`timing` per track, `flood_class`) |
 | `GET /api/communes/{osm_id}` | one commune + flood-release class + sowing status |
 | `GET /api/communes/{osm_id}/series?track=` | water % per date, **one line per track** |
@@ -56,7 +56,9 @@ commune boundaries © OpenStreetMap contributors (ODbL). Show the `attribution` 
 
 `/api/frontend` serves the contract used by `water-pulse-fe` while the original `/api/*` responses remain unchanged:
 `/scenes`, `/communes`, `/communes/{osm_id}/series`, `/choropleth?date=&track=`, `/area`, `/summary`, `/validation`.
-Scene bounds are `[west,south,east,north]`; water URLs reference `/static`. Unknown communes/scenes return 404;
+Scene bounds are `[west,south,east,north]`; water URLs reference `/static`. `/summary` returns one season-summary layer
+per track and kind (`id`, `kind` = `first_flood_date`|`recession_date`, `track`, `title`, `png`, `bounds`, `legend`,
+`seasonDates`, `lastDate`, `range`) from `manifest.timing_png_by_track`; the merged-track PNGs are never offered. Unknown communes/scenes return 404;
 invalid tracks return 422. Run `pytest -q` for both original API and adapter tests.
 
 Commune IDs are strings. Status uses `sowing_check.csv`'s latest >=50%-coverage image and maps ready/draining/still_wet

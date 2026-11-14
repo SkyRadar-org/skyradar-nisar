@@ -140,10 +140,37 @@ def area():
             for (d, t), v in sorted(totals.items())]
 
 
+SUMMARY_KINDS = {"first_flood": ("first_flood_date", "First flooded date"),
+                 "recession": ("recession_date", "Drained date")}
+
+
+def _day_label(date):
+    y, m, d = map(int, date.split("-"))
+    return f"{d} {('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')[m - 1]}"
+
+
 @router.get("/summary")
 def summary():
-    # Committed timing PNGs combine tracks. Omit them until per-track exports exist.
-    return []
+    """Season summary layers, one per track and kind. The merged-track PNGs are never offered:
+    viewing geometry differs per track. Legend colours are the stops of the PNG colour ramp."""
+    m = store().manifest
+    by_track, scale = m.get("timing_png_by_track"), m.get("timing_scale")
+    if not by_track or not scale:
+        return []
+    (s, w), (n, e) = m["bounds"]
+    out = []
+    for track, t in sorted(by_track.items()):
+        for key, (kind, title) in SUMMARY_KINDS.items():
+            sc = scale[key]
+            legend = [dict(color=st["color"], label=_day_label(st["date"])) for st in sc["stops"]]
+            if key == "recession":
+                legend.append(dict(color=scale["still_wet"]["color"],
+                                   label=f"Still water at last image ({_day_label(t['last_date'])})"))
+            out.append(dict(id=f"{kind}_{track}", kind=kind, track=track, title=f"{title} · track {track}",
+                            png=f"/static/{t[key]}", bounds=[w, s, e, n], legend=legend,
+                            seasonDates=t["season_dates"], lastDate=t["last_date"],
+                            range=[sc["stops"][0]["date"], sc["stops"][-1]["date"]]))
+    return out
 
 
 @router.get("/validation")

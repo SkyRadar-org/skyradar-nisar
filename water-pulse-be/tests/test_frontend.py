@@ -97,8 +97,6 @@ def test_validation_excludes_calibration_and_preserves_hls_values():
     for result, source in zip(validation["vsHls"], store().validation["vs_dswx_hls"]):
         assert result["f1_nisar"] == source["nisar"]
         assert result["precision_nisar"] is None
-    # Do not offer misleading merged-track summary layers.
-    assert c.get(f"{BASE}/summary").json() == []
 
 
 def test_swot_comparison_source():
