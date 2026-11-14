@@ -23,6 +23,8 @@ def main(kind="s1"):
     out = C.PROCESSED / f"dswx_{kind}"; out.mkdir(parents=True, exist_ok=True)
     G = granules(short, C.AOI, C.START, C.END)
     for k in sorted(qa):
+        if kind == "hls" and k[:10] < C.FLOOD_SEASON_START:
+            continue   # optical scenes before August are almost always cloudy; validation uses the flood season
         nd = dt.date.fromisoformat(k[:10])
         near = sorted([g for g in G if abs((dt.date.fromisoformat(g["time_start"][:10]) - nd).days) <= window],
                       key=lambda g: abs((dt.date.fromisoformat(g["time_start"][:10]) - nd).days))
