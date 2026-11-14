@@ -8,6 +8,8 @@ sowing window?*
 
 > Status: hackathon MVP (14–15 Nov 2026). Most NISAR data used are **PROVISIONAL** products.
 
+> New contributor or AI assistant? Start with [docs/HANDOFF.md](docs/HANDOFF.md) (Vietnamese): repos, status, open tasks, rules.
+
 ## What is in this repository
 
 ```text
