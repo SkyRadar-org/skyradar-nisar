@@ -16,7 +16,7 @@ def main(tracks=None):
     tracks = {k: v for k, v in C.TRACKS.items() if not tracks or k in tracks}
     out = C.PROCESSED / "gcov"; out.mkdir(parents=True, exist_ok=True)
     qa_path = C.PROCESSED / "qa.json"
-    qa = json.loads(qa_path.read_text()) if qa_path.exists() else {}
+    qa = json.loads(qa_path.read_text(encoding="utf-8")) if qa_path.exists() else {}
     grid = Grid()
     jobs = gcov_acquisitions(C.AOI, C.START, C.END, tracks)
     print(f"{len(jobs)} acquisitions", flush=True)

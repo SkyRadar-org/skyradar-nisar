@@ -46,7 +46,7 @@ def main():
         feats.append({"type": "Feature", "properties": {"osm_id": k, "name": tags[k]["name"], "province": p,
                                                         "wikidata": tags[k].get("wikidata")}, "geometry": mapping(g)})
     out = C.DATA / "boundaries"; out.mkdir(parents=True, exist_ok=True)
-    (out / "communes_aoi.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False))
+    (out / "communes_aoi.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
     print(len(feats), "communes written")
 
 

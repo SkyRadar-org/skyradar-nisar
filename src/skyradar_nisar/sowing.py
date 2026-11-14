@@ -23,7 +23,7 @@ def status(p):
 
 
 def main(ref="2026-11-01"):
-    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv")))
+    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv", encoding="utf-8")))
     latest = {}
     for r in rows:
         if float(r["valid_km2"]) < 5:
@@ -49,7 +49,7 @@ def main(ref="2026-11-01"):
                           worst_track=worst_trk, worst_date=wd, worst_pct=round(wp, 1), worst_status=status(wp),
                           tracks_agree=len({status(v[1]) for v in pt.values()}) == 1))
     table.sort(key=lambda r: -r["status_pct"])
-    with open(C.PROCESSED / "stats/sowing_check.csv", "w", newline="") as fh:
+    with open(C.PROCESSED / "stats/sowing_check.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(table[0])); w.writeheader(); w.writerows(table)
     cnt = {name: sum(r["status"] == name for r in table) for name, *_ in LEVELS}
     print("communes:", len(table), cnt, "| tracks agree on status:", sum(r["tracks_agree"] for r in table))
@@ -57,7 +57,7 @@ def main(ref="2026-11-01"):
         print(f"  {r['commune']:22s} {r['province']:18s} {r['water_pct_by_track']}  -> {r['status']}")
 
     # map
-    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text())
+    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text(encoding="utf-8"))
     st = {int(r["osm_id"]): r for r in table}
     fig, ax = plt.subplots(figsize=(10.5, 6.2))
     for f in fc["features"]:

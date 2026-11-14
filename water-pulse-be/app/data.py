@@ -55,7 +55,7 @@ class Store:
                 t = json.loads(t)
             f["properties"]["timing"] = {trk: {k: _num(v) for k, v in d.items()} for trk, d in t.items()}
         cal = DATA_DIR / "stats" / "calibration.json"
-        self.validation = dict(calibration=json.loads(cal.read_text()) if cal.exists() else None,
+        self.validation = dict(calibration=json.loads(cal.read_text(encoding="utf-8")) if cal.exists() else None,
                                vs_dswx_s1=_csv("vs_dswx_s1.csv"), vs_dswx_hls=_csv("vs_dswx_hls.csv"))
 
     def commune_summary(self, oid):

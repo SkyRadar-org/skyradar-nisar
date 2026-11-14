@@ -26,7 +26,7 @@ def _rd(p):
 
 
 def commune_zones(grid):
-    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text())
+    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text(encoding="utf-8"))
     to = Transformer.from_crs(4326, grid.epsg, always_xy=True).transform
     zone = rasterize([(stransform(to, shape(f["geometry"])), i + 1) for i, f in enumerate(fc["features"])],
                      out_shape=grid.shape, transform=grid.transform, fill=0, dtype="int32")
@@ -37,7 +37,7 @@ def main():
     P = C.PROCESSED; grid = Grid()
     for d in ["water", "summary", "stats"]:
         (P / d).mkdir(parents=True, exist_ok=True)
-    qa = json.loads((P / "qa.json").read_text()); keys = sorted(qa)
+    qa = json.loads((P / "qa.json").read_text(encoding="utf-8")); keys = sorted(qa)
     s1 = [P / f"dswx_s1/{k}_WTR.tif" for k in keys if (P / f"dswx_s1/{k}_WTR.tif").exists()]
     perm = permanent_water([_rd(p) for p in s1]) if s1 else np.zeros(grid.shape, bool)
     zone, props = commune_zones(grid); nz = len(props) + 1
@@ -91,7 +91,7 @@ def main():
 
 
 def _write(path, rows):
-    with open(path, "w", newline="") as fh:
+    with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     print("wrote", path, len(rows), "rows")
 

@@ -19,7 +19,7 @@ PRODUCTS = {"s1": ("OPERA_L3_DSWX-S1_V1", 1, [0, 1, 3]), "hls": ("OPERA_L3_DSWX-
 def main(kind="s1"):
     short, window, valid_classes = PRODUCTS[kind]
     grid = Grid()
-    qa = json.loads((C.PROCESSED / "qa.json").read_text())
+    qa = json.loads((C.PROCESSED / "qa.json").read_text(encoding="utf-8"))
     raw = C.RAW / f"dswx_{kind}"; raw.mkdir(parents=True, exist_ok=True)
     out = C.PROCESSED / f"dswx_{kind}"; out.mkdir(parents=True, exist_ok=True)
     G = granules(short, C.AOI, C.START, C.END)

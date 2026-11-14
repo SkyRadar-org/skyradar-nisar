@@ -25,7 +25,7 @@ def get_tile(tpl, date, x, y, z=Z):
 
 
 def main():
-    m = json.loads((C.WEB / "manifest.json").read_text())
+    m = json.loads((C.WEB / "manifest.json").read_text(encoding="utf-8"))
     tpl = m["gibs_template"]
     (S, W), (N, E) = m["bounds"]
     x0, y0 = tile_xy(N, W); x1, y1 = tile_xy(S, E)

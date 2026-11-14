@@ -25,7 +25,7 @@ def scores(pred, ref):
 
 def main():
     P = C.PROCESSED; out = P / "validation"; out.mkdir(parents=True, exist_ok=True)
-    qa = json.loads((P / "qa.json").read_text())
+    qa = json.loads((P / "qa.json").read_text(encoding="utf-8"))
     keys = [k for k in sorted(qa) if (P / f"dswx_s1/{k}_WTR.tif").exists()]
     load = lambda k: (read_db(P / f"gcov/{k}_HH.tif"), read_db(P / f"gcov/{k}_HV.tif"), _rd(P / f"dswx_s1/{k}_WTR.tif"))
 
@@ -81,7 +81,7 @@ def main():
 
 
 def _write(path, rows):
-    with open(path, "w", newline="") as fh:
+    with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     print("wrote", path)
 

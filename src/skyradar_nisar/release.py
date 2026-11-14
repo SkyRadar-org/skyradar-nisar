@@ -72,9 +72,9 @@ def figure(rows):
 
 
 def main():
-    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv")))
+    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv", encoding="utf-8")))
     best = classify(rows)
-    with open(C.PROCESSED / "stats/commune_flood_class.csv", "w", newline="") as fh:
+    with open(C.PROCESSED / "stats/commune_flood_class.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(best[0])); w.writeheader(); w.writerows(best)
     print(collections.Counter(r["cls"] for r in best))
     figure(rows)

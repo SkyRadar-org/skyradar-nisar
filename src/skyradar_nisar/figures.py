@@ -23,7 +23,7 @@ def _rd(p):
 
 
 def fig1():
-    P = C.PROCESSED; qa = json.loads((P / "qa.json").read_text())
+    P = C.PROCESSED; qa = json.loads((P / "qa.json").read_text(encoding="utf-8"))
     s1 = {k: _rd(P / f"dswx_s1/{k}_WTR.tif") for k in qa if (P / f"dswx_s1/{k}_WTR.tif").exists()}
     perm = permanent_water(list(s1.values()))
     ser = defaultdict(list)
@@ -44,7 +44,7 @@ def fig1():
 
 
 def fig2():
-    rows = list(csv.DictReader(open(C.PROCESSED / "validation/vs_dswx_hls.csv")))
+    rows = list(csv.DictReader(open(C.PROCESSED / "validation/vs_dswx_hls.csv", encoding="utf-8")))
     rows.sort(key=lambda r: r["key"])
     lab = [r["key"][5:10].replace("-", "/") + "\n" + r["key"][11:] for r in rows]
     x = np.arange(len(rows)); w = .38
@@ -57,7 +57,7 @@ def fig2():
 
 
 def fig3(names=("Xã Sơn Kiên", "Xã Hòn Đất", "Xã Tây Phú", "Xã Vĩnh Hanh")):
-    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv")))
+    rows = list(csv.DictReader(open(C.PROCESSED / "stats/commune_water_by_date.csv", encoding="utf-8")))
     fig, axes = plt.subplots(1, len(names), figsize=(12, 3.2), sharey=True)
     for ax, nm in zip(axes, names):
         for trk in COL:

@@ -31,7 +31,7 @@ def main():
     P, OUT = C.PROCESSED, C.WEB
     for d in ["water", "summary", "stats"]:
         (OUT / d).mkdir(parents=True, exist_ok=True)
-    qa = json.loads((P / "qa.json").read_text())
+    qa = json.loads((P / "qa.json").read_text(encoding="utf-8"))
     frames, bounds = [], None
     for k in sorted(qa):
         f = P / f"water/{k}_water.tif"
@@ -58,14 +58,14 @@ def main():
         rgba[a == 9999] = (130, 0, 140, 210)
         Image.fromarray(rgba).save(OUT / f"summary/{name.replace('_day', '')}.png", optimize=True)
     # communes with stats
-    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text())
-    timing = list(csv.DictReader(open(P / "stats/commune_flood_timing.csv")))
+    fc = json.loads((C.DATA / "boundaries" / "communes_aoi.geojson").read_text(encoding="utf-8"))
+    timing = list(csv.DictReader(open(P / "stats/commune_flood_timing.csv", encoding="utf-8")))
     by = {}
     for r in timing:
         by.setdefault(int(r["osm_id"]), {})[r["track"]] = {k: r[k] for k in ("peak_pct", "peak_date", "first_date_ge20pct",
                                                                             "halved_after_peak", "last_date", "last_pct")}
     cls_path = P / "stats/commune_flood_class.csv"
-    cls = {int(r["osm_id"]): r["cls"] for r in csv.DictReader(open(cls_path))} if cls_path.exists() else {}
+    cls = {int(r["osm_id"]): r["cls"] for r in csv.DictReader(open(cls_path, encoding="utf-8"))} if cls_path.exists() else {}
     feats = []
     for f in fc["features"]:
         g = shape(f["geometry"]).simplify(0.0004, preserve_topology=True)
@@ -73,7 +73,7 @@ def main():
         feats.append({"type": "Feature", "properties": {**f["properties"], "timing": by.get(oid, {}),
                                                        "flood_class": cls.get(oid)},   # A early-in/early-out, B other, C still wet
                       "geometry": mapping(g)})
-    (OUT / "communes.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False))
+    (OUT / "communes.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
     for src in list((P / "stats").glob("*.csv")) + list((P / "validation").glob("*.csv")) + list((P / "validation").glob("*.json")):
         shutil.copy(src, OUT / "stats" / src.name)
     (OUT / "manifest.json").write_text(json.dumps(dict(
@@ -83,7 +83,7 @@ def main():
                         day_zero="2026-06-01", legend="blue=early, red=late, purple=still wet at last image"),
         gibs_note="GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
         gibs_template="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
-        attribution=ATTRIBUTION), indent=1, ensure_ascii=False))
+        attribution=ATTRIBUTION), indent=1, ensure_ascii=False), encoding="utf-8")
     print(len(frames), "frames exported to", OUT)
 
 
