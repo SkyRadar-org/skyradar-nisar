@@ -1,0 +1,146 @@
+{
+  "beforeFix": {
+    "before": {
+      "context": {
+        "bottom": 136.5,
+        "height": 84.5,
+        "left": 0,
+        "right": 1280,
+        "top": 52,
+        "width": 1280,
+        "x": 0,
+        "y": 52
+      },
+      "map": {
+        "bottom": 513.25,
+        "height": 376.75,
+        "left": 280,
+        "right": 1280,
+        "top": 136.5,
+        "width": 1000,
+        "x": 280,
+        "y": 136.5
+      },
+      "note": "115/140 xã có ảnh đủ phủ để đánh giá. Quan sát từ 27/10/2026 đến 03/11/2026, mỗi xã có ngày riêng. Đây là số liệu từ ảnh vệ tinh, không phải tình trạng trực tiếp hôm nay.",
+      "timeline": {
+        "bottom": 692,
+        "height": 178.75,
+        "left": 0,
+        "right": 1280,
+        "top": 513.25,
+        "width": 1280,
+        "x": 0,
+        "y": 513.25
+      },
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    "during": {
+      "context": {
+        "bottom": 156,
+        "height": 104,
+        "left": 0,
+        "right": 1280,
+        "top": 52,
+        "width": 1280,
+        "x": 0,
+        "y": 52
+      },
+      "map": {
+        "bottom": 536.75,
+        "height": 380.75,
+        "left": 280,
+        "right": 1280,
+        "top": 156,
+        "width": 1000,
+        "x": 280,
+        "y": 156
+      },
+      "note": "Ảnh ghép từ quan trắc cũ tối đa 12 ngày; không phải ảnh chụp đồng thời hoặc tình trạng trực tiếp hôm nay. 134/140 xã có quan trắc gần đây. Thiếu quan trắc không đồng nghĩa đã khô.",
+      "timeline": {
+        "bottom": 692,
+        "height": 155.25,
+        "left": 0,
+        "right": 1280,
+        "top": 536.75,
+        "width": 1280,
+        "x": 0,
+        "y": 536.75
+      }
+    }
+  },
+  "afterFix": {
+    "before": {
+      "context": {
+        "bottom": 156,
+        "height": 104,
+        "left": 0,
+        "right": 1280,
+        "top": 52,
+        "width": 1280,
+        "x": 0,
+        "y": 52
+      },
+      "map": {
+        "bottom": 513.25,
+        "height": 357.25,
+        "left": 280,
+        "right": 1280,
+        "top": 156,
+        "width": 1000,
+        "x": 280,
+        "y": 156
+      },
+      "timeline": {
+        "bottom": 692,
+        "height": 178.75,
+        "left": 0,
+        "right": 1280,
+        "top": 513.25,
+        "width": 1280,
+        "x": 0,
+        "y": 513.25
+      }
+    },
+    "after": {
+      "context": {
+        "bottom": 156,
+        "height": 104,
+        "left": 0,
+        "right": 1280,
+        "top": 52,
+        "width": 1280,
+        "x": 0,
+        "y": 52
+      },
+      "map": {
+        "bottom": 513.25,
+        "height": 357.25,
+        "left": 280,
+        "right": 1280,
+        "top": 156,
+        "width": 1000,
+        "x": 280,
+        "y": 156
+      },
+      "timeline": {
+        "bottom": 692,
+        "height": 178.75,
+        "left": 0,
+        "right": 1280,
+        "top": 513.25,
+        "width": 1280,
+        "x": 0,
+        "y": 513.25
+      }
+    }
+  },
+  "stable": true,
+  "viewport": [
+    1280,
+    720
+  ],
+  "method": "Read-only DOM bounding rectangles before Play and on the next acquisition; user also confirmed the fix."
+}

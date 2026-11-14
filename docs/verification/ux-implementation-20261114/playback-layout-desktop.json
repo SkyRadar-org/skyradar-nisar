@@ -1,0 +1,69 @@
+{
+  "before": {
+    "context": {
+      "bottom": 156,
+      "height": 104,
+      "left": 0,
+      "right": 1440,
+      "top": 52,
+      "width": 1440,
+      "x": 0,
+      "y": 52
+    },
+    "map": {
+      "bottom": 697.25,
+      "height": 541.25,
+      "left": 280,
+      "right": 1440,
+      "top": 156,
+      "width": 1160,
+      "x": 280,
+      "y": 156
+    },
+    "mapRatio": 0.6013888888888889,
+    "timeline": {
+      "bottom": 872,
+      "height": 174.75,
+      "left": 0,
+      "right": 1440,
+      "top": 697.25,
+      "width": 1440,
+      "x": 0,
+      "y": 697.25
+    }
+  },
+  "after": {
+    "context": {
+      "bottom": 156,
+      "height": 104,
+      "left": 0,
+      "right": 1440,
+      "top": 52,
+      "width": 1440,
+      "x": 0,
+      "y": 52
+    },
+    "map": {
+      "bottom": 697.25,
+      "height": 541.25,
+      "left": 280,
+      "right": 1440,
+      "top": 156,
+      "width": 1160,
+      "x": 280,
+      "y": 156
+    },
+    "mapRatio": 0.6013888888888889,
+    "timeline": {
+      "bottom": 872,
+      "height": 174.75,
+      "left": 0,
+      "right": 1440,
+      "top": 697.25,
+      "width": 1440,
+      "x": 0,
+      "y": 697.25
+    }
+  },
+  "stable": true
+}

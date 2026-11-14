@@ -1,0 +1,59 @@
+{
+  "time_gmt7": "2026-11-14T19:28:15.266113+07:00",
+  "domain": "https://nisar-flood.skyradar.vn",
+  "backend_merge_sha": "e6ab7b3c21f93ba1d0398239b2519e81fbde636e",
+  "frontend_merge_sha": "8e9daf8a9b036c9da57b8842fb810406c9f52668",
+  "workflow_run_id": 43594663795,
+  "workflow_url": "https://github.com/SkyRadar-org/water-pulse-fe/actions/runs/43594663795",
+  "workflow_jobs_verified_success": [
+    "build",
+    "test",
+    "deploy",
+    "verify production"
+  ],
+  "checks": [
+    {
+      "path": "/health",
+      "status": 200,
+      "valid_json": true
+    },
+    {
+      "path": "/api/frontend/communes",
+      "status": 200,
+      "valid_json": true,
+      "assessed": 115,
+      "insufficient": 25,
+      "groups_low_medium_high": [
+        43,
+        39,
+        33
+      ]
+    },
+    {
+      "path": "/api/frontend/scenes",
+      "status": 200,
+      "valid_json": true,
+      "scenes": 33
+    },
+    {
+      "path": "/api/frontend/validation",
+      "status": 200,
+      "valid_json": true,
+      "hls": "14/16",
+      "swot_same_pixel": "11/12"
+    },
+    {
+      "path": "/api/not-a-real-endpoint",
+      "status": 404,
+      "valid_json": true
+    }
+  ],
+  "production_scripts": [
+    "/assets/index-BgPVFb1p.js"
+  ],
+  "local_verified_scripts": [
+    "/assets/index-BgPVFb1p.js"
+  ],
+  "scripts_match": true,
+  "note": "urllib mặc định nhận403; curl với User-Agent tương thích trả200. Không thay đổi WAF hoặc quyền truy cập."
+}

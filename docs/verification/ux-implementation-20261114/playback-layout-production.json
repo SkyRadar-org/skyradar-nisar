@@ -1,0 +1,18 @@
+{
+  "time_gmt7": "2026-11-14T19:39:48.587436+07:00",
+  "frontend_main": "5ccc76caa1d2a741f28c111571028ca0d2176f56",
+  "workflow_run": 43595784202,
+  "workflow_url": "https://github.com/SkyRadar-org/water-pulse-fe/actions/runs/43595784202",
+  "workflow_result": "success (build/test/deploy/verify)",
+  "assets_match_local_build": true,
+  "assets": [
+    "/assets/index-CvJScJIv.js",
+    "/assets/index-CPmPoxsm.css"
+  ],
+  "assessed_communes": 115,
+  "water_groups_low_medium_high": [
+    43,
+    39,
+    33
+  ]
+}
