@@ -22,6 +22,7 @@ def main(kind="s1"):
     qa = json.loads((C.PROCESSED / "qa.json").read_text(encoding="utf-8"))
     raw = C.RAW / f"dswx_{kind}"; raw.mkdir(parents=True, exist_ok=True)
     out = C.PROCESSED / f"dswx_{kind}"; out.mkdir(parents=True, exist_ok=True)
+    failed = {}   # acquisition key -> URLs that could not be downloaded
     G = granules(short, C.AOI, C.START, C.END)
     for k in sorted(qa):
         if kind == "hls" and k[:10] < C.FLOOD_SEASON_START:
@@ -36,12 +37,14 @@ def main(kind="s1"):
                 continue
             fn = raw / u.rsplit("/", 1)[-1]
             if not fn.exists():
+                err = None
                 for a in range(5):
                     try:
                         fn.write_bytes(urllib.request.urlopen(urllib.request.Request(u, headers=_auth_headers()), timeout=180).read()); break
-                    except Exception:
-                        time.sleep(5 * (a + 1))
+                    except Exception as e:
+                        err = e; time.sleep(5 * (a + 1))
                 else:
+                    failed.setdefault(k, []).append(f"{u} ({err})")
                     continue
             with rasterio.open(fn) as s:
                 dst = np.full(grid.shape, 255, np.uint8)
@@ -49,9 +52,21 @@ def main(kind="s1"):
                           dst_crs=f"EPSG:{grid.epsg}", resampling=Resampling.nearest, src_nodata=255, dst_nodata=255)
             fill = ~np.isin(mosaic, valid_classes) & np.isin(dst, valid_classes)   # closest date wins
             mosaic[fill] = dst[fill]
+        if k in failed:   # never write a partial reference mosaic: calibration/validation would silently use it
+            (out / f"{k}_WTR.tif").unlink(missing_ok=True)
+            print(k, "SKIPPED:", len(failed[k]), "granule(s) failed to download", flush=True)
+            continue
         with rasterio.open(out / f"{k}_WTR.tif", "w", **grid.profile("uint8", 255)) as d:
             d.write(mosaic, 1)
         print(k, len(near), "granules, valid", round(float(np.isin(mosaic, valid_classes).mean() * 100), 1), "%", flush=True)
+    if failed:
+        print(f"\nERROR: {sum(map(len, failed.values()))} DSWx file(s) failed for {len(failed)} acquisition(s); "
+              "their mosaics were not written. Check EARTHDATA_TOKEN and that your Earthdata account can access "
+              "PO.DAAC (HTTP 401 = missing or invalid token), then rerun (downloaded files are kept).", file=sys.stderr)
+        for k, urls in failed.items():
+            for u in urls:
+                print(" ", k, u, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
