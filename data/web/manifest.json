@@ -410,6 +410,118 @@
   "day_zero": "2026-06-01",
   "legend": "blue=early, red=late, purple=still wet at last image"
  },
+ "timing_png_by_track": {
+  "047D": {
+   "season_dates": [
+    "2026-08-16",
+    "2026-08-28",
+    "2026-09-09",
+    "2026-09-21",
+    "2026-10-03",
+    "2026-10-15",
+    "2026-10-27"
+   ],
+   "last_date": "2026-10-27",
+   "recession": "summary/recession_047D.png",
+   "first_flood": "summary/first_flood_047D.png",
+   "day_zero": "2026-06-01",
+   "legend": "blue=early, red=late, purple=still wet at last image of this track"
+  },
+  "083A": {
+   "season_dates": [
+    "2026-08-18",
+    "2026-08-30",
+    "2026-09-11",
+    "2026-09-23",
+    "2026-10-05",
+    "2026-10-17",
+    "2026-10-29"
+   ],
+   "last_date": "2026-10-29",
+   "recession": "summary/recession_083A.png",
+   "first_flood": "summary/first_flood_083A.png",
+   "day_zero": "2026-06-01",
+   "legend": "blue=early, red=late, purple=still wet at last image of this track"
+  },
+  "148D": {
+   "season_dates": [
+    "2026-08-11",
+    "2026-08-23",
+    "2026-09-04",
+    "2026-09-16",
+    "2026-09-28",
+    "2026-10-10",
+    "2026-10-22",
+    "2026-11-03"
+   ],
+   "last_date": "2026-11-03",
+   "recession": "summary/recession_148D.png",
+   "first_flood": "summary/first_flood_148D.png",
+   "day_zero": "2026-06-01",
+   "legend": "blue=early, red=late, purple=still wet at last image of this track"
+  }
+ },
+ "timing_scale": {
+  "day_zero": "2026-06-01",
+  "outside_range": "transparent",
+  "still_wet": {
+   "color": "#82008c",
+   "alpha": 210,
+   "label": "still wet at the last image of the track"
+  },
+  "recession": {
+   "lo_day": 115,
+   "hi_day": 160,
+   "stops": [
+    {
+     "day": 115,
+     "date": "2026-09-24",
+     "color": "#00b4ff"
+    },
+    {
+     "day": 130,
+     "date": "2026-10-09",
+     "color": "#5592aa"
+    },
+    {
+     "day": 145,
+     "date": "2026-10-24",
+     "color": "#aa7155"
+    },
+    {
+     "day": 160,
+     "date": "2026-11-08",
+     "color": "#ff5000"
+    }
+   ]
+  },
+  "first_flood": {
+   "lo_day": 60,
+   "hi_day": 150,
+   "stops": [
+    {
+     "day": 60,
+     "date": "2026-07-31",
+     "color": "#00b4ff"
+    },
+    {
+     "day": 90,
+     "date": "2026-08-30",
+     "color": "#5592aa"
+    },
+    {
+     "day": 120,
+     "date": "2026-09-29",
+     "color": "#aa7155"
+    },
+    {
+     "day": 150,
+     "date": "2026-10-29",
+     "color": "#ff5000"
+    }
+   ]
+  }
+ },
  "gibs_note": "GIBS NISAR tiles render correctly only up to zoom 10 (higher zooms are corrupted as of 2026-11-14): set maxzoom 10, or use radar_jpg",
  "gibs_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
  "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC); SWOT L2 HR Raster (NASA/CNES, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team.",
