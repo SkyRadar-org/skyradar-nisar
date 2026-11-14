@@ -9,7 +9,7 @@
 - Các trường chính: tên, tóm tắt, demo, dự án cuối, chi tiết, dùng AI, dữ liệu NASA và tài liệu tham khảo. Nêu rõ dữ liệu thực, giới hạn và hướng phát triển.
 - Nội dung hình/video tạo bởi AI cần nhãn; âm thanh tổng hợp cần khai báo trong mô tả và metadata. Bản video có nhãn AI hỗ trợ dựng/giọng tổng hợp và metadata VieNeu; không tạo hoặc sửa logo NASA.
 - Trang công khai của đội khi đọc chỉ hiện tên, đề Dancing with the SARs và thông báo chờ dự án; chưa thấy mô tả hoặc demo. Phiên trình duyệt chưa đăng nhập, nên không kết luận về bản nháp riêng.
-- **Chưa sửa, lưu hay nộp biểu mẫu**; chưa chấp nhận điều khoản thay đội. Đây là ghi nhận quy định để chuẩn bị sản phẩm.
+- Trạng thái lúc đọc hướng dẫn: chưa sửa/nộp biểu mẫu. **Cập nhật sau đó: đã xác minh trang hiển thị Project Submitted for Judging, Last Submitted 15 November 2026 01:13 GMT+7**, sau khi chủ đội xác nhận điều khoản và quyền sử dụng tài liệu.
 
 ## Thông điệp trọng tâm
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15 — NASA submission verified (Codex)
+
+- Fill the SkyRadar project form with an application-first English summary/details, public 29.8-second bilingual video and app links, NASA resources and AI-use disclosures.
+- After explicit owner confirmation of the terms and originality declarations, observe `Project Submitted for Judging` with Last Submitted `15 November 2026 01:13` GMT+7. The submitted status was already present at the final pre-action check; do not send a duplicate submission.
+- Preserve an exact readback in `docs/SUBMISSION_STATUS_20261115.md`, update the handoff and demo submission status. Private browser evidence stays outside the repository.
+
 ## 2026-11-15 — Crop preparation and NISAR workflow demo revision (Codex, Gemini reviewed)
 
 - Replace the bilingual deck and video with an operational story: target commune checks, monitor drainage and prepare the rice crop; illustrate different follow-up questions in Vĩnh Hưng, Tân Hồng and Lấp Vò.

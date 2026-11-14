@@ -28,9 +28,9 @@ Based on the brief, agronomic conditions and data snapshot above. The owner's ex
 
 ## Nộp bài / Submission
 
-NASA yêu cầu slide tiếng Anh; video được nói tiếng Việt nếu có phụ đề Anh. Bộ slide này giữ song ngữ theo yêu cầu đội; **đề xuất dùng video làm liên kết demo**. Chưa sửa hay nộp trang NASA. Hạn chấm Hà Nội là 11:00 ngày 15/11/2026 GMT+7, hạn toàn cầu 23:59 cùng ngày. Xem [nguồn và chi tiết](YEU_CAU_NOP_BAI.md).
+NASA yêu cầu slide tiếng Anh; video được nói tiếng Việt nếu có phụ đề Anh. Bộ slide này giữ song ngữ theo yêu cầu đội; **đề xuất dùng video làm liên kết demo**. **Đã xác minh nộp chấm lúc 01:13 ngày 15/11/2026 GMT+7**; trang hiển thị “Project Submitted for Judging”. Hạn chấm Hà Nội là 11:00 ngày 15/11/2026 GMT+7, hạn toàn cầu 23:59 cùng ngày. Xem [nguồn và chi tiết](YEU_CAU_NOP_BAI.md).
 
-NASA requires English slides; Vietnamese video narration is allowed with English subtitles. This deck preserves the team's requested bilingual layout; **the video is the proposed demo-link choice**. No NASA form was edited or submitted. See the linked guide notes for deadlines and sources.
+NASA requires English slides; Vietnamese video narration is allowed with English subtitles. This deck preserves the team's requested bilingual layout; **the video is the proposed demo-link choice**. **Submission verified at 01:13 on 15 November 2026 GMT+7**; the team page shows “Project Submitted for Judging”. See the linked guide notes for deadlines and sources.
 
 ## Số liệu và giới hạn / Data and limitations
 

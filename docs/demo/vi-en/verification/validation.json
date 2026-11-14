@@ -84,8 +84,16 @@
     "accepted_changes": "Clarify app supports workflow steps 2–3; show 29/33 provisional inputs. Trend counts retained in notes."
   },
   "external_submission": {
-    "project_page_edited": false,
-    "submitted": false
+    "project_page_edited": true,
+    "submitted": true,
+    "verified_in_authenticated_ui": true,
+    "status_text": "Project Submitted for Judging",
+    "last_saved_ui": "15 November 2026 01:13",
+    "last_submitted_ui": "15 November 2026 01:13",
+    "timezone": "GMT+7",
+    "public_anonymous_readback_verified": false,
+    "owner_terms_confirmation": "explicit at action time",
+    "duplicate_submission_sent": false
   },
   "files": {
     "SkyRadar_Water_Pulse_VI_EN.pptx": {
@@ -109,8 +117,8 @@
       "sha256": "2c5f881060933b840baddf79f302f406e003b96c444033ca888f8a02e4e467e3"
     },
     "YEU_CAU_NOP_BAI.md": {
-      "bytes": 3296,
-      "sha256": "c5c2c8223003f27555f548fb2737887db303a8d754cd110c5e70f1e454f4e24c"
+      "bytes": 3432,
+      "sha256": "a330082bc4135b5fb4575fb1b6f85370745ef0d69f866554c1e9e2214785de70"
     },
     "Ghi_chu_thuyet_trinh_VI_EN.md": {
       "bytes": 8165,
@@ -121,8 +129,8 @@
       "sha256": "393cb2267810695d857b624891cbeb3dcd18dc33311e6ccb592edb915fa4f55c"
     },
     "README.md": {
-      "bytes": 7354,
-      "sha256": "c58675d9e4a73600db28c191cbb7b1b8f11fd85290419ac11d89bd9b434a6a70"
+      "bytes": 7522,
+      "sha256": "b855b55c58935c3d6c157c64f5526fef7bc128f3376c2726abef540b688e9c58"
     }
   }
 }

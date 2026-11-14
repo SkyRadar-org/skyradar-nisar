@@ -8,6 +8,8 @@ Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ l
 
 **Bản sửa ứng dụng ngày 15/11/2026 (Codex + Gemini):** đã thay bộ demo tại [docs/demo/vi-en](demo/vi-en/README.md), lấy quy trình canh tác làm trọng tâm và giải thích partial HDF5. Đã kiểm 7 slide/PDF, 32 giá trị biểu đồ, video 29,8 giây, VieNeu và metadata. App hỗ trợ quan trắc/chọn xã; lịch gieo và vận hành cống/bơm do địa phương quyết định. [Hướng dẫn đã đọc](demo/vi-en/YEU_CAU_NOP_BAI.md): chấm Hà Nội 11:00 ngày 15/11 GMT+7, toàn cầu 23:59; NASA yêu cầu slide EN hoặc video có phụ đề EN. Chưa sửa/nộp trang NASA. Bản giao nằm trên nhánh `codex/bilingual-demo-vieneu-20261115`, chưa merge/deploy.
 
+**VERIFIED — ĐÃ NỘP CHẤM (15/11/2026 01:13 GMT+7):** giao diện SkyRadar hiển thị `Project Submitted for Judging`, kèm `Last Submitted: 15 November 2026 01:13`. Chủ đội đã xác nhận điều khoản và quyền sử dụng tài liệu. Xem [bản đọc lại bài nộp](SUBMISSION_STATUS_20261115.md). Trạng thái này thay cho các ghi chú “chưa nộp” ở checkpoint demo trước đó; không nộp lại khi chưa có thay đổi được yêu cầu.
+
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---
