@@ -17,3 +17,7 @@ __pycache__/
 *.pyc
 .venv/
 .ipynb_checkpoints/
+
+# backend: bundled data copy for deployment (source of truth is data/web)
+water-pulse-be/data/
+.pytest_cache/

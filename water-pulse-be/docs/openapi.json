@@ -1,0 +1,550 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "SkyRadar NISAR Water Pulse API",
+  "description": "Commune-level flood and recession monitoring for Mekong Delta rice land from NISAR L-band radar. Data: NASA/JPL-Caltech & ISRO NISAR (ASF DAAC), OPERA DSWx (PO.DAAC), © OpenStreetMap contributors.",
+  "version": "0.2.0"
+ },
+ "paths": {
+  "/health": {
+   "get": {
+    "summary": "Health",
+    "operationId": "health_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/manifest": {
+   "get": {
+    "summary": "Manifest",
+    "description": "Dates, tracks, maturity, overlay bounds ([[S, W], [N, E]]), GIBS tile template, water rule, attribution.",
+    "operationId": "manifest_api_manifest_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/frames": {
+   "get": {
+    "summary": "Frames",
+    "description": "NISAR acquisitions (one per date and track) with the URL of the water overlay.",
+    "operationId": "frames_api_frames_get",
+    "parameters": [
+     {
+      "name": "track",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "047D",
+          "083A",
+          "148D"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Track"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/communes": {
+   "get": {
+    "summary": "Communes",
+    "description": "GeoJSON of the communes with per-track timing and flood-release class.",
+    "operationId": "communes_api_communes_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/communes/{osm_id}": {
+   "get": {
+    "summary": "Commune",
+    "operationId": "commune_api_communes__osm_id__get",
+    "parameters": [
+     {
+      "name": "osm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Osm Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/communes/{osm_id}/series": {
+   "get": {
+    "summary": "Commune Series",
+    "description": "Water % per acquisition date — one line per track (never average tracks: viewing geometry differs).",
+    "operationId": "commune_series_api_communes__osm_id__series_get",
+    "parameters": [
+     {
+      "name": "osm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Osm Id"
+      }
+     },
+     {
+      "name": "track",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "047D",
+          "083A",
+          "148D"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Track"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ranking": {
+   "get": {
+    "summary": "Ranking",
+    "description": "Communes ranked by water at the last image (default) or at the peak, for one track.",
+    "operationId": "ranking_api_ranking_get",
+    "parameters": [
+     {
+      "name": "metric",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "last_pct",
+        "peak_pct"
+       ],
+       "type": "string",
+       "default": "last_pct",
+       "title": "Metric"
+      }
+     },
+     {
+      "name": "track",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "047D",
+        "083A",
+        "148D"
+       ],
+       "type": "string",
+       "default": "047D",
+       "title": "Track"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 200,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "province",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Province"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sowing-check": {
+   "get": {
+    "summary": "Sowing Check",
+    "description": "Sowing readiness per commune on the most recent covering image: ready < 10 %, draining 10-30 %, still_wet >= 30 % water.",
+    "operationId": "sowing_check_api_sowing_check_get",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "ready",
+          "draining",
+          "still_wet"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     },
+     {
+      "name": "province",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Province"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/flood-release": {
+   "get": {
+    "summary": "Flood Release",
+    "description": "Flood-release timing class per commune: A water in early & out while the river is high (controlled release timing),\nB other, C still wet at the last image.",
+    "operationId": "flood_release_api_flood_release_get",
+    "parameters": [
+     {
+      "name": "cls",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "A",
+          "B",
+          "C"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cls"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/validation": {
+   "get": {
+    "summary": "Validation",
+    "description": "Calibration (vs OPERA DSWx-S1 on 2 dates) and validation (vs DSWx-S1 and optical DSWx-HLS).",
+    "operationId": "validation_api_validation_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/search": {
+   "get": {
+    "summary": "Search",
+    "description": "Find communes by name, accent-insensitive (\"son kien\" -> Xã Sơn Kiên).",
+    "operationId": "search_api_search_get",
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "minLength": 2,
+       "title": "Q"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 50,
+       "minimum": 1,
+       "default": 10,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/provinces": {
+   "get": {
+    "summary": "Provinces",
+    "description": "Per-province overview: communes by sowing status and by flood-release class.",
+    "operationId": "provinces_api_provinces_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  }
+ }
+}

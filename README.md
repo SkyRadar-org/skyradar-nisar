@@ -28,6 +28,7 @@ src/skyradar_nisar/
   figures.py      slide figures (docs/figures)
 data/boundaries/communes_aoi.geojson   140 communes in the demo AOI (OSM, ODbL)
 data/web/                              PNG overlays + manifest + commune GeoJSON + CSV stats (for the web app)
+water-pulse-be/                        FastAPI backend serving data/web (see water-pulse-be/README.md)
 ```
 
 Large rasters (`data/raw`, `data/processed`) are **not** committed; the pipeline regenerates them.
