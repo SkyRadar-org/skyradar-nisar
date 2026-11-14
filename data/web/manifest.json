@@ -1,0 +1,302 @@
+{
+ "aoi": [
+  104.95,
+  10.25,
+  106.0,
+  11.0
+ ],
+ "bounds": [
+  [
+   10.248309039969229,
+   104.94983668952554
+  ],
+  [
+   11.001813925578158,
+   106.00248447217747
+  ]
+ ],
+ "frames": [
+  {
+   "key": "2026-06-17_047D",
+   "date": "2026-06-17",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-06-17_047D.png",
+   "gibs_date": "2026-06-17"
+  },
+  {
+   "key": "2026-06-19_083A",
+   "date": "2026-06-19",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-06-19_083A.png",
+   "gibs_date": "2026-06-19"
+  },
+  {
+   "key": "2026-06-24_148D",
+   "date": "2026-06-24",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-06-24_148D.png",
+   "gibs_date": "2026-06-24"
+  },
+  {
+   "key": "2026-06-29_047D",
+   "date": "2026-06-29",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-06-29_047D.png",
+   "gibs_date": "2026-06-29"
+  },
+  {
+   "key": "2026-07-01_083A",
+   "date": "2026-07-01",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-07-01_083A.png",
+   "gibs_date": "2026-07-01"
+  },
+  {
+   "key": "2026-07-06_148D",
+   "date": "2026-07-06",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-07-06_148D.png",
+   "gibs_date": "2026-07-06"
+  },
+  {
+   "key": "2026-07-11_047D",
+   "date": "2026-07-11",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-07-11_047D.png",
+   "gibs_date": "2026-07-11"
+  },
+  {
+   "key": "2026-07-13_083A",
+   "date": "2026-07-13",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-07-13_083A.png",
+   "gibs_date": "2026-07-13"
+  },
+  {
+   "key": "2026-07-18_148D",
+   "date": "2026-07-18",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-07-18_148D.png",
+   "gibs_date": "2026-07-18"
+  },
+  {
+   "key": "2026-07-23_047D",
+   "date": "2026-07-23",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-07-23_047D.png",
+   "gibs_date": "2026-07-23"
+  },
+  {
+   "key": "2026-07-25_083A",
+   "date": "2026-07-25",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-07-25_083A.png",
+   "gibs_date": "2026-07-25"
+  },
+  {
+   "key": "2026-08-11_148D",
+   "date": "2026-08-11",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-08-11_148D.png",
+   "gibs_date": "2026-08-11"
+  },
+  {
+   "key": "2026-08-16_047D",
+   "date": "2026-08-16",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-08-16_047D.png",
+   "gibs_date": "2026-08-16"
+  },
+  {
+   "key": "2026-08-18_083A",
+   "date": "2026-08-18",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-08-18_083A.png",
+   "gibs_date": "2026-08-18"
+  },
+  {
+   "key": "2026-08-23_148D",
+   "date": "2026-08-23",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-08-23_148D.png",
+   "gibs_date": "2026-08-23"
+  },
+  {
+   "key": "2026-08-28_047D",
+   "date": "2026-08-28",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-08-28_047D.png",
+   "gibs_date": "2026-08-28"
+  },
+  {
+   "key": "2026-08-30_083A",
+   "date": "2026-08-30",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-08-30_083A.png",
+   "gibs_date": "2026-08-30"
+  },
+  {
+   "key": "2026-09-04_148D",
+   "date": "2026-09-04",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-09-04_148D.png",
+   "gibs_date": "2026-09-04"
+  },
+  {
+   "key": "2026-09-09_047D",
+   "date": "2026-09-09",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-09-09_047D.png",
+   "gibs_date": "2026-09-09"
+  },
+  {
+   "key": "2026-09-11_083A",
+   "date": "2026-09-11",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-09-11_083A.png",
+   "gibs_date": "2026-09-11"
+  },
+  {
+   "key": "2026-09-16_148D",
+   "date": "2026-09-16",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-09-16_148D.png",
+   "gibs_date": "2026-09-16"
+  },
+  {
+   "key": "2026-09-21_047D",
+   "date": "2026-09-21",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-09-21_047D.png",
+   "gibs_date": "2026-09-21"
+  },
+  {
+   "key": "2026-09-23_083A",
+   "date": "2026-09-23",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-09-23_083A.png",
+   "gibs_date": "2026-09-23"
+  },
+  {
+   "key": "2026-09-28_148D",
+   "date": "2026-09-28",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-09-28_148D.png",
+   "gibs_date": "2026-09-28"
+  },
+  {
+   "key": "2026-10-03_047D",
+   "date": "2026-10-03",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-10-03_047D.png",
+   "gibs_date": "2026-10-03"
+  },
+  {
+   "key": "2026-10-05_083A",
+   "date": "2026-10-05",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-10-05_083A.png",
+   "gibs_date": "2026-10-05"
+  },
+  {
+   "key": "2026-10-10_148D",
+   "date": "2026-10-10",
+   "track": "148D",
+   "maturity": "provisional",
+   "png": "water/2026-10-10_148D.png",
+   "gibs_date": "2026-10-10"
+  },
+  {
+   "key": "2026-10-15_047D",
+   "date": "2026-10-15",
+   "track": "047D",
+   "maturity": "provisional",
+   "png": "water/2026-10-15_047D.png",
+   "gibs_date": "2026-10-15"
+  },
+  {
+   "key": "2026-10-17_083A",
+   "date": "2026-10-17",
+   "track": "083A",
+   "maturity": "provisional",
+   "png": "water/2026-10-17_083A.png",
+   "gibs_date": "2026-10-17"
+  },
+  {
+   "key": "2026-10-22_148D",
+   "date": "2026-10-22",
+   "track": "148D",
+   "maturity": "validated",
+   "png": "water/2026-10-22_148D.png",
+   "gibs_date": "2026-10-22"
+  },
+  {
+   "key": "2026-10-27_047D",
+   "date": "2026-10-27",
+   "track": "047D",
+   "maturity": "validated",
+   "png": "water/2026-10-27_047D.png",
+   "gibs_date": "2026-10-27"
+  },
+  {
+   "key": "2026-10-29_083A",
+   "date": "2026-10-29",
+   "track": "083A",
+   "maturity": "validated",
+   "png": "water/2026-10-29_083A.png",
+   "gibs_date": "2026-10-29"
+  },
+  {
+   "key": "2026-11-03_148D",
+   "date": "2026-11-03",
+   "track": "148D",
+   "maturity": "validated",
+   "png": "water/2026-11-03_148D.png",
+   "gibs_date": "2026-11-03"
+  }
+ ],
+ "tracks": [
+  "047D",
+  "083A",
+  "148D"
+ ],
+ "rule": {
+  "th_hh_db": -14.0,
+  "th_hv_db": -22.0,
+  "mmu_ha": 3.0
+ },
+ "timing_png": {
+  "recession": "summary/recession.png",
+  "first_flood": "summary/first_flood.png",
+  "day_zero": "2026-06-01",
+  "legend": "blue=early, red=late, purple=still wet at last image"
+ },
+ "gibs_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/NISAR_L2_Geocoded_Polarimetric_Covariance/default/{date}/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
+ "attribution": "NISAR GCOV: NASA/JPL-Caltech & ISRO, distributed by ASF DAAC. Reference water: OPERA DSWx-S1/DSWx-HLS (JPL, PO.DAAC). Basemap/boundaries: (c) OpenStreetMap contributors (ODbL). Processing: SkyRadar team."
+}

@@ -1,0 +1,19 @@
+# large or generated data
+data/raw/
+data/processed/
+*.h5
+*.zarr/
+*.tif
+!data/web/**/*.tif
+
+# credentials — never commit
+.netrc
+.env
+*.token
+earthdata_token*
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
