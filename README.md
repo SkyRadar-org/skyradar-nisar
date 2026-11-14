@@ -24,6 +24,7 @@ src/skyradar_nisar/
   timing.py       per-date water maps, first-flood / recession rasters, commune tables
   export_web.py   small static package for the web app (data/web)
   release.py      controlled flood-release (xả lũ) timing signature per commune + figure
+  sowing.py       sowing-readiness check per commune on the latest images (ready / draining / still wet)
   figures.py      slide figures (docs/figures)
 data/boundaries/communes_aoi.geojson   140 communes in the demo AOI (OSM, ODbL)
 data/web/                              PNG overlays + manifest + commune GeoJSON + CSV stats (for the web app)
@@ -44,6 +45,7 @@ python -m skyradar_nisar.communes            # optional: refresh OSM commune bou
 python -m skyradar_nisar.calibrate           # thresholds + validation tables
 python -m skyradar_nisar.timing              # water maps, timing rasters, commune stats
 python -m skyradar_nisar.release             # flood-release signature per commune (needs timing)
+python -m skyradar_nisar.sowing 2026-11-01   # sowing-readiness per commune
 python -m skyradar_nisar.export_web          # data/web package
 python -m skyradar_nisar.figures             # docs/figures
 ```

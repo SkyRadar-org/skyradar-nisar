@@ -68,6 +68,8 @@ inundated vegetation): rice growth brightens HH as well, so this layer is not pa
   - **Late flood, not receded** — Sơn Kiên, Hòn Đất, Mỹ Thuận (An Giang): peak 70–90 % in October and still **58–78 %
     under water on 3 November**, after the sowing window opened.
 - Of 80 communes that were ever > 30 % flooded, 50 had not halved their water area by 29 October.
+- **Sowing check** on the latest images (27 Oct – 3 Nov): of 131 communes, **49 still wet (≥ 30 % water)**, 44 draining
+  (10–30 %), 38 ready (< 10 %); tracks agree on the status for 99 communes.
 
 ### Controlled flood release (xả lũ) is visible in the timing
 
