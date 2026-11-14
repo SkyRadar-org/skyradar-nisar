@@ -18,6 +18,7 @@ def test_scenes_bounds_maturity_and_assets():
         assert 104 < w < e < 107 and 10 < s < n < 12
         assert scene["maturity"] == ("validated" if scene["date"] >= "2026-10-22" else "provisional")
         assert c.get(scene["waterPng"]).content.startswith(b"\x89PNG")
+        assert c.get(scene["radarJpg"]).content.startswith(b"\xff\xd8")
 
 
 def test_commune_uses_sowing_track_without_merging_observations():

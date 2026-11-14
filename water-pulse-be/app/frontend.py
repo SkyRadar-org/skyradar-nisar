@@ -17,6 +17,7 @@ def scenes():
     (s, w), (n, e) = m["bounds"]
     return [dict(date=f["date"], track=f["track"], maturity=f["maturity"],
                  bounds=[w, s, e, n], waterPng=f"/static/{f['png']}",
+                 radarJpg=f"/static/{f['radar_jpg']}" if f.get("radar_jpg") else None,
                  gibsDate=f.get("gibs_date", f["date"])) for f in m["frames"]]
 
 
