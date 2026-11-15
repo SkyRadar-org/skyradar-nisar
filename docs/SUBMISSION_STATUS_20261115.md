@@ -1,5 +1,7 @@
 # Trạng thái nộp bài SkyRadar — 15/11/2026
 
+> **Đã có lần nộp v2 mới lúc 10:34 GMT+7:** xem [xác nhận hiện hành](SUBMISSION_STATUS_20261115_V2.md). Phần dưới ghi nhận lần nộp đầu lúc 01:13.
+
 ## VERIFIED
 
 - Trang đã hiển thị **Project Submitted for Judging**.

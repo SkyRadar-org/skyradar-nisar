@@ -34,6 +34,6 @@ The revised video contains synthetic English narration, visibly disclosed on scr
 
 ## Trạng thái bài thi / Submission status
 
-Đang cập nhật liên kết v2 trên trang SkyRadar; việc commit tệp không tự nộp lại bài thi. Trạng thái nộp được ghi tại [hồ sơ nộp bài](../../SUBMISSION_STATUS_20261115.md).
+**Đã nộp lại v2 thành công lúc 10:34 ngày 15/11/2026 GMT+7.** Giao diện hiển thị Project Submitted for Judging và Last Submitted mới. Xem [hồ sơ xác nhận v2](../../SUBMISSION_STATUS_20261115_V2.md).
 
-Publishing these files does not itself resubmit the NASA project. The submission record above tracks the form update separately.
+**V2 was resubmitted successfully at 10:34 on 15 November 2026 GMT+7.** The NASA form shows Project Submitted for Judging and the updated Last Submitted time. The linked record preserves the readback.

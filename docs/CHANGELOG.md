@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15 — Revised GitHub media resubmitted to NASA (Codex)
+
+- After explicit owner confirmation, accept the two submission declarations and submit the v2 form. Verify Project Submitted for Judging with Last Saved/Last Submitted 15 November 2026 10:34 GMT+7 and no unsaved changes.
+- Read back the new immutable GitHub demo URL, revised slide references and updated English-narration AI disclosure, including the project read-mode view. Preserve the readback in `docs/SUBMISSION_STATUS_20261115_V2.md` and update the manifest/handoff.
+- The five owner-supplied assets and the video/audio streams remain unchanged. Private browser evidence stays outside the repository.
+
 ## 2026-11-15 — Team-supplied slide and video v2 (Codex)
 
 - Preserve all five owner-supplied assets: English, Vietnamese and bilingual 7-page PDFs, plus two 29.8-second videos.

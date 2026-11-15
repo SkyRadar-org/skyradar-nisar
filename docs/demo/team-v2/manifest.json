@@ -53,8 +53,17 @@
     "scientific_revalidation_performed": false
   },
   "submission": {
-    "updated_in_form": false,
-    "resubmitted": false
+    "updated_in_form": true,
+    "resubmitted": true,
+    "verified_in_authenticated_ui": true,
+    "status": "Project Submitted for Judging",
+    "last_saved": "15 November 2026 10:34",
+    "last_submitted": "15 November 2026 10:34",
+    "timezone": "GMT+7",
+    "demo_url": "https://github.com/SkyRadar-org/skyradar-nisar/blob/afeb1507a836241357deb4967fa996188b1e95e3/docs/demo/team-v2/SkyRadar_pitch_30s_EN_sub_submission.mp4",
+    "media_commit": "afeb1507a836241357deb4967fa996188b1e95e3",
+    "project_read_mode_links_verified": true,
+    "anonymous_nasa_readback_verified": false
   },
   "demo_link_file_sha256": "96b12cdcb52a7140e22f6607d16505dbb69c111c133cc8d173f3d3f235882bd0"
 }
