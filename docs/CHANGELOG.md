@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15 — Team-supplied slide and video v2 (Codex)
+
+- Preserve all five owner-supplied assets: English, Vietnamese and bilingual 7-page PDFs, plus two 29.8-second videos.
+- Add a demo-link MP4 with synthetic-English-narration metadata; compressed video/audio hashes match the supplied English-caption video. Preserve originals unchanged and avoid attributing the new voice to the earlier VieNeu pipeline.
+- Publish the v2 package and manifest on the existing demo branch, mark the older package as superseded, and track the NASA link update/resubmission separately.
+
 ## 2026-11-15 — NASA submission verified (Codex)
 
 - Fill the SkyRadar project form with an application-first English summary/details, public 29.8-second bilingual video and app links, NASA resources and AI-use disclosures.

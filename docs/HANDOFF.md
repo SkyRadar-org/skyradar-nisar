@@ -10,6 +10,8 @@ Cập nhật: **14/11/2026 ~14:30 (giờ VN)**. Người viết: Claude (trợ l
 
 **VERIFIED — ĐÃ NỘP CHẤM (15/11/2026 01:13 GMT+7):** giao diện SkyRadar hiển thị `Project Submitted for Judging`, kèm `Last Submitted: 15 November 2026 01:13`. Chủ đội đã xác nhận điều khoản và quyền sử dụng tài liệu. Xem [bản đọc lại bài nộp](SUBMISSION_STATUS_20261115.md). Trạng thái này thay cho các ghi chú “chưa nộp” ở checkpoint demo trước đó; không nộp lại khi chưa có thay đổi được yêu cầu.
 
+**PENDING — cập nhật media v2 ngày 15/11/2026:** chủ đội gửi ZIP 5 tệp (3 PDF × 7 trang, 2 video × 29,8 giây). Đã giữ nguyên 5 tệp tại [bộ v2](demo/team-v2/README.md), thêm bản video phụ đề Anh chỉ có metadata AI, hash hình/âm thanh trùng nguồn. Đích liên kết là GitHub theo yêu cầu mới nhất. Còn thay link/mô tả trên NASA và nộp lại; không suy từ commit ra đã nộp.
+
 Ngôn ngữ làm việc của đội: tiếng Việt. Code, commit, tài liệu nộp bài: tiếng Anh.
 
 ---

@@ -1,0 +1,60 @@
+{
+  "source_archive_name": "SkyRadar-Team-20261115T025715Z-1-001.zip",
+  "source_archive_sha256": "cbdbf2091a55a6e7341c060e2d591fb5f748dc5444b18ecbc3222cc926a66ddc",
+  "supplied_files": {
+    "SkyRadar_pitch_EN-VI_v2.pdf": {
+      "bytes": 1076622,
+      "sha256": "150c90b680e91f6956078720fcfe89ddfe068a0b1e56ff5778597e19c05749d0"
+    },
+    "SkyRadar_pitch_30s_VI_sub.mp4": {
+      "bytes": 12761210,
+      "sha256": "884ff2c5cdb3abae07e575e1ab21848f2a815b488a0ad7ff97031713d336fd76"
+    },
+    "SkyRadar_pitch_30s_EN_sub.mp4": {
+      "bytes": 12712075,
+      "sha256": "0917d946acaffca4b880bb0e7e3613a00333c70093ac6432d33a662afdacf6eb"
+    },
+    "SkyRadar_pitch_VI_v2.pdf": {
+      "bytes": 1076907,
+      "sha256": "e6b5cabf4a48e74e301e0da06a2114ad57bc25b3c6def99452e3fd3fc2f2e4d3"
+    },
+    "SkyRadar_pitch_EN_v2.pdf": {
+      "bytes": 1061182,
+      "sha256": "4bd05db85d15d253530a3d2e4beafdfcd31823339e398515441776ed68f3aa4f"
+    }
+  },
+  "demo_link_file": "SkyRadar_pitch_30s_EN_sub_submission.mp4",
+  "stream_hashes_preserved": true,
+  "stream_hashes": [
+    "0,v,SHA256=e0bbde1f8c2fb6c398ce95e480af9a0c80f5a269459685739aedea4db1612b2b",
+    "1,a,SHA256=023cf243304b93553980912a79321d80139cca9feb18a8a778b494ce71088d3a"
+  ],
+  "voice": {
+    "language": "English",
+    "synthetic": true,
+    "visible_disclosure": "Voice-over: AI text-to-speech",
+    "engine": "not identified by supplied file"
+  },
+  "checks": {
+    "pdf_pages": [
+      7,
+      7,
+      7
+    ],
+    "pdf_pages_rendered_and_inspected": 21,
+    "video_frames": 894,
+    "video_duration_seconds": 29.8,
+    "video_resolution": [
+      1920,
+      1080
+    ],
+    "fps": 30,
+    "audio_sample_rate_hz": 48000,
+    "scientific_revalidation_performed": false
+  },
+  "submission": {
+    "updated_in_form": false,
+    "resubmitted": false
+  },
+  "demo_link_file_sha256": "96b12cdcb52a7140e22f6607d16505dbb69c111c133cc8d173f3d3f235882bd0"
+}
